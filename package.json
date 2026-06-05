@@ -1,0 +1,9 @@
+{
+  "name": "xd-team-summer-gathering-quiz",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mobile-first live quiz for the XD Team Summer Gathering.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
