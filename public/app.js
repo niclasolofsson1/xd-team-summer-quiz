@@ -49,6 +49,8 @@ const welcomeStagePreloadAssets = [
 
 const participantQuizBackground = "/assets/count-down-screen/count-down-bg.webp";
 const displayQuizBackground = "/assets/display-screen/display-bg.webp";
+const displayQrCode = "/assets/qr/qr-code.svg";
+const deployedJoinUrl = "https://xd-team-summer-quiz.onrender.com/";
 
 const setupStagePreloadAssets = [
   participantQuizBackground
@@ -771,7 +773,7 @@ function displayScreen(className, content) {
 }
 
 function renderDisplayLobby() {
-  const joinUrl = hostLink();
+  const joinUrl = deployedJoinUrl;
   displayScreen("display-lobby-screen", `
     <section class="display-stage display-lobby-stage" aria-labelledby="display-lobby-title">
       <div class="display-lobby-copy">
@@ -782,7 +784,7 @@ function renderDisplayLobby() {
       <div class="display-lobby-layout">
         <div class="display-lobby-qr-column">
           <div class="pixel-frame display-qr-card" aria-label="QR code for participant page">
-            ${qrSvg(joinUrl)}
+            <img class="display-qr" src="${displayQrCode}" alt="QR code for ${escapeHtml(joinUrl)}">
             <span>${escapeHtml(joinUrl)}</span>
           </div>
         </div>
@@ -976,218 +978,6 @@ function renderDisplayFinalReveal() {
       </section>
     </section>
   `);
-}
-
-function qrSvg(text) {
-  let modules;
-  try {
-    modules = createQrModules(text);
-  } catch {
-    return `<div class="display-qr-fallback">QR unavailable</div>`;
-  }
-
-  const quiet = 4;
-  const size = modules.length;
-  const viewSize = size + quiet * 2;
-  const darkPath = modules.map((row, y) =>
-    row.map((dark, x) => dark ? `M${x + quiet},${y + quiet}h1v1h-1z` : "").join("")
-  ).join("");
-
-  return `
-    <svg class="display-qr" viewBox="0 0 ${viewSize} ${viewSize}" role="img" aria-label="QR code for ${escapeHtml(text)}" shape-rendering="crispEdges">
-      <rect width="${viewSize}" height="${viewSize}" fill="#ffffff"></rect>
-      <path d="${darkPath}" fill="#1e3445"></path>
-    </svg>
-  `;
-}
-
-function createQrModules(text) {
-  const version = 5;
-  const size = 21 + (version - 1) * 4;
-  const dataCodewords = 108;
-  const eccCodewords = 26;
-  const bytes = Array.from(new TextEncoder().encode(text));
-  if (bytes.length > 106) throw new Error("QR payload is too long.");
-
-  const modules = Array.from({ length: size }, () => Array(size).fill(false));
-  const isFunction = Array.from({ length: size }, () => Array(size).fill(false));
-  const setFunction = (row, col, dark) => {
-    if (row < 0 || row >= size || col < 0 || col >= size) return;
-    modules[row][col] = dark;
-    isFunction[row][col] = true;
-  };
-
-  drawQrFunctionPatterns(modules, isFunction, setFunction);
-
-  const data = qrDataCodewords(bytes, dataCodewords);
-  const ecc = reedSolomonComputeRemainder(data, reedSolomonComputeDivisor(eccCodewords));
-  drawQrCodewords(modules, isFunction, data.concat(ecc));
-  applyQrMask(modules, isFunction);
-  drawQrFormatBits(setFunction, size);
-
-  return modules;
-}
-
-function drawQrFunctionPatterns(modules, isFunction, setFunction) {
-  const size = modules.length;
-  drawQrFinder(setFunction, 0, 0);
-  drawQrFinder(setFunction, 0, size - 7);
-  drawQrFinder(setFunction, size - 7, 0);
-  drawQrAlignment(setFunction, 30, 30);
-
-  for (let i = 8; i < size - 8; i += 1) {
-    const dark = i % 2 === 0;
-    if (!isFunction[6][i]) setFunction(6, i, dark);
-    if (!isFunction[i][6]) setFunction(i, 6, dark);
-  }
-
-  drawQrFormatBits(setFunction, size);
-  setFunction(size - 8, 8, true);
-}
-
-function drawQrFinder(setFunction, row, col) {
-  for (let r = -1; r <= 7; r += 1) {
-    for (let c = -1; c <= 7; c += 1) {
-      const rr = row + r;
-      const cc = col + c;
-      const inFinder = r >= 0 && r <= 6 && c >= 0 && c <= 6;
-      const dark = inFinder && (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4));
-      setFunction(rr, cc, dark);
-    }
-  }
-}
-
-function drawQrAlignment(setFunction, row, col) {
-  for (let r = -2; r <= 2; r += 1) {
-    for (let c = -2; c <= 2; c += 1) {
-      const distance = Math.max(Math.abs(r), Math.abs(c));
-      setFunction(row + r, col + c, distance !== 1);
-    }
-  }
-}
-
-function drawQrFormatBits(setFunction, size) {
-  const data = 8;
-  let rem = data << 10;
-  for (let i = qrBitLength(rem) - 1; i >= 10; i -= 1) {
-    rem ^= 0x537 << (i - 10);
-  }
-  const bits = ((data << 10) | rem) ^ 0x5412;
-  const bit = (i) => ((bits >>> i) & 1) !== 0;
-
-  for (let i = 0; i <= 5; i += 1) setFunction(8, i, bit(i));
-  setFunction(8, 7, bit(6));
-  setFunction(8, 8, bit(7));
-  setFunction(7, 8, bit(8));
-  for (let i = 9; i < 15; i += 1) setFunction(14 - i, 8, bit(i));
-  for (let i = 0; i < 8; i += 1) setFunction(size - 1 - i, 8, bit(i));
-  for (let i = 8; i < 15; i += 1) setFunction(8, size - 15 + i, bit(i));
-  setFunction(size - 8, 8, true);
-}
-
-function qrBitLength(value) {
-  let length = 0;
-  while (value) {
-    length += 1;
-    value >>>= 1;
-  }
-  return length;
-}
-
-function qrDataCodewords(bytes, capacity) {
-  const bits = [];
-  const appendBits = (value, length) => {
-    for (let i = length - 1; i >= 0; i -= 1) bits.push((value >>> i) & 1);
-  };
-
-  appendBits(0x4, 4);
-  appendBits(bytes.length, 8);
-  bytes.forEach((byte) => appendBits(byte, 8));
-
-  const bitCapacity = capacity * 8;
-  const terminator = Math.min(4, bitCapacity - bits.length);
-  for (let i = 0; i < terminator; i += 1) bits.push(0);
-  while (bits.length % 8) bits.push(0);
-
-  const data = [];
-  for (let i = 0; i < bits.length; i += 8) {
-    data.push(bits.slice(i, i + 8).reduce((value, bit) => (value << 1) | bit, 0));
-  }
-
-  for (let pad = 0xec; data.length < capacity; pad ^= 0xec ^ 0x11) {
-    data.push(pad);
-  }
-
-  return data;
-}
-
-function reedSolomonComputeDivisor(degree) {
-  const result = Array(degree).fill(0);
-  result[degree - 1] = 1;
-  let root = 1;
-  for (let i = 0; i < degree; i += 1) {
-    for (let j = 0; j < degree; j += 1) {
-      result[j] = reedSolomonMultiply(result[j], root);
-      if (j + 1 < degree) result[j] ^= result[j + 1];
-    }
-    root = reedSolomonMultiply(root, 0x02);
-  }
-  return result;
-}
-
-function reedSolomonComputeRemainder(data, divisor) {
-  const result = Array(divisor.length).fill(0);
-  data.forEach((byte) => {
-    const factor = byte ^ result.shift();
-    result.push(0);
-    divisor.forEach((coefficient, index) => {
-      result[index] ^= reedSolomonMultiply(coefficient, factor);
-    });
-  });
-  return result;
-}
-
-function reedSolomonMultiply(left, right) {
-  let result = 0;
-  for (let i = 0; i < 8; i += 1) {
-    if ((right & 1) !== 0) result ^= left;
-    const carry = (left & 0x80) !== 0;
-    left = (left << 1) & 0xff;
-    if (carry) left ^= 0x1d;
-    right >>>= 1;
-  }
-  return result;
-}
-
-function drawQrCodewords(modules, isFunction, codewords) {
-  const size = modules.length;
-  let bitIndex = 0;
-  let upward = true;
-
-  for (let right = size - 1; right >= 1; right -= 2) {
-    if (right === 6) right -= 1;
-    for (let vert = 0; vert < size; vert += 1) {
-      const row = upward ? size - 1 - vert : vert;
-      for (let j = 0; j < 2; j += 1) {
-        const col = right - j;
-        if (isFunction[row][col]) continue;
-        const bit = bitIndex < codewords.length * 8 && ((codewords[bitIndex >>> 3] >>> (7 - (bitIndex & 7))) & 1) !== 0;
-        modules[row][col] = bit;
-        bitIndex += 1;
-      }
-    }
-    upward = !upward;
-  }
-}
-
-function applyQrMask(modules, isFunction) {
-  for (let row = 0; row < modules.length; row += 1) {
-    for (let col = 0; col < modules.length; col += 1) {
-      if (!isFunction[row][col] && (row + col) % 2 === 0) {
-        modules[row][col] = !modules[row][col];
-      }
-    }
-  }
 }
 
 function updateScreenBodyClass(screen) {

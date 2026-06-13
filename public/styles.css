@@ -1618,8 +1618,7 @@ a {
   background: #ffffff;
 }
 
-.display-qr-card span,
-.display-qr-fallback {
+.display-qr-card span {
   width: 100%;
   margin-top: 12px;
   color: #1e3445;
