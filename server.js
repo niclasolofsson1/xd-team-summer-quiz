@@ -6,37 +6,32 @@ const crypto = require("node:crypto");
 
 const PORT = Number(process.env.PORT || 4173);
 const PUBLIC_DIR = path.join(__dirname, "public");
+const QUESTIONS_DIR = path.join(__dirname, "questions");
 
 const COUNTDOWN_MS = 3000;
 const ANSWER_MS = 10000;
 const HEARTBEAT_MS = 15000;
 const HOST_PIN = String(process.env.HOST_PIN || "");
-const HOST_ACTIONS = new Set(["start", "reveal", "leaderboard", "next", "reset"]);
+const HOST_ACTIONS = new Set(["start", "reveal", "leaderboard", "next", "reset", "final-reveal", "set-question-set"]);
+const AVATAR_IDS = new Set([
+  "us-eagle",
+  "us-hotdog",
+  "us-statue",
+  "ca-beaver",
+  "ca-leaf",
+  "ca-moose",
+  "mx-cactus",
+  "mx-chili",
+  "mx-taco"
+]);
 
-const questions = [
-  {
-    label: "World Cup 2026",
-    text: "How many countries are hosting the 2026 FIFA World Cup?",
-    options: ["1", "2", "3", "4"],
-    correctIndex: 2
-  },
-  {
-    label: "Canada",
-    text: "Which Canadian city is one of the 2026 World Cup host cities?",
-    options: ["Ottawa", "Toronto", "Calgary", "Quebec City"],
-    correctIndex: 1
-  },
-  {
-    label: "Mexico",
-    text: "Which Mexican city will host the 2026 World Cup opening match?",
-    options: ["Guadalajara", "Monterrey", "Mexico City", "Cancun"],
-    correctIndex: 2
-  }
-];
+const questionSets = loadQuestionSets();
 
 const initialState = () => ({
   phase: "lobby",
+  questionSetId: "test",
   currentQuestionIndex: 0,
+  finalRevealStage: 0,
   phaseStartedAt: null,
   phaseEndsAt: null,
   participants: {},
@@ -47,36 +42,138 @@ let state = initialState();
 let timers = [];
 const clients = new Set();
 
+function loadQuestionSets() {
+  return {
+    test: {
+      id: "test",
+      name: "Test questions",
+      questions: parseQuestionMarkdown(path.join(QUESTIONS_DIR, "test.md"))
+    },
+    real: {
+      id: "real",
+      name: "Real questions",
+      questions: parseQuestionMarkdown(path.join(QUESTIONS_DIR, "real.md"))
+    }
+  };
+}
+
+function parseQuestionMarkdown(filePath) {
+  const text = fs.readFileSync(filePath, "utf8");
+  const blocks = text.split(/^## Question\s+\d+\s*$/gm).slice(1);
+  if (!blocks.length) throw new Error(`No questions found in ${filePath}`);
+
+  return blocks.map((block, index) => {
+    const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const values = {};
+
+    for (const line of lines) {
+      const match = line.match(/^(Category|Question|Correct|A|B|C|D)[:.]?\s*(.*)$/i);
+      if (match) values[match[1].toUpperCase()] = match[2].trim();
+    }
+
+    const missing = ["CATEGORY", "QUESTION", "A", "B", "C", "D", "CORRECT"].filter((key) => !values[key]);
+    if (missing.length) {
+      throw new Error(`Question ${index + 1} in ${filePath} is missing: ${missing.join(", ")}`);
+    }
+
+    const correctLetter = values.CORRECT.toUpperCase();
+    const correctIndex = ["A", "B", "C", "D"].indexOf(correctLetter);
+    if (correctIndex === -1) {
+      throw new Error(`Question ${index + 1} in ${filePath} has invalid correct answer: ${values.CORRECT}`);
+    }
+
+    return {
+      label: values.CATEGORY,
+      text: values.QUESTION,
+      options: [values.A, values.B, values.C, values.D],
+      correctIndex
+    };
+  });
+}
+
+function activeQuestionSet() {
+  return questionSets[state.questionSetId] || questionSets.test;
+}
+
+function activeQuestions() {
+  return activeQuestionSet().questions;
+}
+
+function questionSetSummary() {
+  return Object.values(questionSets).map((set) => ({
+    id: set.id,
+    name: set.name,
+    count: set.questions.length
+  }));
+}
+
 function clearTimers() {
   timers.forEach(clearTimeout);
   timers = [];
 }
 
 function publicState() {
-  const participants = Object.values(state.participants).map((p) => ({
-    id: p.id,
-    name: p.name,
-    score: p.score,
-    answered: Boolean(p.answers[state.currentQuestionIndex])
-  }));
+  const questions = activeQuestions();
+  const questionSet = activeQuestionSet();
+  const ranked = leaderboard();
+  const participants = Object.values(state.participants).map((p) => {
+    const rank = ranked.find((entry) => entry.id === p.id)?.rank;
+    const visible = finalRankVisible(rank);
+    if (!visible) {
+      return {
+        id: p.id,
+        name: "Locked player",
+        avatarId: null,
+        score: null,
+        answered: false,
+        currentAnswer: null
+      };
+    }
+
+    return {
+      id: p.id,
+      name: p.name,
+      avatarId: p.avatarId,
+      score: p.score,
+      answered: Boolean(p.answers[state.currentQuestionIndex]),
+      currentAnswer: publicAnswerResult(p)
+    };
+  });
 
   return {
     phase: state.phase,
     countdownMs: COUNTDOWN_MS,
     answerMs: ANSWER_MS,
     currentQuestionIndex: state.currentQuestionIndex,
+    finalRevealStage: state.finalRevealStage,
+    questionSetId: questionSet.id,
+    questionSetName: questionSet.name,
+    questionSets: questionSetSummary(),
     totalQuestions: questions.length,
+    serverNow: Date.now(),
     phaseStartedAt: state.phaseStartedAt,
     phaseEndsAt: state.phaseEndsAt,
     participants,
-    leaderboard: leaderboard(),
+    leaderboard: publicLeaderboard(ranked),
     question: safeQuestion(),
     lastQuestionSummary: state.lastQuestionSummary
   };
 }
 
+function publicAnswerResult(participant) {
+  if (state.phase !== "reveal" && state.phase !== "leaderboard" && state.phase !== "finished") return null;
+  const answer = participant.answers[state.currentQuestionIndex];
+  if (!answer) return { optionIndex: null, correct: false, points: 0 };
+  return {
+    optionIndex: answer.optionIndex,
+    correct: answer.correct,
+    points: answer.points
+  };
+}
+
 function safeQuestion() {
   if (state.phase === "lobby" || state.phase === "countdown" || state.phase === "finished") return null;
+  const questions = activeQuestions();
   const q = questions[state.currentQuestionIndex];
   const base = {
     label: q.label,
@@ -94,7 +191,22 @@ function safeQuestion() {
 function leaderboard() {
   return Object.values(state.participants)
     .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
-    .map((p, index) => ({ rank: index + 1, id: p.id, name: p.name, score: p.score }));
+    .map((p, index) => ({ rank: index + 1, id: p.id, name: p.name, avatarId: p.avatarId, score: p.score }));
+}
+
+function finalRankVisible(rank) {
+  if (state.phase !== "finished") return true;
+  if (!Number.isFinite(rank)) return false;
+  const stage = Number(state.finalRevealStage || 0);
+  if (stage <= 0) return false;
+  if (rank >= 4) return true;
+  if (rank === 3) return stage >= 2;
+  return stage >= 3;
+}
+
+function publicLeaderboard(ranked = leaderboard()) {
+  if (state.phase !== "finished") return ranked;
+  return ranked.filter((entry) => finalRankVisible(entry.rank));
 }
 
 function broadcast() {
@@ -123,6 +235,7 @@ function setPhase(phase, durationMs = null) {
 
 function startQuiz() {
   if (state.phase !== "lobby" || Object.keys(state.participants).length === 0) return;
+  if (!activeQuestions().length) return;
   state.currentQuestionIndex = 0;
   state.lastQuestionSummary = null;
   startCountdown();
@@ -148,13 +261,18 @@ function resetQuestionAnswers() {
 
 function revealAnswer() {
   if (state.phase !== "awaitingReveal") return;
+  const questions = activeQuestions();
   const q = questions[state.currentQuestionIndex];
   const participants = Object.values(state.participants);
+  const optionCounts = q.options.map((_, optionIndex) =>
+    participants.filter((p) => p.answers[state.currentQuestionIndex]?.optionIndex === optionIndex).length
+  );
   const correct = participants.filter((p) => p.answers[state.currentQuestionIndex]?.correct).length;
   const missed = participants.filter((p) => !p.answers[state.currentQuestionIndex]).length;
   state.lastQuestionSummary = {
     correctAnswer: q.options[q.correctIndex],
     correctIndex: q.correctIndex,
+    optionCounts,
     correct,
     missed,
     total: participants.length
@@ -164,8 +282,9 @@ function revealAnswer() {
 
 function showLeaderboard() {
   if (state.phase !== "reveal") return;
+  const questions = activeQuestions();
   if (state.currentQuestionIndex >= questions.length - 1) {
-    setPhase("finished");
+    finishQuiz();
     return;
   }
   setPhase("leaderboard");
@@ -173,12 +292,45 @@ function showLeaderboard() {
 
 function nextQuestion() {
   if (state.phase !== "leaderboard") return;
+  const questions = activeQuestions();
   if (state.currentQuestionIndex >= questions.length - 1) {
-    setPhase("finished");
+    finishQuiz();
     return;
   }
   state.currentQuestionIndex += 1;
   startCountdown();
+}
+
+function finishQuiz() {
+  state.finalRevealStage = 0;
+  setPhase("finished");
+}
+
+function advanceFinalReveal() {
+  if (state.phase !== "finished") return;
+  state.finalRevealStage = Math.min(3, Number(state.finalRevealStage || 0) + 1);
+  broadcast();
+}
+
+function setQuestionSet(questionSetId) {
+  const clean = String(questionSetId || "").trim();
+  if (!questionSets[clean]) return { ok: false, message: "Unknown question set." };
+  if (state.phase !== "lobby") return { ok: false, message: "Question set can only be changed in the lobby." };
+
+  state.questionSetId = clean;
+  state.currentQuestionIndex = 0;
+  state.lastQuestionSummary = null;
+  state.finalRevealStage = 0;
+  broadcast();
+  return { ok: true, questionSetId: clean };
+}
+
+function finalPreviewState() {
+  return {
+    ok: true,
+    finalRevealStage: state.finalRevealStage,
+    leaderboard: leaderboard()
+  };
 }
 
 function answerQuestion(id, optionIndex) {
@@ -187,6 +339,7 @@ function answerQuestion(id, optionIndex) {
   if (!participant) return { ok: false, message: "Participant not found." };
   if (participant.answers[state.currentQuestionIndex]) return { ok: true };
 
+  const questions = activeQuestions();
   const q = questions[state.currentQuestionIndex];
   const answeredAt = Date.now();
   const elapsed = Math.max(0, answeredAt - state.phaseStartedAt);
@@ -205,14 +358,19 @@ function answerQuestion(id, optionIndex) {
   return { ok: true };
 }
 
-function join(name) {
+function normalizeAvatarId(avatarId) {
+  const clean = String(avatarId || "").trim();
+  return AVATAR_IDS.has(clean) ? clean : "us-eagle";
+}
+
+function join(name, avatarId) {
   const clean = String(name || "").trim().slice(0, 28);
   if (!clean) return { ok: false, message: "Enter a name." };
   if (state.phase !== "lobby") return { ok: false, message: "The quiz has already started." };
   const existing = Object.values(state.participants).find((p) => p.name.toLowerCase() === clean.toLowerCase());
   if (existing) return { ok: false, message: "That name is already taken." };
   const id = crypto.randomUUID();
-  state.participants[id] = { id, name: clean, score: 0, answers: {} };
+  state.participants[id] = { id, name: clean, avatarId: normalizeAvatarId(avatarId), score: 0, answers: {} };
   broadcast();
   return { ok: true, id };
 }
@@ -275,6 +433,8 @@ function serveStatic(req, res) {
       ".html": "text/html",
       ".css": "text/css",
       ".js": "text/javascript",
+      ".png": "image/png",
+      ".webp": "image/webp",
       ".svg": "image/svg+xml"
     }[ext] || "application/octet-stream";
 
@@ -316,11 +476,16 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       const action = url.pathname.slice("/api/".length);
 
-      if (action === "join") return sendJson(res, join(body.name));
+      if (action === "join") return sendJson(res, join(body.name, body.avatarId));
       if (action === "answer") return sendJson(res, answerQuestion(body.id, Number(body.optionIndex)));
       if (action === "host-unlock") {
         const auth = authorizeHostAction(body);
         return sendJson(res, auth, auth.ok ? 200 : 403);
+      }
+      if (action === "final-preview") {
+        const auth = authorizeHostAction(body);
+        if (!auth.ok) return sendJson(res, auth, 403);
+        return sendJson(res, finalPreviewState());
       }
       if (HOST_ACTIONS.has(action)) {
         const auth = authorizeHostAction(body);
@@ -330,6 +495,8 @@ const server = http.createServer(async (req, res) => {
       if (action === "reveal") { revealAnswer(); return sendJson(res, { ok: true }); }
       if (action === "leaderboard") { showLeaderboard(); return sendJson(res, { ok: true }); }
       if (action === "next") { nextQuestion(); return sendJson(res, { ok: true }); }
+      if (action === "final-reveal") { advanceFinalReveal(); return sendJson(res, { ok: true, finalRevealStage: state.finalRevealStage }); }
+      if (action === "set-question-set") return sendJson(res, setQuestionSet(body.questionSetId));
       if (action === "reset") { resetQuiz(); return sendJson(res, { ok: true }); }
       return sendJson(res, { ok: false, message: "Unknown action." }, 404);
     } catch (error) {
