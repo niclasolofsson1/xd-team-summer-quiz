@@ -539,7 +539,37 @@ function questionSetCard() {
         }).join("")}
       </div>
       <p class="muted">Choose before starting the quiz. Participants do not see answers or future questions.</p>
+      ${answerTimeControl()}
     </section>
+  `;
+}
+
+function answerTimeControl() {
+  const options = [5, 10, 15, 20, 30];
+  const selectedSeconds = Math.round((state.answerMs || 15000) / 1000);
+  return `
+    <div class="host-answer-time-control">
+      <div class="host-card-heading">
+        <div>
+          <p class="host-section-kicker">Timing</p>
+          <h3>Answer time</h3>
+        </div>
+        <span class="host-card-count">${selectedSeconds}s</span>
+      </div>
+      <div class="host-answer-time-options" role="group" aria-label="Choose answer time">
+        ${options.map((seconds) => `
+          <button
+            class="host-answer-time-option ${seconds === selectedSeconds ? "selected" : ""}"
+            type="button"
+            data-answer-seconds="${seconds}"
+            aria-pressed="${seconds === selectedSeconds}"
+          >
+            ${seconds}s
+          </button>
+        `).join("")}
+      </div>
+      <p class="muted">Can only be changed before the quiz starts.</p>
+    </div>
   `;
 }
 
@@ -721,6 +751,14 @@ function bindHostActions() {
     button.addEventListener("click", () => {
       if (button.dataset.questionSetId === state.questionSetId) return;
       postHostAction("set-question-set", { questionSetId: button.dataset.questionSetId });
+    });
+  });
+
+  document.querySelectorAll("[data-answer-seconds]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const answerSeconds = Number(button.dataset.answerSeconds);
+      if (answerSeconds === Math.round((state.answerMs || 0) / 1000)) return;
+      postHostAction("set-answer-time", { answerSeconds });
     });
   });
 }

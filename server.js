@@ -9,10 +9,12 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 const QUESTIONS_DIR = path.join(__dirname, "questions");
 
 const COUNTDOWN_MS = 3000;
-const ANSWER_MS = 10000;
+const DEFAULT_ANSWER_MS = 15000;
+const MIN_ANSWER_MS = 5000;
+const MAX_ANSWER_MS = 30000;
 const HEARTBEAT_MS = 15000;
 const HOST_PIN = String(process.env.HOST_PIN || "");
-const HOST_ACTIONS = new Set(["start", "reveal", "leaderboard", "next", "reset", "final-reveal", "set-question-set"]);
+const HOST_ACTIONS = new Set(["start", "reveal", "leaderboard", "next", "reset", "final-reveal", "set-question-set", "set-answer-time"]);
 const AVATAR_IDS = new Set([
   "us-eagle",
   "us-hotdog",
@@ -30,6 +32,7 @@ const questionSets = loadQuestionSets();
 const initialState = () => ({
   phase: "lobby",
   questionSetId: "test",
+  answerMs: DEFAULT_ANSWER_MS,
   currentQuestionIndex: 0,
   finalRevealStage: 0,
   phaseStartedAt: null,
@@ -143,7 +146,7 @@ function publicState() {
   return {
     phase: state.phase,
     countdownMs: COUNTDOWN_MS,
-    answerMs: ANSWER_MS,
+    answerMs: state.answerMs,
     currentQuestionIndex: state.currentQuestionIndex,
     finalRevealStage: state.finalRevealStage,
     questionSetId: questionSet.id,
@@ -249,8 +252,8 @@ function startCountdown() {
 }
 
 function startAnswering() {
-  setPhase("answering", ANSWER_MS);
-  timers.push(setTimeout(() => setPhase("awaitingReveal"), ANSWER_MS));
+  setPhase("answering", state.answerMs);
+  timers.push(setTimeout(() => setPhase("awaitingReveal"), state.answerMs));
 }
 
 function resetQuestionAnswers() {
@@ -325,6 +328,22 @@ function setQuestionSet(questionSetId) {
   return { ok: true, questionSetId: clean };
 }
 
+function setAnswerTime(answerSeconds) {
+  if (state.phase !== "lobby") return { ok: false, message: "Answer time can only be changed in the lobby." };
+
+  const seconds = Number(answerSeconds);
+  if (!Number.isFinite(seconds)) return { ok: false, message: "Choose an answer time." };
+
+  const cleanMs = Math.round(seconds) * 1000;
+  if (cleanMs < MIN_ANSWER_MS || cleanMs > MAX_ANSWER_MS) {
+    return { ok: false, message: "Answer time must be between 5 and 30 seconds." };
+  }
+
+  state.answerMs = cleanMs;
+  broadcast();
+  return { ok: true, answerMs: state.answerMs };
+}
+
 function finalPreviewState() {
   return {
     ok: true,
@@ -344,7 +363,7 @@ function answerQuestion(id, optionIndex) {
   const answeredAt = Date.now();
   const elapsed = Math.max(0, answeredAt - state.phaseStartedAt);
   const correct = optionIndex === q.correctIndex;
-  const ratio = Math.max(0, Math.min(1, elapsed / ANSWER_MS));
+  const ratio = Math.max(0, Math.min(1, elapsed / state.answerMs));
   const points = correct ? Math.round(250 + 750 * (1 - ratio)) : 0;
 
   participant.answers[state.currentQuestionIndex] = {
@@ -497,6 +516,7 @@ const server = http.createServer(async (req, res) => {
       if (action === "next") { nextQuestion(); return sendJson(res, { ok: true }); }
       if (action === "final-reveal") { advanceFinalReveal(); return sendJson(res, { ok: true, finalRevealStage: state.finalRevealStage }); }
       if (action === "set-question-set") return sendJson(res, setQuestionSet(body.questionSetId));
+      if (action === "set-answer-time") return sendJson(res, setAnswerTime(body.answerSeconds));
       if (action === "reset") { resetQuiz(); return sendJson(res, { ok: true }); }
       return sendJson(res, { ok: false, message: "Unknown action." }, 404);
     } catch (error) {
