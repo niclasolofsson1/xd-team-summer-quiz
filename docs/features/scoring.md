@@ -14,9 +14,9 @@
 
 ## Ranking
 
-- Sorted by total score, highest first. **Equal scores are ordered by name (A–Z) and still get different ranks** (`leaderboard()`). How ties should work is an open question for L2 (Discrepancies 11).
+- Sorted by total score, highest first. **Equal scores are separated by the faster total answer time on correct answers.** If that's also equal (in practice only players on 0), they **share a rank** (1, 1, 3) and the entry gets `tied: true` (`leaderboard()`, since v1.1.0).
 - Ranks are shown as ordinals: 1st, 2nd, 3rd, 4th, 11th, 21st… (`ordinalRank` in `public/app.js`).
 
 ## Where it lives
 
-- `answerQuestion` (points), `leaderboard` (ranking) in `server.js`
+- `answerQuestion` (points, recorded), `revealAnswer` (points added to the score), `leaderboard` (ranking) in `server.js`

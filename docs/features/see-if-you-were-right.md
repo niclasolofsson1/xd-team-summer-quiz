@@ -12,12 +12,12 @@ When the host reveals the answer, every phone shows the question again with all 
 
 ## How it works
 
-- In the `reveal` phase the server adds `correctIndex` to the question, `lastQuestionSummary.optionCounts` to the state, and each player's own `currentAnswer` (`optionIndex`, `correct`, `points`).
+- In the `reveal` phase the server adds `correctIndex` to the question, `lastQuestionSummary.optionCounts` to the state, and each player's own `currentAnswer` (`optionIndex`, `correct`, `points`, `noAnswer`). Scores are added at this moment, not when the answer comes in.
 - The marked answer comes from the server (`currentAnswer.optionIndex`); if that's missing, from `sessionStorage`.
 
 ## Rules & edge cases
 
-- **Known issue:** a player who didn't answer also sees "Incorrect · 0 points" instead of something like "No answer" (Discrepancies 5).
+- A player who didn't answer gets `noAnswer: true` and sees **"No answer"** instead of "Incorrect" (since v1.1.0).
 - The correct answer is never sent to phones before the reveal (`safeQuestion`).
 
 ## Entry points

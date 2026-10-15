@@ -27,7 +27,7 @@ A view with no controls, meant for a projector or TV. It follows the quiz automa
 
 ## Rules & edge cases
 
-- **The QR code is a fixed image** (`public/assets/qr/qr-code.svg`) and the shown URL is hardcoded (`deployedJoinUrl` = `https://xd-team-summer-quiz.onrender.com/`). Running anywhere else needs a new QR image and a code change (Discrepancies 6).
+- **The QR code is a fixed image** (`public/assets/qr/qr-code.svg`) and the shown URL is hardcoded (`deployedJoinUrl` = `https://xd-team-summer-quiz.onrender.com/`). The server already provides the right address (`GET /api/join-info`, since v1.1.0); the new big screen (v1.4.0) will use it and draw its own QR code (Discrepancies 6).
 - The display doesn't show the category or a numeric timer during answering, only the bar.
 - No connection indicator on the big screen.
 

@@ -28,6 +28,7 @@ The preview is only on the host's screen, so the host can build up the moment ("
 
 - During the `finished` phase, the host's own participants list also shows "Locked player" for hidden ranks, since it uses the same public state as everyone else.
 - With fewer than 3 players, the preview shows "No player".
+- **Shared ranks** (since v1.1.0): stages follow the rank, so two players sharing 1st both appear at stage 3, and a shared 3rd appears at stage 2. With ranks 1, 1, 3 there is no 2nd place.
 
 ## Entry points
 

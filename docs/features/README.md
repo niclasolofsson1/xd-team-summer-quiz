@@ -39,19 +39,19 @@ Found in the code review of 2026-10-15. Each is in scope for v2 (`ux-forge/01_fr
 2. **A silent connection drop is never recovered.** After 45 s without data the client only relabels itself "Offline"; it never reopens the connection. Players don't see a connection indicator at all ([Live updates](live-updates-and-connection.md)). Likely cause of the "stuck player" at the live event.
 3. **A failed answer send is silent.** The phone shows the answer as chosen even if the server never got it ([Answer a question](answer-a-question.md)).
 4. **What's shown can differ from what's scored.** Each answer from anyone redraws the question screen and re-enables the buttons until the player's own answer is confirmed; a second tap changes the highlighted option, but the server scores the first.
-5. **Missed answers say "Incorrect".** A player who didn't answer sees "Incorrect · 0 points" ([See if you were right](see-if-you-were-right.md)).
-6. **QR code and join link are hardcoded** to `https://xd-team-summer-quiz.onrender.com/` (`deployedJoinUrl` and `assets/qr/qr-code.svg`) — wrong for any other address ([Big screen](show-the-big-screen.md)).
-7. **Player ids are public.** Every screen receives every player's id, and the id is all `/api/answer` checks, so anyone could answer for someone else.
-8. **Scores update at answer time.** The broadcast state shows score changes during the answer window, so correctness can be read from the raw data before the reveal (only with developer tools).
-9. **No `HOST_PIN` = open host controls.** The server doesn't warn at startup when it's missing ([Hosting](hosting.md)).
+5. ✅ *Fixed in v1.1.0.* **Missed answers say "Incorrect".** A player who didn't answer saw "Incorrect · 0 points". Now "No answer" ([See if you were right](see-if-you-were-right.md)).
+6. **QR code and join link are hardcoded** to `https://xd-team-summer-quiz.onrender.com/` (`deployedJoinUrl` and `assets/qr/qr-code.svg`) — wrong for any other address ([Big screen](show-the-big-screen.md)). *Server side fixed in v1.1.0* (`/api/join-info`); the big screen uses it from v1.4.0.
+7. ✅ *Fixed in v1.1.0.* **Player ids are public.** Ids are still shared, but answering now needs a secret token only the player's phone has.
+8. ✅ *Fixed in v1.1.0.* **Scores update at answer time.** Scores and answers now stay hidden until the reveal.
+9. ✅ *Fixed in v1.1.0.* **No `HOST_PIN` = open host controls.** The server now warns at startup ([Hosting](hosting.md)); the PIN check is timing-safe.
 10. **Defaults to the test questions**, and Reset goes back to them ([Set up the quiz](set-up-the-quiz.md)).
-11. **Ties get different ranks**, ordered by name ([Scoring](scoring.md)). To decide in L2.
-12. **Answer values aren't validated**, and request bodies have no size limit (`answerQuestion`, `readBody` in `server.js`).
-13. **`.woff2` is served as `application/octet-stream`** (`serveStatic`).
+11. ✅ *Fixed in v1.1.0.* **Ties get different ranks.** Now: faster total time on correct answers wins, otherwise a shared rank ([Scoring](scoring.md)).
+12. ✅ *Fixed in v1.1.0.* **Answer values aren't validated**, and request bodies have no size limit. Now only 0–3 is accepted and bodies are capped at 10 KB.
+13. ✅ *Fixed in v1.1.0.* **`.woff2` was served as `application/octet-stream`.** Now `font/woff2`.
 14. **Dead code and files:** `header()`, `participantMain()`, `countdownBlock()` on the player side and the fallback branch of `renderParticipant()` never run; `public/index.html` (old landing page) is unreachable because `/` redirects to the player page; ~29 unused assets, mostly PNG duplicates of WebP files (~13 MB).
 15. **README is outdated** (says 3 questions, questions in `server.js`, QR code still to come).
 16. **Question content** (`questions/real.md`, replaced later anyway): Q25 is football trivia filed under "Mexico"; Q6 has two UNESCO sites among the options; Q23's "continental" southernmost point is disputed.
 
 ---
 
-*Current through v1-arcade-summer.*
+*Current through v1.1.0.*

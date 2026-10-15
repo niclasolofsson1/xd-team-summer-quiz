@@ -1,11 +1,13 @@
 const app = document.querySelector("#app");
 const view = document.body.dataset.view;
 const participantKey = "xd-summer-quiz-participant-id";
+const participantTokenKey = "xd-summer-quiz-participant-token";
 const hostPinKey = "xd-summer-quiz-host-pin";
 const answerKeyPrefix = "xd-summer-quiz-answer-";
 
 let state = null;
 let tick = null;
+let events = null;
 let timerAnimationFrame = null;
 let lastRenderSignature = "";
 let connectionStatus = "reconnecting";
@@ -119,7 +121,9 @@ async function verifyHostPin(pin) {
 }
 
 function connect() {
-  const events = new EventSource("/events");
+  events?.close();
+  const token = view === "participant" ? participantToken() : "";
+  events = new EventSource(token ? `/events?token=${encodeURIComponent(token)}` : "/events");
   events.onopen = () => {
     markConnectionEvent();
   };
@@ -200,6 +204,10 @@ function progressScale() {
 
 function participantId() {
   return localStorage.getItem(participantKey);
+}
+
+function participantToken() {
+  return localStorage.getItem(participantTokenKey) || "";
 }
 
 function hostPin() {
@@ -1140,7 +1148,7 @@ function bindParticipantAnswerActions() {
         choice.disabled = true;
         choice.classList.toggle("selected", choice.dataset.answer === String(optionIndex));
       });
-      await post("answer", { id: participantId(), optionIndex });
+      await post("answer", { token: participantToken(), optionIndex });
     });
   });
 }
@@ -1278,6 +1286,8 @@ function renderPlayerSetup() {
     if (result.ok) {
       clearStoredAnswers();
       localStorage.setItem(participantKey, result.id);
+      localStorage.setItem(participantTokenKey, result.token);
+      connect();
       updateScreenBodyClass(null);
       render();
     } else {
@@ -1399,7 +1409,7 @@ function renderParticipantReveal() {
         </section>
         <section class="pixel-frame question-timer-card reveal-result-card" aria-label="Your result">
           <div class="reveal-result-frame ${resultCorrect ? "is-correct" : "is-incorrect"}">
-            <span class="reveal-result-label">${resultCorrect ? "Correct!" : "Incorrect"}</span>
+            <span class="reveal-result-label">${resultCorrect ? "Correct!" : (answerResult?.noAnswer ? "No answer" : "Incorrect")}</span>
             <strong>${resultCorrect ? `+${resultPoints}` : "0"} points</strong>
           </div>
         </section>

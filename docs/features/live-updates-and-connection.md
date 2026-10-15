@@ -5,19 +5,19 @@ How every screen (phones, host, big screen) stays in sync with the server.
 ## The model
 
 - **The server owns the state** (`state` in `server.js`, in memory). Clients only display it and send actions.
-- **One stream for everyone:** each page opens `GET /events` (Server-Sent Events). On connect, and after **every change**, the server sends the whole public state as one JSON message (`broadcast` → `publicState`).
+- **One stream for everyone:** each page opens `GET /events` (Server-Sent Events); a player's phone adds its token (`/events?token=…`) so the server knows which players are connected. On connect, and after **every change** (including a player connecting or dropping), the server sends the whole public state as one JSON message (`broadcast` → `publicState`).
 - `GET /api/state` returns the same state as plain JSON (not used by the client).
 - **Actions are plain `POST /api/<action>`** with a JSON body ([Unlock the host view](unlock-the-host-view.md) lists the host ones; players use `join` and `answer`).
 
 ## What the public state contains
 
-`phase`, `countdownMs`, `answerMs`, `currentQuestionIndex`, `finalRevealStage`, `questionSetId` / `questionSetName` / `questionSets`, `totalQuestions`, `serverNow`, `phaseStartedAt`, `phaseEndsAt`, `participants` (id, name, avatarId, score, answered, currentAnswer), `leaderboard`, `question` (no `correctIndex` until the reveal), `lastQuestionSummary`.
+`phase`, `countdownMs`, `answerMs`, `currentQuestionIndex`, `finalRevealStage`, `questionSetId` / `questionSetName` / `questionSets`, `totalQuestions`, `serverNow`, `phaseStartedAt`, `phaseEndsAt`, `participants` (id, name, avatarId, score, answered, connected, currentAnswer), `leaderboard` (with `tied`), `question` (no `correctIndex` until the reveal), `lastQuestionSummary`.
 
-What it hides: the correct answer before the reveal (`safeQuestion`), locked podium players in the final phase (`finalRankVisible`), and the host PIN.
+What it hides: the correct answer before the reveal (`safeQuestion`), every answer and score change until the reveal, locked podium players in the final phase (`finalRankVisible`), player tokens, and the host PIN.
 
 ## Heartbeat and status
 
-- The server sends a `heartbeat` event every 15 s (`HEARTBEAT_MS`) to every open stream.
+- The server sends a `heartbeat` event every 10 s (`HEARTBEAT_MS`) to every open stream. The stream has anti-buffering headers (`Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no`) so proxies pass messages on at once.
 - The client counts any message or heartbeat as "Connected". After 45 s with nothing, it shows "Offline" (`checkConnectionFreshness`). On a stream error it shows "Reconnecting", and the browser's `EventSource` retries on its own.
 - The connection pill is only shown on the **host** view.
 
@@ -35,7 +35,7 @@ What it hides: the correct answer before the reveal (`safeQuestion`), locked pod
 
 - Full redraws wipe form input and reset buttons: see [Join the quiz](join-the-quiz.md) and [Answer a question](answer-a-question.md).
 - **A silent drop is never recovered.** If the stream goes quiet without an error (a phone waking from sleep, a stalled mobile network), "Offline" is shown but the connection is never reopened, and players can't see the pill. The phone stays on an old screen until refreshed (Discrepancies 2).
-- Every player's id is sent to every client (Discrepancies 7), and scores change during the answer window (Discrepancies 8).
+- Player ids are still sent to every client, but answering needs the secret token (Discrepancies 7, fixed in v1.1.0). Scores no longer change during the answer window (Discrepancies 8, fixed in v1.1.0).
 
 ## Where it lives
 

@@ -5,14 +5,14 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** none yet for v2 (baseline: `v1-arcade-summer`)
-- **Current phase:** L3 — Build (next: v1.1.0, not started)
+- **Current version:** v1.1.0 (server hardening)
+- **Current phase:** L3 — Build (next: v1.2.0, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
 
 ## Next session
 
-L1 Frame and L2 Design Spec are approved (`01_frame.md`, `02_design_spec.md`). Next: **L3 Build, v1.1.0 — server hardening** (section 6 of the spec) with server tests and the 25-player simulation. Read `02_design_spec.md` sections 6–10 and the wiki pages the change touches; not the whole repo.
+v1.1.0 (server hardening) is done: tokens, presence, scores at reveal, early end, ties, rejoin by name, validation, join-info, PIN warning, stream headers, no-answer flag. `npm test` runs the server tests; `npm run simulate` plays a full quiz with 25 simulated players. Next: **v1.2.0 — build setup, Carbon foundation, live-state hook, player app** (spec sections 3, 6, 8, 9). Read `02_design_spec.md` and the wiki pages for the player screens; not the whole repo.
 
 **Checkpoint rule (user's guardrail):** one version per session. After each version, stop and report (changes, tests run, what to check visually). Never start the next version without the user's explicit go. Check plan usage before starting a version; the user wants no extra-usage spend.
 
@@ -43,3 +43,4 @@ L1 Frame and L2 Design Spec are approved (`01_frame.md`, `02_design_spec.md`). N
 
 | Date | Version | Iteration | Status |
 |---|---|---|---|
+| 2026-10-15 | v1.1.0 | Server hardening (spec section 6, items 1–9), server tests, 25-player simulation | Done |

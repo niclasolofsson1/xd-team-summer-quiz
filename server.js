@@ -8,12 +8,14 @@ const PORT = Number(process.env.PORT || 4173);
 const PUBLIC_DIR = path.join(__dirname, "public");
 const QUESTIONS_DIR = path.join(__dirname, "questions");
 
-const COUNTDOWN_MS = 3000;
+const COUNTDOWN_MS = Number(process.env.COUNTDOWN_MS || 3000);
 const DEFAULT_ANSWER_MS = 15000;
 const MIN_ANSWER_MS = 5000;
 const MAX_ANSWER_MS = 30000;
-const HEARTBEAT_MS = 15000;
+const HEARTBEAT_MS = 10000;
+const MAX_BODY_BYTES = 10 * 1024;
 const HOST_PIN = String(process.env.HOST_PIN || "");
+const PUBLIC_URL = String(process.env.PUBLIC_URL || "").trim();
 const HOST_ACTIONS = new Set(["start", "reveal", "leaderboard", "next", "reset", "final-reveal", "set-question-set", "set-answer-time"]);
 const AVATAR_IDS = new Set([
   "us-eagle",
@@ -43,6 +45,7 @@ const initialState = () => ({
 
 let state = initialState();
 let timers = [];
+// Each open stream: { res, participantId } (participantId is null for host and big screen).
 const clients = new Set();
 
 function loadQuestionSets() {
@@ -115,6 +118,19 @@ function clearTimers() {
   timers = [];
 }
 
+function isConnected(participantId) {
+  for (const client of clients) {
+    if (client.participantId === participantId) return true;
+  }
+  return false;
+}
+
+function participantByToken(token) {
+  const clean = String(token || "");
+  if (!clean) return null;
+  return Object.values(state.participants).find((p) => p.token === clean) || null;
+}
+
 function publicState() {
   const questions = activeQuestions();
   const questionSet = activeQuestionSet();
@@ -129,6 +145,7 @@ function publicState() {
         avatarId: null,
         score: null,
         answered: false,
+        connected: false,
         currentAnswer: null
       };
     }
@@ -139,6 +156,7 @@ function publicState() {
       avatarId: p.avatarId,
       score: p.score,
       answered: Boolean(p.answers[state.currentQuestionIndex]),
+      connected: isConnected(p.id),
       currentAnswer: publicAnswerResult(p)
     };
   });
@@ -166,11 +184,12 @@ function publicState() {
 function publicAnswerResult(participant) {
   if (state.phase !== "reveal" && state.phase !== "leaderboard" && state.phase !== "finished") return null;
   const answer = participant.answers[state.currentQuestionIndex];
-  if (!answer) return { optionIndex: null, correct: false, points: 0 };
+  if (!answer) return { optionIndex: null, correct: false, points: 0, noAnswer: true };
   return {
     optionIndex: answer.optionIndex,
     correct: answer.correct,
-    points: answer.points
+    points: answer.points,
+    noAnswer: false
   };
 }
 
@@ -191,10 +210,22 @@ function safeQuestion() {
   return base;
 }
 
+// Higher score first; equal scores go to the faster total time on correct answers.
+// Players equal on both share a rank (1, 1, 3).
 function leaderboard() {
-  return Object.values(state.participants)
-    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
-    .map((p, index) => ({ rank: index + 1, id: p.id, name: p.name, avatarId: p.avatarId, score: p.score }));
+  const sorted = Object.values(state.participants)
+    .sort((a, b) => b.score - a.score || a.correctMs - b.correctMs || a.name.localeCompare(b.name));
+  const entries = [];
+  sorted.forEach((p, index) => {
+    const previous = sorted[index - 1];
+    const sharesWithPrevious = previous && previous.score === p.score && previous.correctMs === p.correctMs;
+    const rank = sharesWithPrevious ? entries[index - 1].rank : index + 1;
+    entries.push({ rank, id: p.id, name: p.name, avatarId: p.avatarId, score: p.score, tied: false });
+  });
+  for (const entry of entries) {
+    entry.tied = entries.some((other) => other !== entry && other.rank === entry.rank);
+  }
+  return entries;
 }
 
 function finalRankVisible(rank) {
@@ -214,8 +245,8 @@ function publicLeaderboard(ranked = leaderboard()) {
 
 function broadcast() {
   const payload = JSON.stringify(publicState());
-  for (const res of clients) {
-    sendEvent(res, payload);
+  for (const client of clients) {
+    sendEvent(client.res, payload);
   }
 }
 
@@ -224,8 +255,8 @@ function sendEvent(res, payload) {
 }
 
 function sendHeartbeat() {
-  for (const res of clients) {
-    res.write(`event: heartbeat\ndata: {}\n\n`);
+  for (const client of clients) {
+    client.res.write(`event: heartbeat\ndata: {}\n\n`);
   }
 }
 
@@ -252,8 +283,15 @@ function startCountdown() {
 }
 
 function startAnswering() {
+  clearTimers();
   setPhase("answering", state.answerMs);
-  timers.push(setTimeout(() => setPhase("awaitingReveal"), state.answerMs));
+  timers.push(setTimeout(closeAnswering, state.answerMs));
+}
+
+function closeAnswering() {
+  if (state.phase !== "answering") return;
+  clearTimers();
+  setPhase("awaitingReveal");
 }
 
 function resetQuestionAnswers() {
@@ -267,6 +305,15 @@ function revealAnswer() {
   const questions = activeQuestions();
   const q = questions[state.currentQuestionIndex];
   const participants = Object.values(state.participants);
+
+  // Scores change only here, so nothing in the shared state hints at correctness before the reveal.
+  for (const p of participants) {
+    const answer = p.answers[state.currentQuestionIndex];
+    if (!answer) continue;
+    p.score += answer.points;
+    if (answer.correct) p.correctMs += answer.elapsedMs;
+  }
+
   const optionCounts = q.options.map((_, optionIndex) =>
     participants.filter((p) => p.answers[state.currentQuestionIndex]?.optionIndex === optionIndex).length
   );
@@ -352,29 +399,41 @@ function finalPreviewState() {
   };
 }
 
-function answerQuestion(id, optionIndex) {
-  if (state.phase !== "answering") return { ok: false, message: "The answer window is closed." };
-  const participant = state.participants[id];
-  if (!participant) return { ok: false, message: "Participant not found." };
-  if (participant.answers[state.currentQuestionIndex]) return { ok: true };
+function answerQuestion(token, rawOptionIndex) {
+  const optionIndex = rawOptionIndex;
+  if (!Number.isInteger(optionIndex) || optionIndex < 0 || optionIndex > 3) {
+    return { ok: false, status: 400, message: "Choose one of the four answers." };
+  }
+  const participant = participantByToken(token);
+  if (!participant) return { ok: false, status: 403, message: "Player not found. Join again." };
+  const existing = participant.answers[state.currentQuestionIndex];
+  // The first recorded answer always wins, even if the window has closed since.
+  if (existing) return { ok: true, optionIndex: existing.optionIndex };
+  if (state.phase !== "answering") return { ok: false, status: 409, message: "The answer window is closed." };
 
   const questions = activeQuestions();
   const q = questions[state.currentQuestionIndex];
   const answeredAt = Date.now();
-  const elapsed = Math.max(0, answeredAt - state.phaseStartedAt);
+  const elapsedMs = Math.max(0, answeredAt - state.phaseStartedAt);
   const correct = optionIndex === q.correctIndex;
-  const ratio = Math.max(0, Math.min(1, elapsed / state.answerMs));
+  const ratio = Math.max(0, Math.min(1, elapsedMs / state.answerMs));
   const points = correct ? Math.round(250 + 750 * (1 - ratio)) : 0;
 
   participant.answers[state.currentQuestionIndex] = {
     optionIndex,
     correct,
     points,
+    elapsedMs,
     answeredAt
   };
-  participant.score += points;
-  broadcast();
-  return { ok: true };
+
+  const everyoneAnswered = Object.values(state.participants).every((p) => p.answers[state.currentQuestionIndex]);
+  if (everyoneAnswered) {
+    closeAnswering();
+  } else {
+    broadcast();
+  }
+  return { ok: true, optionIndex };
 }
 
 function normalizeAvatarId(avatarId) {
@@ -385,13 +444,22 @@ function normalizeAvatarId(avatarId) {
 function join(name, avatarId) {
   const clean = String(name || "").trim().slice(0, 28);
   if (!clean) return { ok: false, message: "Enter a name." };
-  if (state.phase !== "lobby") return { ok: false, message: "The quiz has already started." };
   const existing = Object.values(state.participants).find((p) => p.name.toLowerCase() === clean.toLowerCase());
-  if (existing) return { ok: false, message: "That name is already taken." };
+  if (existing) {
+    if (isConnected(existing.id)) return { ok: false, message: "That name is already taken." };
+    // Rejoin: a disconnected player is taken over, score included. A new token locks out the old device.
+    existing.token = crypto.randomBytes(24).toString("base64url");
+    broadcast();
+    return { ok: true, id: existing.id, token: existing.token, rejoined: true };
+  }
+  if (state.phase !== "lobby") {
+    return { ok: false, message: "The quiz has started. Playing already? Enter the same name to rejoin." };
+  }
   const id = crypto.randomUUID();
-  state.participants[id] = { id, name: clean, avatarId: normalizeAvatarId(avatarId), score: 0, answers: {} };
+  const token = crypto.randomBytes(24).toString("base64url");
+  state.participants[id] = { id, token, name: clean, avatarId: normalizeAvatarId(avatarId), score: 0, correctMs: 0, answers: {} };
   broadcast();
-  return { ok: true, id };
+  return { ok: true, id, token, rejoined: false };
 }
 
 function resetQuiz() {
@@ -410,18 +478,59 @@ function localIp() {
   return "localhost";
 }
 
+// The address phones should open: PUBLIC_URL if set, else the address this request came in on.
+// On localhost that address is useless to a phone, so the laptop's network IP is used instead.
+function joinUrl(req) {
+  if (PUBLIC_URL) return `${PUBLIC_URL.replace(/\/+$/, "")}/`;
+  const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim();
+  const host = String(req.headers["x-forwarded-host"] || req.headers.host || `localhost:${PORT}`).split(",")[0].trim();
+  const match = host.match(/^(\[[^\]]+\]|[^:]+)(?::(\d+))?$/);
+  const hostname = match ? match[1] : host;
+  const port = match && match[2] ? `:${match[2]}` : "";
+  if (["localhost", "127.0.0.1", "[::1]"].includes(hostname.toLowerCase())) {
+    return `${proto}://${localIp()}${port}/`;
+  }
+  return `${proto}://${host}/`;
+}
+
 function sendJson(res, data, status = 200) {
   res.writeHead(status, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
+}
+
+function sendResult(res, result) {
+  const { status, ...body } = result;
+  sendJson(res, body, status || 200);
+}
+
+function pinMatches(submittedPin) {
+  const a = crypto.createHash("sha256").update(submittedPin).digest();
+  const b = crypto.createHash("sha256").update(HOST_PIN).digest();
+  return crypto.timingSafeEqual(a, b);
 }
 
 function authorizeHostAction(body) {
   if (!HOST_PIN) return { ok: true };
   const submittedPin = String(body.hostPin || "");
   if (!submittedPin) return { ok: false, message: "Enter the host PIN." };
-  if (submittedPin !== HOST_PIN) return { ok: false, message: "Host PIN is incorrect." };
+  if (!pinMatches(submittedPin)) return { ok: false, message: "Host PIN is incorrect." };
   return { ok: true };
 }
+
+const CONTENT_TYPES = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".json": "application/json",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".woff": "font/woff",
+  ".woff2": "font/woff2"
+};
 
 function serveStatic(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
@@ -448,45 +557,73 @@ function serveStatic(req, res) {
     }
 
     const ext = path.extname(filePath).toLowerCase();
-    const type = {
-      ".html": "text/html",
-      ".css": "text/css",
-      ".js": "text/javascript",
-      ".png": "image/png",
-      ".webp": "image/webp",
-      ".svg": "image/svg+xml"
-    }[ext] || "application/octet-stream";
+    const type = CONTENT_TYPES[ext] || "application/octet-stream";
 
     res.writeHead(200, { "Content-Type": type });
     res.end(data);
   });
 }
 
+class RequestError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
+
 async function readBody(req) {
   const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
+  let size = 0;
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > MAX_BODY_BYTES) throw new RequestError(413, "Request is too large.");
+    chunks.push(chunk);
+  }
   if (!chunks.length) return {};
-  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  try {
+    const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    return body && typeof body === "object" ? body : {};
+  } catch {
+    throw new RequestError(400, "Invalid request.");
+  }
+}
+
+function openEventStream(req, res, url) {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache, no-transform",
+    "Connection": "keep-alive",
+    "X-Accel-Buffering": "no"
+  });
+  res.flushHeaders();
+  const participant = participantByToken(url.searchParams.get("token"));
+  const client = { res, participantId: participant ? participant.id : null };
+  const wasConnected = participant ? isConnected(participant.id) : true;
+  clients.add(client);
+  if (!wasConnected) {
+    broadcast();
+  } else {
+    sendEvent(res, JSON.stringify(publicState()));
+  }
+  req.on("close", () => {
+    clients.delete(client);
+    if (client.participantId && !isConnected(client.participantId)) broadcast();
+  });
 }
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (url.pathname === "/events") {
-    res.writeHead(200, {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      "Connection": "keep-alive"
-    });
-    clients.add(res);
-    sendEvent(res, JSON.stringify(publicState()));
-    req.on("close", () => clients.delete(res));
+    openEventStream(req, res, url);
     return;
   }
 
   if (url.pathname === "/api/host-status") {
     return sendJson(res, { hostPinRequired: Boolean(HOST_PIN) });
   }
+
+  if (url.pathname === "/api/join-info") return sendJson(res, { joinUrl: joinUrl(req) });
 
   if (url.pathname === "/api/state") return sendJson(res, publicState());
 
@@ -496,7 +633,7 @@ const server = http.createServer(async (req, res) => {
       const action = url.pathname.slice("/api/".length);
 
       if (action === "join") return sendJson(res, join(body.name, body.avatarId));
-      if (action === "answer") return sendJson(res, answerQuestion(body.id, Number(body.optionIndex)));
+      if (action === "answer") return sendResult(res, answerQuestion(body.token, body.optionIndex));
       if (action === "host-unlock") {
         const auth = authorizeHostAction(body);
         return sendJson(res, auth, auth.ok ? 200 : 403);
@@ -520,7 +657,9 @@ const server = http.createServer(async (req, res) => {
       if (action === "reset") { resetQuiz(); return sendJson(res, { ok: true }); }
       return sendJson(res, { ok: false, message: "Unknown action." }, 404);
     } catch (error) {
-      return sendJson(res, { ok: false, message: error.message }, 400);
+      const status = error instanceof RequestError ? error.status : 400;
+      res.setHeader("Connection", "close");
+      return sendJson(res, { ok: false, message: error instanceof RequestError ? error.message : "Invalid request." }, status);
     }
   }
 
@@ -530,8 +669,12 @@ const server = http.createServer(async (req, res) => {
 setInterval(sendHeartbeat, HEARTBEAT_MS);
 
 server.listen(PORT, "0.0.0.0", () => {
-  const hostUrl = `http://localhost:${PORT}/host.html`;
-  const phoneUrl = `http://${localIp()}:${PORT}/participant.html`;
+  const port = server.address().port;
+  const hostUrl = `http://localhost:${port}/host.html`;
+  const phoneUrl = PUBLIC_URL ? `${PUBLIC_URL.replace(/\/+$/, "")}/` : `http://${localIp()}:${port}/participant.html`;
   console.log(`Host view: ${hostUrl}`);
-  console.log(`Participant link for phones on the same network: ${phoneUrl}`);
+  console.log(`Participant link for phones: ${phoneUrl}`);
+  if (!HOST_PIN) {
+    console.warn("WARNING: HOST_PIN is not set. Anyone who opens the host page can control the quiz. Set HOST_PIN before the event.");
+  }
 });

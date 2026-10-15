@@ -29,7 +29,7 @@ Rules for the arcade version (v1). v2 replaces the UI conventions with Carbon on
 
 ## Storage in the browser
 
-- `localStorage`: the player id (`xd-summer-quiz-participant-id`).
+- `localStorage`: the player id (`xd-summer-quiz-participant-id`) and token (`xd-summer-quiz-participant-token`).
 - `sessionStorage`: the host PIN (`xd-summer-quiz-host-pin`) and the chosen answer per question (`xd-summer-quiz-answer-<id>-<question>`).
 
 ## Git and releases

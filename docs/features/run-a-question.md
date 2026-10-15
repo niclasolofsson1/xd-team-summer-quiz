@@ -22,13 +22,13 @@ The participants list shows a dot per player that fills in when they've answered
 
 ## How it works
 
-- Countdown and answer window run on server timers (`setTimeout`); the move from `answering` to `awaitingReveal` is automatic.
+- Countdown and answer window run on server timers (`setTimeout`); the move from `answering` to `awaitingReveal` is automatic, either when the timer runs out or when every joined player has answered (`closeAnswering`).
 - Reveal, leaderboard and next are manual, so the host sets the pace (good for talking between questions).
 - `POST /api/reveal`, `/api/leaderboard`, `/api/next`. Each only works in its own phase; a click in the wrong phase does nothing.
 
 ## Rules & edge cases
 
-- The answer timer always runs to the end, even when everyone has answered (to decide in L2).
+- The answer window **ends early** when every joined player has answered (since v1.1.0). A disconnected player who hasn't answered keeps it open until the timer runs out. The host still triggers the reveal.
 - After the last question, "Reveal final results" skips the leaderboard and goes to [the final reveal](run-the-final-reveal.md).
 - An error from a host action (e.g. a wrong PIN) shows under the control bar.
 
@@ -38,4 +38,4 @@ The participants list shows a dot per player that fills in when they've answered
 
 ## Under the hood
 
-- Server: `startCountdown`, `startAnswering`, `revealAnswer`, `showLeaderboard`, `nextQuestion`, `setPhase`, `clearTimers` in `server.js`
+- Server: `startCountdown`, `startAnswering`, `closeAnswering`, `revealAnswer`, `showLeaderboard`, `nextQuestion`, `setPhase`, `clearTimers` in `server.js`

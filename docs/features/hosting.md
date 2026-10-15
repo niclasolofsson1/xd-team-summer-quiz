@@ -17,7 +17,7 @@
 ## Public deployment (Render, used at the Summer Gathering)
 
 - Service type: Web Service. Build command `npm install`, start command `npm start`.
-- Public URL: `https://xd-team-summer-quiz.onrender.com` (also hardcoded in the big screen's QR code, see [Big screen](show-the-big-screen.md)).
+- Public URL: `https://xd-team-summer-quiz.onrender.com` (the arcade big screen's QR code is still hardcoded to it, see [Big screen](show-the-big-screen.md)). The server works out the join address itself: `GET /api/join-info`.
 - **Exactly one instance.** All state is in memory in one process; a second instance would split the players.
 - **Avoid plans that sleep or restart.** A restart wipes the quiz, like [Reset](reset-the-quiz.md).
 
@@ -26,13 +26,14 @@
 | Name | Required | What |
 |---|---|---|
 | `HOST_PIN` | Yes, for any public deployment | Protects host actions ([Unlock the host view](unlock-the-host-view.md)). Never commit the value. |
+| `PUBLIC_URL` | No | The join address phones should use. If not set, the server uses the address the request came in on (on localhost: the laptop's network IP). |
 | `PORT` | No | Port to listen on (Render sets it) |
 
-Without `HOST_PIN`, anyone can control the quiz, and the server doesn't warn about it (Discrepancies 9).
+Without `HOST_PIN`, anyone can control the quiz. Since v1.1.0 the server prints a warning at startup when it's missing.
 
 ## Static files
 
-`serveStatic` in `server.js` serves `public/` with a small type map (html, css, js, png, webp, svg). Paths outside `public/` get 403; missing files 404. Fonts (`.woff2`) aren't in the map (Discrepancies 13).
+`serveStatic` in `server.js` serves `public/` with a type map (html, css, js, json, png, jpg, webp, svg, ico, woff, woff2). Paths outside `public/` get 403; missing files 404. Request bodies over 10 KB get 413, broken JSON 400.
 
 ## Event-day checklist
 
