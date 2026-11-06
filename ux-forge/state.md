@@ -12,7 +12,7 @@
 
 ## Next session
 
-v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connection with watchdog/backoff/foreground check and banner, answers locked only after server confirmation with retries, emoji avatars, all player screens. The server serves `dist/` first, then `public/` (arcade host and big screen). Tests: `npm test` (server + unit), `npm run test:e2e` (Playwright player flow), `npm run simulate`. Next: **v1.3.0 — host app** (spec sections 3 Host, 4, 5, 8; reuse `client/src/shared/`). Read `02_design_spec.md`, `docs/features/conventions.md` (Carbon section) and the host wiki pages; not the whole repo. Waiting for the user's visual check of the player app first; the user will send cosmetic changes as one batch (iteration proposal, likely v1.2.2) before v1.3.0. Lesson: the trimmed Carbon stylesheet needs `scss/layout` (size tokens); `main.scss` lists it.
+v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connection with watchdog/backoff/foreground check and banner, answers locked only after server confirmation with retries, emoji avatars, all player screens. The server serves `dist/` first, then `public/` (arcade host and big screen). Tests: `npm test` (server + unit), `npm run test:e2e` (Playwright player flow), `npm run simulate`. Next: **v1.3.0 — host app** (spec sections 3 Host, 4, 5, 8; reuse `client/src/shared/`). Read `02_design_spec.md`, `docs/features/conventions.md` (Carbon section) and the host wiki pages; not the whole repo. The user checked the player app on a real iPhone and approved it after patches v1.2.1–v1.2.8 (sizes, centring, tints, Carbon-blue pick, no confetti + medals, keyboard-only focus, 16 px inputs, smooth timer, "You" tag). Carry these into the host and big screen. Lesson: the trimmed Carbon stylesheet needs `scss/layout` (size tokens); `main.scss` lists it.
 
 **Checkpoint rule (user's guardrail):** one version per session. After each version, stop and report (changes, tests run, what to check visually). Never start the next version without the user's explicit go. Check plan usage before starting a version; the user wants no extra-usage spend.
 
@@ -54,4 +54,4 @@ v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connect
 | 2026-11-06 | v1.2.5 | Text inputs at 16 px (no iOS focus zoom) | Done |
 | 2026-11-06 | v1.2.6 | One "your pick" style: solid Carbon blue stroke on question, Time's up and reveal | Done |
 | 2026-11-06 | v1.2.7 | Timer bar drains with one linear CSS animation | Done |
-| 2026-11-06 | v1.2.8 | Podium: "You" tag instead of a blue frame; reveal sequence (3 steps) kept, user confirmed | Done (user's phone check pending) |
+| 2026-11-06 | v1.2.8 | Podium: "You" tag instead of a blue frame; reveal sequence (3 steps) kept, user confirmed | Done; user's phone check passed ("smooth and nice, very Carbon") |
