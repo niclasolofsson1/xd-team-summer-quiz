@@ -235,12 +235,11 @@ body {
     color: theme.$text-primary;
   }
 
-  &--correct {
-    outline: 4px solid var(--quiz-correct);
-    outline-offset: 2px;
-  }
-
+  // Your wrong pick recedes like the others but keeps a dashed outline and its "Your answer" mark.
+  // The correct answer is left as the only full-colour tile, with its "Correct answer" mark.
   &--wrong {
+    background: var(--tile-tint);
+    color: theme.$text-primary;
     outline: 4px dashed theme.$text-primary;
     outline-offset: 2px;
   }
@@ -346,12 +345,10 @@ body {
 }
 
 .podium {
-  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: end;
   gap: $sp-8;
-  overflow: hidden;
   padding-block-start: $sp-24;
 
   &__place {
@@ -380,6 +377,11 @@ body {
   &__score {
     @include type.type-style('label-01');
     color: theme.$text-secondary;
+  }
+
+  &__medal {
+    font-size: 32px;
+    line-height: 1;
   }
 
   &__locked {
@@ -420,41 +422,11 @@ body {
   }
 }
 
-// CSS-only confetti when the champion is revealed.
-.confetti {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-
-  &__piece {
-    position: absolute;
-    inset-block-start: -12px;
-    inset-inline-start: calc(var(--i) * 4.1%);
-    inline-size: 8px;
-    block-size: 12px;
-    background: var(--quiz-confetti-1);
-    animation: confetti-fall 2400ms linear calc(var(--i) * 70ms) 2 both;
-
-    &:nth-child(4n + 2) { background: var(--quiz-confetti-2); }
-    &:nth-child(4n + 3) { background: var(--quiz-confetti-3); }
-    &:nth-child(4n + 4) { background: var(--quiz-confetti-4); }
-  }
-}
-
-@keyframes confetti-fall {
-  from { transform: translateY(0) rotate(0deg); opacity: 1; }
-  to { transform: translateY(320px) rotate(540deg); opacity: 0; }
-}
-
-// Reduced motion: no countdown pop, no reveal slide, no confetti.
+// Reduced motion: no countdown pop, no reveal slide.
 @media (prefers-reduced-motion: reduce) {
   .countdown__number,
   .result-banner,
   .podium__place--revealed .podium__who {
     animation: none;
-  }
-
-  .confetti {
-    display: none;
   }
 }

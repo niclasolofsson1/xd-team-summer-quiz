@@ -8,12 +8,12 @@ Rules for the code. The **Carbon apps** (player since v1.2.0) follow the first s
 - **Layout:** `client/src/shared/` (logic and parts used by all apps: `liveConnection.js`, `useQuizState.js`, `api.js`, `answer.js`, `clock.js`, `format.js`, `podium.js`, `storage.js`, `avatars.json`, `components/`), `client/src/<app>/` (`App.jsx`, `main.jsx`, `screens/`, the app's stylesheet).
 - **Plain logic stays out of React** (connection, retries, clock, formatting, podium layout) so it's unit-tested in Node (`tests/unit/`, Vitest).
 - **Real Carbon components only** where Carbon has one (Header, Button, TextInput, TileGroup/RadioTile, InlineNotification, ActionableNotification, InlineLoading, ProgressBar, StructuredList). Own parts: answer tile, avatar, podium, countdown number.
-- **Themes:** White (phones), g10 (host), g100 (big screen). Quiz colours (answers A–D, confetti) live only in `client/src/styles/quiz-tokens.scss`, so a themed version swaps that file.
+- **Themes:** White (phones), g10 (host), g100 (big screen). Quiz colours (answers A–D and their tints) live only in `client/src/styles/quiz-tokens.scss`, so a themed version swaps that file.
 - **Only the Carbon component styles the apps use** are compiled (`client/src/styles/main.scss`). A new Carbon component needs its `@use '@carbon/react/scss/components/…'` line there.
 - **Font:** IBM Plex Sans 300/400/600, Latin-1 files from `@ibm/plex`, bundled by Vite (`$css--font-face: false`, no CDN).
 - **Spacing tokens only:** 4 / 8 / 12 / 16 / 24 / 32 / 48 (`$sp-*` in `quiz-tokens.scss`).
 - **Focus ring for keyboard users only:** a block in `main.scss` removes Carbon's `:focus` ring when the focus isn't keyboard focus (`:not(:focus-visible)`). Own parts use `:focus-visible`. A new Carbon part with its own `:focus` ring goes in that list.
-- **Accessibility:** colour is never the only cue (answers keep their letter, marks are written out); phase changes are announced in a polite live region; the timer isn't read out; `prefers-reduced-motion` turns off the countdown pop, reveal slide and confetti; tap targets ≥ 48 px, answer tiles ≥ 72 px.
+- **Accessibility:** colour is never the only cue (answers keep their letter, marks are written out); phase changes are announced in a polite live region; the timer isn't read out; `prefers-reduced-motion` turns off the countdown pop and reveal slides; tap targets ≥ 48 px, answer tiles ≥ 72 px.
 - **Copy** comes from `ux-forge/02_design_spec.md` section 5.
 - **Browser storage:** `localStorage` `xd-quiz-player` (id, token, name) and `xd-quiz-last-name`; `sessionStorage` `xd-quiz-answer-<id>-<question>`. Every access is wrapped in try/catch.
 - **Tests:** `npm test` (server + unit), `npm run test:e2e` (Playwright, phone-sized, reduced motion), `npm run simulate`.

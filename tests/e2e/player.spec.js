@@ -115,6 +115,8 @@ test("the full quiz on a phone: answer, reveal, leaderboard and final podium", a
   await host(request, "final-reveal");
   await expect(page.locator(".podium__place--1")).toContainText("Cleo");
   await expect(page.locator(".podium__place--1")).toContainText("Champion");
+  await expect(page.locator(".podium__place--1 .podium__medal")).toHaveText("🥇");
+  await expect(page.locator(".confetti")).toHaveCount(0);
   await expect(page.getByText(/You finished 1st/)).toBeVisible();
   await expect(page.locator(".podium__place--2")).toContainText("No player");
 });

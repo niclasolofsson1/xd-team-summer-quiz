@@ -15,9 +15,9 @@ After the last question, phones and the big screen show the final results, unloc
 | 0 | "Final results" · "Waiting for the host to start the final results." |
 | 1 | The **final standings from 4th place down**; the three podium places show "?" |
 | 2 | **3rd place** unlocks |
-| 3 | **Champion and runner-up** unlock together, with CSS confetti |
+| 3 | **Champion and runner-up** unlock together |
 
-The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and "3rd place". Each revealed place shows the avatar, the name and the points. Once the player's own place is revealed, the phone says "You finished 5th · 3200 points" and highlights the player on the podium or in the standings.
+The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and "3rd place". Each revealed place shows its medal (🥇 🥈 🥉, by rank, so a shared place shares its medal), the avatar, the name and the points. No confetti on phones (removed in v1.2.3 at the user's request); the big screen's effect is decided in v1.4.0. Once the player's own place is revealed, the phone says "You finished 5th · 3200 points" and highlights the player on the podium or in the standings.
 
 (The big screen is still the arcade version until v1.4.0: pixel podium, "The roadtrip is complete".)
 
@@ -32,7 +32,7 @@ The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and
 - Fewer than 3 players: the empty places show "No player".
 - Players sharing a podium rank beyond three places (e.g. two players on =3rd) are listed first in the standings, with their shared rank.
 - Long names wrap on the podium.
-- Confetti only plays at stage 3 and is off with reduced motion.
+- Revealed places slide in, which is off with reduced motion.
 
 ## Entry points
 

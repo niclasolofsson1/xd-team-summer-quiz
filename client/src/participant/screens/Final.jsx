@@ -25,7 +25,7 @@ export function Final({ state, me }) {
           You finished {rankLabel(mine.rank, mine.tied)} · {pointsLabel(mine.score)}
         </p>
       )}
-      <Podium places={places} meId={me.id} celebrate={stage >= 3} />
+      <Podium places={places} meId={me.id} />
       {standings.length > 0 && <Leaderboard entries={standings} meId={me.id} limit={standings.length} label="Final standings" />}
     </section>
   );

@@ -1,19 +1,11 @@
 import { Avatar } from "./Avatar.jsx";
-import { PODIUM_ORDER } from "../podium.js";
+import { PODIUM_ORDER, medalFor } from "../podium.js";
 
-const CONFETTI_PIECES = 24;
-
-// Three places laid out 2-1-3. `places` comes from finalLayout(); confetti plays when the champion is shown.
-export function Podium({ places, meId, celebrate }) {
+// Three places laid out 2-1-3. `places` comes from finalLayout(). Revealed places get their medal;
+// the medal is decorative, the place label ("Champion") says the same in words.
+export function Podium({ places, meId }) {
   return (
     <div className="podium">
-      {celebrate && (
-        <div className="confetti" aria-hidden="true">
-          {Array.from({ length: CONFETTI_PIECES }, (_, i) => (
-            <span key={i} className="confetti__piece" style={{ "--i": i }} />
-          ))}
-        </div>
-      )}
       {PODIUM_ORDER.map((index) => {
         const place = places[index];
         const isMe = place.entry?.id === meId;
@@ -25,6 +17,7 @@ export function Podium({ places, meId, celebrate }) {
             <div className="podium__who">
               {place.state === "revealed" && (
                 <>
+                  <span className="podium__medal" aria-hidden="true">{medalFor(place.entry.rank)}</span>
                   <Avatar id={place.entry.avatarId} size="lg" />
                   <span className="podium__name">
                     {place.entry.name}

@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.3 — Calmer reveal and podium
+
+- The reveal no longer draws a green frame around the correct answer. The correct answer is now the only fully coloured tile, marked "Correct answer".
+- If you picked wrong, your answer is shown tinted like the others, with a dashed outline and "Your answer", so the right answer stands out.
+- The confetti at the end is gone. Instead, the podium shows gold, silver and bronze medals 🥇 🥈 🥉.
+
 ## v1.2.2 — Tidier answer tiles
 
 - The answer text now sits in the middle of its tile, level with the letter, instead of near the top.

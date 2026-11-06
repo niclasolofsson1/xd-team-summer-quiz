@@ -11,6 +11,13 @@ export function podiumLabel(rank) {
   return PODIUM_LABELS[Math.min(Math.max(rank, 1), 3) - 1];
 }
 
+// Gold, silver, bronze by rank, so players sharing a place share its medal.
+const MEDALS = ["🥇", "🥈", "🥉"];
+
+export function medalFor(rank) {
+  return MEDALS[Math.min(Math.max(rank, 1), 3) - 1];
+}
+
 export function finalLayout(leaderboard, totalPlayers, stage) {
   const podium = leaderboard.filter((entry) => entry.rank <= 3);
   const places = [0, 1, 2].map((index) => ({

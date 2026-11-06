@@ -34,10 +34,4 @@ $answer-d-tint: colors.$magenta-20; // #ffd6e8
   --quiz-answer-b-tint: #{$answer-b-tint};
   --quiz-answer-c-tint: #{$answer-c-tint};
   --quiz-answer-d-tint: #{$answer-d-tint};
-  --quiz-correct: #{colors.$green-50};
-  --quiz-wrong: #{colors.$red-60};
-  --quiz-confetti-1: #{colors.$blue-50};
-  --quiz-confetti-2: #{colors.$magenta-50};
-  --quiz-confetti-3: #{colors.$teal-40};
-  --quiz-confetti-4: #{colors.$yellow-30};
 }

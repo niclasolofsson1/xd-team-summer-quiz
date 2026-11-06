@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { ordinal, playersJoined, rankLabel, pointsLabel } from "../../client/src/shared/format.js";
 import { clockOffset, msLeft, percentLeft, secondsLeft } from "../../client/src/shared/clock.js";
-import { finalLayout } from "../../client/src/shared/podium.js";
+import { finalLayout, medalFor } from "../../client/src/shared/podium.js";
 
 describe("format", () => {
   test("ordinals and shared ranks", () => {
@@ -55,6 +55,12 @@ describe("final layout", () => {
     const three = finalLayout(full, 5, 3);
     expect(three.places.map((p) => p.entry.id)).toEqual(["a", "b", "c"]);
     expect(three.places.map((p) => p.label)).toEqual(["Champion", "Runner-up", "3rd place"]);
+  });
+
+  test("medals follow the rank, so a shared place shares its medal", () => {
+    expect([1, 2, 3].map(medalFor)).toEqual(["🥇", "🥈", "🥉"]);
+    const tiedFirst = finalLayout([entry("a", 1), entry("b", 1), entry("c", 3)], 3, 3);
+    expect(tiedFirst.places.map((p) => medalFor(p.entry.rank))).toEqual(["🥇", "🥇", "🥉"]);
   });
 
   test("fewer than three players leaves empty places", () => {
