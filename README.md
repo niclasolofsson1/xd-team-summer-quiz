@@ -4,21 +4,15 @@ Mobile-first live quiz for an Ericsson Team Summer Gathering, themed around Worl
 
 ## Run
 
+Needs Node 20.19 or newer.
+
 ```powershell
+npm install
+npm run build
 npm start
 ```
 
-On Windows, you can also double-click:
-
-```text
-start-server.bat
-```
-
-If you prefer using the launcher directly:
-
-```powershell
-.\start-server.ps1
-```
+On Windows you can also double-click `start-server.bat` (or run `.\start-server.ps1`); both build and then start.
 
 Then open:
 
@@ -27,6 +21,13 @@ Then open:
 
 For phones, use the participant link printed in the terminal. Phones must be on the same network as the host machine. The root URL redirects to the participant view.
 
+## Develop and test
+
+- `npm run dev`: quiz server on port 4173 plus the Vite dev server on port 5173. Player app: `http://localhost:5173/participant.html`; arcade host: `http://localhost:4173/host.html`.
+- `npm test`: server tests and unit tests.
+- `npm run test:e2e`: the player flow in a phone-sized browser (run `npx playwright install chromium` once first).
+- `npm run simulate`: 25 simulated players through the whole quiz.
+
 ## Public Event Deployment
 
 For participants joining over 5G or from another country, deploy this as a single public Node web service rather than static hosting.
@@ -34,6 +35,7 @@ For participants joining over 5G or from another country, deploy this as a singl
 Recommended deployment shape:
 
 - Runtime: Node.js web service
+- Build command: `npm install && npm run build`
 - Start command: `npm start`
 - Instances: 1
 - Required event environment variable: `HOST_PIN`
@@ -52,7 +54,7 @@ Avoid hosting plans that sleep or restart during the gathering. If the server re
 
 - Repo root folder: `C:\Users\nicla\OneDrive\XD Team Summer Gathering Quiz`
 - Render service type: Web Service
-- Build command: `npm install`
+- Build command: `npm install && npm run build`
 - Start command: `npm start`
 - Required environment variable: `HOST_PIN`
 - Participant URL: `/participant.html`

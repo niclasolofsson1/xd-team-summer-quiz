@@ -6,7 +6,7 @@ How every screen (phones, host, big screen) stays in sync with the server.
 
 - **The server owns the state** (`state` in `server.js`, in memory). Clients only display it and send actions.
 - **One stream for everyone:** each page opens `GET /events` (Server-Sent Events); a player's phone adds its token (`/events?token=…`) so the server knows which players are connected. On connect, and after **every change** (including a player connecting or dropping), the server sends the whole public state as one JSON message (`broadcast` → `publicState`).
-- `GET /api/state` returns the same state as plain JSON (not used by the client).
+- `GET /api/state` returns the same state as plain JSON (used by tests).
 - **Actions are plain `POST /api/<action>`** with a JSON body ([Unlock the host view](unlock-the-host-view.md) lists the host ones; players use `join` and `answer`).
 
 ## What the public state contains
@@ -15,29 +15,32 @@ How every screen (phones, host, big screen) stays in sync with the server.
 
 What it hides: the correct answer before the reveal (`safeQuestion`), every answer and score change until the reveal, locked podium players in the final phase (`finalRankVisible`), player tokens, and the host PIN.
 
-## Heartbeat and status
+## Heartbeat
 
-- The server sends a `heartbeat` event every 10 s (`HEARTBEAT_MS`) to every open stream. The stream has anti-buffering headers (`Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no`) so proxies pass messages on at once.
-- The client counts any message or heartbeat as "Connected". After 45 s with nothing, it shows "Offline" (`checkConnectionFreshness`). On a stream error it shows "Reconnecting", and the browser's `EventSource` retries on its own.
-- The connection pill is only shown on the **host** view.
+The server sends a `heartbeat` event every 10 s (`HEARTBEAT_MS`) to every open stream. The stream has anti-buffering headers (`Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no`) so proxies pass messages on at once.
+
+## Player app (since v1.2.0)
+
+`createLiveConnection` (`client/src/shared/liveConnection.js`), used through the `useQuizState` hook:
+
+- **Watchdog:** any message or heartbeat counts as a sign of life. If nothing arrives for **25 s**, the stream is closed and reopened, so a silent drop no longer leaves a phone stuck (Discrepancies 2, fixed).
+- **Reconnect with backoff:** 1, 2, 4, 8, then every 10 s. The app opens new streams itself instead of relying on the browser's own retry.
+- **Back in the foreground** (`visibilitychange`): if the stream is closed or has been quiet for more than 12 s, it's reopened at once.
+- **Connection banner** on every screen after joining: hidden when connected, **"Reconnecting…"** during a drop, **"Connection lost."** with **Retry** after 30 s without a connection (it keeps trying in the background too). The banner is a status message, so it never takes focus from the answer tiles.
+- After joining, the stream is reopened with the new token. Only a state from the player's own stream can say "this player is gone" (after a reset), so a state sent just before joining is never mistaken for it.
 
 ## Timing
 
-- Phases with a timer carry `phaseStartedAt` and `phaseEndsAt` (server time). Each client computes an offset from `serverNow` (`syncServerClock`) so timers line up even if the phone's clock is off.
-- Timer numbers refresh every 250 ms (`renderTimerOnly`); timer bars animate every frame (`startTimerAnimationLoop`).
+Phases with a timer carry `phaseStartedAt` and `phaseEndsAt` (server time). Each client computes an offset from `serverNow` so timers line up even if the phone's clock is off (`client/src/shared/clock.js`; arcade: `syncServerClock`).
 
 ## Rendering
 
-- **Every message redraws the whole screen** with `innerHTML` (`render`). A "signature" of the important fields (`renderSignature`) decides whether the 250 ms tick needs a full redraw.
-- Entry animations only play when the screen actually changes (`participantScreenEnterClass`).
-
-## Known issues
-
-- Full redraws wipe form input and reset buttons: see [Join the quiz](join-the-quiz.md) and [Answer a question](answer-a-question.md).
-- **A silent drop is never recovered.** If the stream goes quiet without an error (a phone waking from sleep, a stalled mobile network), "Offline" is shown but the connection is never reopened, and players can't see the pill. The phone stays on an old screen until refreshed (Discrepancies 2).
-- Player ids are still sent to every client, but answering needs the secret token (Discrepancies 7, fixed in v1.1.0). Scores no longer change during the answer window (Discrepancies 8, fixed in v1.1.0).
+- **Player app:** React updates only what changed. Form fields and answer states belong to their screen and are never reset by incoming updates.
+- **Arcade host and big screen** (until v1.3.0 / v1.4.0): every message redraws the whole screen with `innerHTML` (`render`); a "signature" of the important fields (`renderSignature`) decides whether the 250 ms tick needs a full redraw. They count 45 s without data as "Offline" and rely on the browser's `EventSource` retry; the pill is only on the host view.
 
 ## Where it lives
 
 - Server: `/events` handler, `broadcast`, `sendEvent`, `sendHeartbeat`, `publicState` in `server.js`
-- Client: `connect`, `markConnectionEvent`, `checkConnectionFreshness`, `updateConnectionStatus`, `render`, `renderTimerOnly` in `public/app.js`
+- Player app: `client/src/shared/liveConnection.js`, `useQuizState.js`, `components/ConnectionBanner.jsx`
+- Arcade: `connect`, `markConnectionEvent`, `checkConnectionFreshness`, `render` in `public/app.js`
+- Tests: `tests/unit/liveConnection.test.js` (watchdog, backoff, lost, Retry, foreground); e2e S2/S3 in `tests/e2e/player.spec.js`

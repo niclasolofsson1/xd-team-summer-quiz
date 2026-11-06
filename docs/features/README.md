@@ -1,6 +1,6 @@
 # XD Team Quiz feature registry
 
-A live, Kahoot-style quiz for a team event: players answer on their phones, the host runs it from a laptop, and a big screen shows the questions and results. The summer edition was themed around World Cup 2026 and its host countries (USA, Canada, Mexico) in a pixel-arcade style. Run it with `npm start` (see [Hosting](hosting.md)).
+A live, Kahoot-style quiz for a team event: players answer on their phones, the host runs it from a laptop, and a big screen shows the questions and results. The summer edition was themed around World Cup 2026 and its host countries (USA, Canada, Mexico) in a pixel-arcade style. v2 rebuilds the screens in React + Carbon: the player app since v1.2.0; host and big screen are still arcade. Run it with `npm install`, `npm run build`, `npm start` (see [Hosting](hosting.md)).
 
 One page per thing you can do. **Before changing a feature, read its page.** When a change alters what a page says, update the page in the same commit.
 
@@ -10,8 +10,8 @@ Status: 🟢 Live · 🟡 Partial (works, with known issues) · ⚪ Planned
 
 | Page | Who | Status | Since |
 |---|---|---|---|
-| [Join the quiz](join-the-quiz.md) | Player | 🟡 | v1-arcade-summer |
-| [Answer a question](answer-a-question.md) | Player | 🟡 | v1-arcade-summer |
+| [Join the quiz](join-the-quiz.md) | Player | 🟢 | v1-arcade-summer · v1.2.0 |
+| [Answer a question](answer-a-question.md) | Player | 🟢 | v1-arcade-summer · v1.2.0 |
 | [See if you were right](see-if-you-were-right.md) | Player | 🟢 | v1-arcade-summer |
 | [Follow the leaderboard](follow-the-leaderboard.md) | Player | 🟢 | v1-arcade-summer |
 | [Watch the final podium](watch-the-final-podium.md) | Player, Display | 🟢 | v1-arcade-summer |
@@ -35,10 +35,10 @@ Status: 🟢 Live · 🟡 Partial (works, with known issues) · ⚪ Planned
 
 Found in the code review of 2026-10-15. Each is in scope for v2 (`ux-forge/01_frame.md`) unless noted.
 
-1. **Typed name is wiped on the setup screen.** Every server update redraws the whole screen, so when anyone else joins, a half-typed name disappears ([Join the quiz](join-the-quiz.md)). Live-event bug.
-2. **A silent connection drop is never recovered.** After 45 s without data the client only relabels itself "Offline"; it never reopens the connection. Players don't see a connection indicator at all ([Live updates](live-updates-and-connection.md)). Likely cause of the "stuck player" at the live event.
-3. **A failed answer send is silent.** The phone shows the answer as chosen even if the server never got it ([Answer a question](answer-a-question.md)).
-4. **What's shown can differ from what's scored.** Each answer from anyone redraws the question screen and re-enables the buttons until the player's own answer is confirmed; a second tap changes the highlighted option, but the server scores the first.
+1. ✅ *Fixed in v1.2.0.* **Typed name is wiped on the setup screen.** Every server update redraws the whole screen, so when anyone else joins, a half-typed name disappears ([Join the quiz](join-the-quiz.md)). Live-event bug. The new player app keeps the name in the Join screen alone.
+2. ✅ *Fixed in v1.2.0* (player app). **A silent connection drop is never recovered.** After 45 s without data the client only relabels itself "Offline"; it never reopens the connection. Players don't see a connection indicator at all ([Live updates](live-updates-and-connection.md)). Likely cause of the "stuck player" at the live event. Phones now reopen a quiet stream after 25 s, reconnect with backoff, check on returning to the foreground, and show a connection banner. The arcade host and big screen keep the old behaviour until they're replaced.
+3. ✅ *Fixed in v1.2.0.* **A failed answer send is silent.** The phone shows the answer as chosen even if the server never got it ([Answer a question](answer-a-question.md)). Now "Answer locked" only after the server confirms, with retries, then "Couldn't send your answer. Tap again."
+4. ✅ *Fixed in v1.2.0.* **What's shown can differ from what's scored.** Each answer from anyone redraws the question screen and re-enables the buttons until the player's own answer is confirmed; a second tap changes the highlighted option, but the server scores the first. Now the tiles are disabled while sending, and the option shown is the one the server recorded.
 5. ✅ *Fixed in v1.1.0.* **Missed answers say "Incorrect".** A player who didn't answer saw "Incorrect · 0 points". Now "No answer" ([See if you were right](see-if-you-were-right.md)).
 6. **QR code and join link are hardcoded** to `https://xd-team-summer-quiz.onrender.com/` (`deployedJoinUrl` and `assets/qr/qr-code.svg`) — wrong for any other address ([Big screen](show-the-big-screen.md)). *Server side fixed in v1.1.0* (`/api/join-info`); the big screen uses it from v1.4.0.
 7. ✅ *Fixed in v1.1.0.* **Player ids are public.** Ids are still shared, but answering now needs a secret token only the player's phone has.
@@ -54,4 +54,4 @@ Found in the code review of 2026-10-15. Each is in scope for v2 (`ux-forge/01_fr
 
 ---
 
-*Current through v1.1.0.*
+*Current through v1.2.0.*

@@ -702,7 +702,7 @@ function hostFinalPreviewPlayer(player, label) {
   return `
     <div class="host-final-preview-player">
       <span>${label}</span>
-      <img src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+      <img src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
       <strong>${escapeHtml(player.name)}</strong>
       <small>${player.score} points</small>
     </div>
@@ -856,7 +856,7 @@ function displayParticipantGrid() {
     const avatar = avatarById(participant.avatarId);
     return `
       <div class="pixel-frame display-player-chip">
-        <img src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+        <img src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
         <strong>${escapeHtml(participant.name)}</strong>
       </div>
     `;
@@ -974,7 +974,7 @@ function displayLeaderboardRows() {
     return `
       <li class="display-leaderboard-row">
         <span>${ordinalRank(participant.rank)}</span>
-        <img src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+        <img src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
         <strong>${escapeHtml(participant.name)}</strong>
         <small>${participant.score} pts</small>
       </li>
@@ -1153,8 +1153,24 @@ function bindParticipantAnswerActions() {
   });
 }
 
+// The new player app (v1.2.0) uses emoji avatars; the list matches client/src/shared/avatars.json.
+// Temporary copy until the arcade host and big screen are replaced (v1.3.0, v1.4.0).
+const emojiAvatars = [
+  ["fox", "🦊", "#ffd7d9"], ["panda", "🐼", "#e0e0e0"], ["frog", "🐸", "#a7f0ba"], ["owl", "🦉", "#e8daff"],
+  ["octopus", "🐙", "#ffd6e8"], ["lion", "🦁", "#fcf4d6"], ["penguin", "🐧", "#d0e2ff"], ["koala", "🐨", "#e5e0df"],
+  ["tiger", "🐯", "#ffd9be"], ["bear", "🐻", "#f2f4f8"], ["rabbit", "🐰", "#bae6ff"], ["cow", "🐮", "#9ef0f0"]
+].map(([id, emoji, color]) => ({ id, emoji, color }));
+
 function avatarById(avatarId) {
-  return avatars.find((avatar) => avatar.id === avatarId) || avatars[0];
+  return avatars.find((avatar) => avatar.id === avatarId)
+    || emojiAvatars.find((avatar) => avatar.id === avatarId)
+    || emojiAvatars[0];
+}
+
+function avatarSrc(avatar) {
+  if (avatar.file) return `/assets/avatars/${avatar.file}`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${avatar.color}"/><text x="50" y="68" font-size="54" text-anchor="middle">${avatar.emoji}</text></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 function ordinalRank(rank) {
@@ -1250,7 +1266,7 @@ function renderPlayerSetup() {
                   aria-pressed="${avatar.id === selectedAvatarId}"
                   aria-label="Select ${avatar.label} avatar"
                 >
-                  <img src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+                  <img src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
                 </button>
               `).join("")}
               </div>
@@ -1556,7 +1572,7 @@ function participantPodiumSlot(rank, label, placement, revealed, isNewReveal = f
     <article class="pixel-frame participant-podium-slot ${placement} revealed ${isNewReveal ? "is-new-reveal" : ""}">
       <span class="participant-podium-rank">${label}</span>
       <span class="participant-podium-avatar-wrap">
-        <img class="participant-podium-avatar" src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+        <img class="participant-podium-avatar" src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
         ${trophy}
       </span>
       <strong style="--podium-name-size: ${nameSize}px">${escapeHtml(player.name)}</strong>
@@ -1586,7 +1602,7 @@ function participantFinalStandingsRows() {
     return `
       <li class="participant-final-row">
         <span class="participant-leaderboard-rank">${ordinalRank(participant.rank)}</span>
-        <img class="participant-leaderboard-avatar" src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+        <img class="participant-leaderboard-avatar" src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
         <strong>${escapeHtml(participant.name)}</strong>
         <span class="participant-leaderboard-score">${participant.score}</span>
       </li>
@@ -1608,7 +1624,7 @@ function renderParticipantLeaderboard() {
         return `
           <li class="pixel-frame participant-leaderboard-row ${isCurrentParticipant ? "is-current-player" : ""}">
             <span class="participant-leaderboard-rank">${ordinalRank(participant.rank)}</span>
-            <img class="participant-leaderboard-avatar" src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+            <img class="participant-leaderboard-avatar" src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
             <strong>${escapeHtml(participant.name)}</strong>
             <span class="participant-leaderboard-score">${participant.score} pts</span>
           </li>
@@ -1680,7 +1696,7 @@ function waitingForHostScreen(me, enterClass = "") {
       <img class="waiting-bg-img" src="${participantQuizBackground}" alt="" aria-hidden="true">
       <section class="pixel-frame waiting-card${enterClass}" aria-label="Waiting for host">
         <p class="waiting-player-line">You are in as <span>${escapeHtml(me.name)}</span></p>
-        <img class="waiting-avatar" src="/assets/avatars/${avatar.file}" alt="" aria-hidden="true">
+        <img class="waiting-avatar" src="${avatarSrc(avatar)}" alt="" aria-hidden="true">
         <h1 id="waiting-title">Waiting for host</h1>
         <p class="waiting-copy">Keep this page open.<br>The quiz will start soon.</p>
       </section>

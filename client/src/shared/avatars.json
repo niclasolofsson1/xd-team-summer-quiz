@@ -1,0 +1,14 @@
+[
+  { "id": "fox", "emoji": "🦊", "label": "Fox", "color": "#ffd7d9" },
+  { "id": "panda", "emoji": "🐼", "label": "Panda", "color": "#e0e0e0" },
+  { "id": "frog", "emoji": "🐸", "label": "Frog", "color": "#a7f0ba" },
+  { "id": "owl", "emoji": "🦉", "label": "Owl", "color": "#e8daff" },
+  { "id": "octopus", "emoji": "🐙", "label": "Octopus", "color": "#ffd6e8" },
+  { "id": "lion", "emoji": "🦁", "label": "Lion", "color": "#fcf4d6" },
+  { "id": "penguin", "emoji": "🐧", "label": "Penguin", "color": "#d0e2ff" },
+  { "id": "koala", "emoji": "🐨", "label": "Koala", "color": "#e5e0df" },
+  { "id": "tiger", "emoji": "🐯", "label": "Tiger", "color": "#ffd9be" },
+  { "id": "bear", "emoji": "🐻", "label": "Bear", "color": "#f2f4f8" },
+  { "id": "rabbit", "emoji": "🐰", "label": "Rabbit", "color": "#bae6ff" },
+  { "id": "cow", "emoji": "🐮", "label": "Cow", "color": "#9ef0f0" }
+]

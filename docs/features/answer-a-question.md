@@ -1,37 +1,39 @@
 # Answer a question
 
-> **Player → "Get ready" countdown → question with four options → "Time is up"**: tap one answer before the timer runs out.
+> **Player → countdown → question with four answers → "Time's up!"**: tap one answer before the timer runs out.
 
 | Status | Since | Depends on |
 |---|---|---|
-| 🟡 Partial (silent failures, see Rules) | v1-arcade-summer | [scoring](scoring.md), [live updates](live-updates-and-connection.md) |
+| 🟢 Live | v1-arcade-summer · Carbon player app v1.2.0 | [scoring](scoring.md), [live updates](live-updates-and-connection.md) |
 
 ## What it is
 
-Each question starts with a 3-second **countdown** ("Question 2 of 25 · Get ready · 3"). Then the **question** shows with four options labelled A–D and a timer bar that empties over the answer time. The player taps one option; it's highlighted and all options lock. When the time runs out, the phone shows **"Time is up · Waiting for the host to reveal the answer."**
+Each question starts with a 3-second **countdown** ("Question 2 of 25" and a large 3-2-1). Then the **question** shows with four answer tiles, each with its letter and colour (A Blue, B Purple, C Teal, D Magenta), and a timer bar with the seconds left. The player taps one answer: it shows **"Sending…"**, then **"Answer locked"** once the server has recorded it. When the time runs out (or everyone has answered), the phone shows **"Time's up!"**, "Waiting for the host to reveal the answer." and the locked answer.
 
 ## How it works
 
-- Tapping sends `POST /api/answer` with the player's **token** and `optionIndex` (a whole number 0–3; anything else is refused with 400). The reply includes the recorded option. The first recorded answer always wins; a repeat gets the first option back.
-- The chosen option is also kept in `sessionStorage` (`xd-summer-quiz-answer-<id>-<question>`) so it stays highlighted after a redraw and on the reveal screen.
-- **The first answer counts.** Later answers for the same question are ignored (the server still replies `ok`).
-- The server records the time it received the answer and scores it straight away ([Scoring](scoring.md)).
-- The answer window closes on the server's timer, not the phone's, **or as soon as every joined player has answered** (since v1.1.0). The phone's timer bar is corrected for clock differences using `serverNow` from each update.
+- Tapping sends `POST /api/answer` with the player's **token** and `optionIndex` (0–3). All tiles are disabled while sending, so a second tap can't change anything.
+- **"Answer locked" only after the server confirms.** The reply includes the option the server recorded, and that is the option shown (S5). The first recorded answer always wins: if an earlier request got through but its reply was lost, the retry gets that first option back.
+- **Retries:** a network error, a timeout (5 s) or a server error is retried up to 3 times (after 0.5, 1 and 2 s). If all fail: "Couldn't send your answer. Tap again." and the tiles work again (S4). A closed window shows the server's "The answer window is closed."
+- The confirmed option is kept in the app and in `sessionStorage` (`xd-quiz-answer-<id>-<question>`), so it stays marked on "Time's up!" and the reveal, and after a refresh.
+- The answer window closes on the server's timer, not the phone's, **or as soon as every joined player has answered** (since v1.1.0). The timer follows the server's clock: each update carries `serverNow`, and the phone works out the difference (`clock.js`).
 
 ## Rules & edge cases
 
-- Answers outside the answer window: "The answer window is closed."
 - The category (e.g. "USA") is not shown on phones, only on the host view.
-- Once the server confirms (the player shows as `answered`), the options render disabled.
-- **Known issues:** a failed send isn't handled, so the phone looks answered but the player is scored as missed (Discrepancies 3). Until the server confirms, other players' answers redraw the screen with the options enabled again, and a second tap moves the highlight even though the first answer is scored (Discrepancies 4). Both are fixed by the new player app (v1.2.0).
+- When the last player answers, the server moves everyone to "Time's up!" before it replies; the locked answer appears there as soon as the reply arrives.
+- If the server already counts the player as answered (`answered`), the question shows "Answer locked" even without a local record.
+- Fixed in v1.2.0: a failed send was silent (Discrepancies 3), and a second tap could change what was shown while the first answer was scored (Discrepancies 4).
+- Tiles stack in one column on phones and form a 2×2 grid from 600 px. Each tile is at least 72 px high.
 
 ## Entry points
 
-- Screens: `renderParticipantCountdown`, `renderParticipantQuestion`, `renderParticipantTimeUp` in `public/app.js`
-- Tap handling: `bindParticipantAnswerActions`
-- Timer: `secondsLeft`, `progressPercent`, `renderTimerOnly`, `startTimerAnimationLoop`
+- Screens: `client/src/participant/screens/Countdown.jsx`, `Question.jsx`, `TimeUp.jsx`
+- Parts: `client/src/shared/components/AnswerTile.jsx`, `TimerBar.jsx` (Carbon ProgressBar)
+- Sending: `client/src/shared/answer.js` (`submitAnswer`), `api.js` (`postWithRetry`)
 
 ## Under the hood
 
 - Server: `startCountdown`, `startAnswering`, `answerQuestion` in `server.js`. Answers for the current question are cleared at the start of its countdown (`resetQuestionAnswers`)
 - Constants: `COUNTDOWN_MS` (3000), answer time from [Set up the quiz](set-up-the-quiz.md)
+- Tests: `tests/unit/api-and-answer.test.js`; e2e S4/S5 in `tests/e2e/player.spec.js`

@@ -1,0 +1,83 @@
+// Carbon foundation for the quiz apps (Carbon v11) with self-hosted IBM Plex Sans.
+//
+// Carbon's own font loading points at IBM's CDN; it is switched off ($css--font-face: false) and
+// Plex comes from the @ibm/plex package instead, bundled by Vite. Only the Carbon components the
+// apps use are compiled, which keeps the stylesheet small for phones on mobile data.
+
+@use '@carbon/react/scss/config' with (
+  $css--font-face: false,
+  $use-akamai-cdn: false
+);
+@use '@carbon/react/scss/themes';
+@use '@carbon/react/scss/theme';
+@use '@carbon/react/scss/reset';
+@use '@carbon/react/scss/layer';
+@use '@carbon/react/scss/components/button';
+@use '@carbon/react/scss/components/form';
+@use '@carbon/react/scss/components/text-input';
+@use '@carbon/react/scss/components/tile';
+@use '@carbon/react/scss/components/notification';
+@use '@carbon/react/scss/components/inline-loading';
+@use '@carbon/react/scss/components/progress-bar';
+@use '@carbon/react/scss/components/structured-list';
+@use '@carbon/react/scss/components/tag';
+@use '@carbon/react/scss/components/ui-shell';
+
+// Phones use the White theme. The host (g10) and big screen (g100) set their own in later versions.
+:root {
+  @include theme.theme(themes.$white);
+}
+
+// ---------- Self-hosted IBM Plex Sans (Latin-1 files; other characters fall back to the system font) ----------
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('@ibm/plex/IBM-Plex-Sans/fonts/split/woff2/IBMPlexSans-Light-Latin1.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@ibm/plex/IBM-Plex-Sans/fonts/split/woff2/IBMPlexSans-Regular-Latin1.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('@ibm/plex/IBM-Plex-Sans/fonts/split/woff2/IBMPlexSans-SemiBold-Latin1.woff2') format('woff2');
+}
+
+body {
+  background: theme.$background;
+  color: theme.$text-primary;
+}
+
+// ---------- Focus ring for keyboard users only ----------
+// Carbon draws its ring on :focus. When the browser doesn't count the focus as keyboard focus
+// (:not(:focus-visible)), the ring is removed, so a tap leaves no ring and Tab still shows Carbon's.
+// Own components use :focus-visible from the start. A new Carbon part with its own :focus ring goes in this list.
+.cds--btn,
+.cds--tile--selectable,
+.cds--header__name,
+.cds--actionable-notification__action-button {
+  &:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+  }
+}
+.cds--btn--primary:focus:not(:focus-visible) {
+  border-color: transparent;
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

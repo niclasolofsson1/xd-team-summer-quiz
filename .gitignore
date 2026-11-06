@@ -5,3 +5,6 @@ node_modules/
 .DS_Store
 Thumbs.db
 .vscode/
+dist/
+test-results/
+playwright-report/

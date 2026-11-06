@@ -1,0 +1,33 @@
+// Quiz tokens: every quiz-specific colour lives here, so a themed version (Christmas) only swaps this file.
+// Spacing: only the Carbon steps 4 / 8 / 12 / 16 / 24 / 32 / 48 are used.
+@use '@carbon/react/scss/spacing';
+@use '@carbon/react/scss/colors';
+
+$sp-4: spacing.$spacing-02;
+$sp-8: spacing.$spacing-03;
+$sp-12: spacing.$spacing-04;
+$sp-16: spacing.$spacing-05;
+$sp-24: spacing.$spacing-06;
+$sp-32: spacing.$spacing-07;
+$sp-48: spacing.$spacing-09;
+
+// Answer colours A–D, the same on phones and the big screen. White text on each is at least 4.5:1
+// (checked in tests/unit/answer-colors.test.js, which reads the values below).
+$answer-a: colors.$blue-60; // #0f62fe
+$answer-b: colors.$purple-60; // #8a3ffc
+$answer-c: colors.$teal-60; // #007d79
+$answer-d: colors.$magenta-60; // #d02670
+$answer-colors: ($answer-a, $answer-b, $answer-c, $answer-d);
+
+:root {
+  --quiz-answer-a: #{$answer-a};
+  --quiz-answer-b: #{$answer-b};
+  --quiz-answer-c: #{$answer-c};
+  --quiz-answer-d: #{$answer-d};
+  --quiz-correct: #{colors.$green-50};
+  --quiz-wrong: #{colors.$red-60};
+  --quiz-confetti-1: #{colors.$blue-50};
+  --quiz-confetti-2: #{colors.$magenta-50};
+  --quiz-confetti-3: #{colors.$teal-40};
+  --quiz-confetti-4: #{colors.$yellow-30};
+}

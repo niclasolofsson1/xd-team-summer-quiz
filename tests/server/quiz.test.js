@@ -23,7 +23,7 @@ function watch(token = "") {
 }
 
 async function joinConnected(name) {
-  const player = await post(server.base, "join", { name, avatarId: "ca-moose" });
+  const player = await post(server.base, "join", { name, avatarId: "panda" });
   assert.equal(player.ok, true, player.message);
   player.stream = watch(player.token);
   await player.stream.waitFor((s) => s.participants.find((p) => p.id === player.id)?.connected, 3000, `${name} connected`);

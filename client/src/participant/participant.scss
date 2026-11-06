@@ -1,0 +1,454 @@
+// Player app (phones, White theme). Designed for 360–430 px, works from 320 px.
+// Answer tiles stack in one column; 2×2 from 600 px.
+@use '@carbon/react/scss/theme';
+@use '@carbon/react/scss/type';
+@use '@carbon/react/scss/motion';
+@use '../styles/quiz-tokens' as *;
+
+body {
+  padding-block-start: 48px; // Carbon UI Shell header height
+}
+
+.player-main {
+  max-inline-size: 640px;
+  margin-inline: auto;
+  padding: $sp-16 $sp-16 $sp-48;
+}
+
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: $sp-8;
+  margin-inline-start: auto;
+  padding-inline-end: $sp-16;
+  min-inline-size: 0;
+
+  &__name {
+    @include type.type-style('body-compact-01');
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-inline-size: 40vw;
+  }
+}
+
+.connection-banner {
+  position: sticky;
+  inset-block-start: 48px;
+  z-index: 10;
+  margin-block-end: $sp-16;
+  background: theme.$background;
+
+  .cds--inline-notification,
+  .cds--actionable-notification {
+    max-inline-size: none;
+    margin: 0;
+  }
+}
+
+// ---------- Screens ----------
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-24;
+
+  &--center {
+    align-items: center;
+    text-align: center;
+    padding-block-start: $sp-32;
+  }
+
+  &__title {
+    @include type.type-style('heading-04');
+  }
+
+  &__lead {
+    @include type.type-style('body-02');
+    color: theme.$text-secondary;
+  }
+
+  &__meta {
+    @include type.type-style('body-compact-01');
+    color: theme.$text-secondary;
+  }
+
+  &__eyebrow {
+    @include type.type-style('label-02');
+    color: theme.$text-secondary;
+  }
+
+  &__action {
+    inline-size: 100%;
+    max-inline-size: none;
+  }
+
+  .cds--inline-notification {
+    max-inline-size: none;
+    margin: 0;
+  }
+}
+
+// ---------- Avatars ----------
+.quiz-avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--avatar-bg);
+  line-height: 1;
+
+  &--sm { inline-size: 32px; block-size: 32px; font-size: 18px; }
+  &--md { inline-size: 48px; block-size: 48px; font-size: 28px; }
+  &--lg { inline-size: 64px; block-size: 64px; font-size: 36px; }
+  &--xl { inline-size: 96px; block-size: 96px; font-size: 56px; }
+}
+
+.avatar-grid {
+  > div {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: $sp-8;
+  }
+
+  .cds--tile--selectable {
+    display: grid;
+    place-items: center;
+    min-block-size: 72px;
+    min-inline-size: 0;
+    padding: $sp-8;
+  }
+
+  &__emoji {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 48px;
+    block-size: 48px;
+    border-radius: 50%;
+    background: var(--avatar-bg);
+    font-size: 28px;
+    line-height: 1;
+  }
+}
+
+// ---------- Countdown ----------
+.countdown__number {
+  font-size: 160px;
+  font-weight: 300;
+  line-height: 1;
+  animation: countdown-pop motion.$duration-moderate-02 motion.motion(entrance, expressive);
+}
+
+@keyframes countdown-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+// ---------- Question ----------
+.question__text {
+  @include type.type-style('heading-03');
+
+  &--small {
+    @include type.type-style('heading-02');
+  }
+}
+
+.timer-bar .cds--progress-bar__helper-text {
+  @include type.type-style('label-02');
+  color: theme.$text-primary;
+}
+
+.answer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $sp-12;
+
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.answer-tile {
+  --tile-color: var(--quiz-answer-a);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: $sp-16;
+  row-gap: $sp-4;
+  min-block-size: 72px;
+  inline-size: 100%;
+  padding: $sp-12 $sp-16;
+  border: 2px solid transparent;
+  background: var(--tile-color);
+  color: #ffffff;
+  text-align: start;
+  font: inherit;
+  @include type.type-style('body-02');
+  transition: opacity motion.$duration-fast-02 motion.motion(standard, productive);
+
+  &--b { --tile-color: var(--quiz-answer-b); }
+  &--c { --tile-color: var(--quiz-answer-c); }
+  &--d { --tile-color: var(--quiz-answer-d); }
+
+  &:is(button) { cursor: pointer; }
+  &:is(button):disabled { cursor: default; }
+
+  &:focus-visible {
+    outline: 2px solid theme.$focus;
+    outline-offset: 2px;
+  }
+
+  &__letter {
+    display: grid;
+    place-items: center;
+    inline-size: 40px;
+    block-size: 40px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: var(--tile-color);
+    font-weight: 600;
+    grid-row: span 2;
+  }
+
+  &__mark,
+  &__count {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    @include type.type-style('label-02');
+    grid-column: 2;
+  }
+
+  // The player's pick: a thick outline in the text colour on top of the tile colour.
+  &--chosen {
+    outline: 4px solid theme.$text-primary;
+    outline-offset: 2px;
+  }
+
+  &--dim {
+    opacity: 0.4;
+  }
+
+  &--correct {
+    outline: 4px solid var(--quiz-correct);
+    outline-offset: 2px;
+  }
+
+  &--wrong {
+    outline: 4px dashed theme.$text-primary;
+    outline-offset: 2px;
+    opacity: 0.7;
+  }
+}
+
+.question__status {
+  min-block-size: 48px;
+}
+
+.answer-locked {
+  display: flex;
+  align-items: center;
+  gap: $sp-8;
+  @include type.type-style('heading-02');
+  color: theme.$support-success;
+}
+
+// ---------- Reveal ----------
+.result-banner {
+  padding: $sp-16;
+  @include type.type-style('heading-04');
+  border-inline-start: 4px solid theme.$border-strong;
+  background: theme.$layer-01;
+  animation: reveal-in motion.$duration-moderate-01 motion.motion(entrance, productive);
+
+  &--correct { border-color: theme.$support-success; }
+  &--wrong { border-color: theme.$support-error; }
+  &--none { border-color: theme.$border-strong; }
+}
+
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+// ---------- Leaderboard ----------
+.score-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $sp-16;
+  padding: $sp-16;
+  background: theme.$layer-01;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+  }
+
+  &__label {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  &__value {
+    @include type.type-style('heading-05');
+  }
+}
+
+.leaderboard {
+  margin-block-end: 0;
+
+  .cds--structured-list-td {
+    vertical-align: middle;
+  }
+
+  &__rank {
+    inline-size: 56px;
+    font-weight: 600;
+  }
+
+  &__player {
+    display: flex;
+    align-items: center;
+    gap: $sp-8;
+    min-inline-size: 0;
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__score {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__row--me {
+    background: theme.$highlight;
+    font-weight: 600;
+  }
+
+  &__gap .cds--structured-list-td {
+    color: theme.$text-secondary;
+  }
+}
+
+// ---------- Final ----------
+.final__mine {
+  @include type.type-style('heading-02');
+}
+
+.podium {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: $sp-8;
+  overflow: hidden;
+  padding-block-start: $sp-24;
+
+  &__place {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-8;
+    min-inline-size: 0;
+    text-align: center;
+  }
+
+  &__who {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-4;
+    min-inline-size: 0;
+    inline-size: 100%;
+  }
+
+  &__name {
+    @include type.type-style('heading-compact-01');
+    overflow-wrap: anywhere;
+  }
+
+  &__score {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  &__locked {
+    display: grid;
+    place-items: center;
+    inline-size: 64px;
+    block-size: 64px;
+    border-radius: 50%;
+    background: theme.$layer-accent-01;
+    @include type.type-style('heading-04');
+    color: theme.$text-secondary;
+  }
+
+  &__empty {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  &__step {
+    inline-size: 100%;
+    padding: $sp-8 $sp-4;
+    background: theme.$layer-accent-01;
+    @include type.type-style('label-02');
+    font-weight: 600;
+  }
+
+  &__place--1 &__step { block-size: 96px; background: theme.$background-brand; color: theme.$text-on-color; }
+  &__place--2 &__step { block-size: 72px; }
+  &__place--3 &__step { block-size: 48px; }
+
+  &__place--me &__who {
+    outline: 2px solid theme.$border-interactive;
+    outline-offset: $sp-4;
+  }
+
+  &__place--revealed &__who {
+    animation: reveal-in motion.$duration-moderate-02 motion.motion(entrance, expressive);
+  }
+}
+
+// CSS-only confetti when the champion is revealed.
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  &__piece {
+    position: absolute;
+    inset-block-start: -12px;
+    inset-inline-start: calc(var(--i) * 4.1%);
+    inline-size: 8px;
+    block-size: 12px;
+    background: var(--quiz-confetti-1);
+    animation: confetti-fall 2400ms linear calc(var(--i) * 70ms) 2 both;
+
+    &:nth-child(4n + 2) { background: var(--quiz-confetti-2); }
+    &:nth-child(4n + 3) { background: var(--quiz-confetti-3); }
+    &:nth-child(4n + 4) { background: var(--quiz-confetti-4); }
+  }
+}
+
+@keyframes confetti-fall {
+  from { transform: translateY(0) rotate(0deg); opacity: 1; }
+  to { transform: translateY(320px) rotate(540deg); opacity: 0; }
+}
+
+// Reduced motion: no countdown pop, no reveal slide, no confetti.
+@media (prefers-reduced-motion: reduce) {
+  .countdown__number,
+  .result-banner,
+  .podium__place--revealed .podium__who {
+    animation: none;
+  }
+
+  .confetti {
+    display: none;
+  }
+}

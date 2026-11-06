@@ -75,3 +75,42 @@ test("fonts get the right content type and the stream has anti-buffering headers
   await stream.waitFor((s) => s.phase === "lobby");
   stream.close();
 });
+
+test("the built player app is served first, the arcade host and big screen still come from public/", async () => {
+  const fs = require("node:fs");
+  const os = require("node:os");
+  const path = require("node:path");
+  const dist = fs.mkdtempSync(path.join(os.tmpdir(), "quiz-dist-"));
+  fs.mkdirSync(path.join(dist, "app"));
+  fs.writeFileSync(path.join(dist, "participant.html"), "<!doctype html><p>carbon player</p>");
+  fs.writeFileSync(path.join(dist, "app", "participant-abc123.js"), "console.log(1)");
+  const server = await start({ QUIZ_DIST_DIR: dist });
+
+  const player = await fetch(`${server.base}/participant.html`);
+  assert.match(await player.text(), /carbon player/);
+  assert.equal(player.headers.get("cache-control"), "no-cache");
+  const asset = await fetch(`${server.base}/app/participant-abc123.js`);
+  assert.match(asset.headers.get("cache-control"), /immutable/);
+  await asset.text();
+  const host = await fetch(`${server.base}/host.html`);
+  assert.equal(host.status, 200);
+  assert.match(await host.text(), /data-view="host"/);
+  const missing = await fetch(`${server.base}/nope.html`);
+  assert.equal(missing.status, 404);
+  await missing.text();
+  assert.ok(!server.output().includes("isn't built"));
+});
+
+test("the server warns at startup when the player app isn't built", async () => {
+  const server = await start({ QUIZ_DIST_DIR: require("node:path").join(require("node:os").tmpdir(), "quiz-no-dist") });
+  await new Promise((r) => setTimeout(r, 100));
+  assert.match(server.output(), /WARNING: The player app isn't built/);
+});
+
+test("unknown avatars fall back to the first emoji avatar", async () => {
+  const server = await start();
+  await post(server.base, "join", { name: "Ada", avatarId: "dragon" });
+  await post(server.base, "join", { name: "Bo", avatarId: "owl" });
+  const state = await getJson(server.base, "/api/state");
+  assert.deepEqual(state.participants.map((p) => p.avatarId), ["fox", "owl"]);
+});

@@ -20,7 +20,7 @@ const ANSWER_SECONDS = Number(args["answer-seconds"] || 15);
 const SKIPPERS = { 0: [3, 7], 1: [3] };
 const DROPPERS = { 2: 5, 3: 5 };
 const SWITCHER = { player: 4, question: Math.min(10, correctAnswers(SET).length - 1) };
-const EMOJI_AVATARS = ["us-eagle", "us-hotdog", "us-statue", "ca-beaver", "ca-leaf", "ca-moose", "mx-cactus", "mx-chili", "mx-taco"];
+const EMOJI_AVATARS = require("../client/src/shared/avatars.json").map((avatar) => avatar.id);
 
 const errors = [];
 const fail = (message) => { errors.push(message); console.error(`  ✖ ${message}`); };

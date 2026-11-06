@@ -6,6 +6,8 @@ const crypto = require("node:crypto");
 
 const PORT = Number(process.env.PORT || 4173);
 const PUBLIC_DIR = path.join(__dirname, "public");
+// The built Carbon client (npm run build). Looked up before public/, which still holds the arcade host and big screen.
+const DIST_DIR = path.resolve(process.env.QUIZ_DIST_DIR || path.join(__dirname, "dist"));
 const QUESTIONS_DIR = path.join(__dirname, "questions");
 
 const COUNTDOWN_MS = Number(process.env.COUNTDOWN_MS || 3000);
@@ -17,16 +19,11 @@ const MAX_BODY_BYTES = 10 * 1024;
 const HOST_PIN = String(process.env.HOST_PIN || "");
 const PUBLIC_URL = String(process.env.PUBLIC_URL || "").trim();
 const HOST_ACTIONS = new Set(["start", "reveal", "leaderboard", "next", "reset", "final-reveal", "set-question-set", "set-answer-time"]);
+// Avatars come from the client's data file. The arcade ids are still accepted until the arcade screens are gone (v1.4.0).
+const AVATARS = JSON.parse(fs.readFileSync(path.join(__dirname, "client", "src", "shared", "avatars.json"), "utf8"));
 const AVATAR_IDS = new Set([
-  "us-eagle",
-  "us-hotdog",
-  "us-statue",
-  "ca-beaver",
-  "ca-leaf",
-  "ca-moose",
-  "mx-cactus",
-  "mx-chili",
-  "mx-taco"
+  ...AVATARS.map((avatar) => avatar.id),
+  "us-eagle", "us-hotdog", "us-statue", "ca-beaver", "ca-leaf", "ca-moose", "mx-cactus", "mx-chili", "mx-taco"
 ]);
 
 const questionSets = loadQuestionSets();
@@ -438,7 +435,7 @@ function answerQuestion(token, rawOptionIndex) {
 
 function normalizeAvatarId(avatarId) {
   const clean = String(avatarId || "").trim();
-  return AVATAR_IDS.has(clean) ? clean : "us-eagle";
+  return AVATAR_IDS.has(clean) ? clean : AVATARS[0].id;
 }
 
 function join(name, avatarId) {
@@ -539,27 +536,36 @@ function serveStatic(req, res) {
     res.end();
     return;
   }
+  serveFrom([DIST_DIR, PUBLIC_DIR], url.pathname, res);
+}
 
-  const pathname = url.pathname;
-  const filePath = path.normalize(path.join(PUBLIC_DIR, pathname));
+// Tries each folder in turn; the first one that has the file serves it.
+function serveFrom(dirs, pathname, res) {
+  const [dir, ...rest] = dirs;
+  if (!dir) {
+    res.writeHead(404);
+    res.end("Not found");
+    return;
+  }
 
-  if (!filePath.startsWith(PUBLIC_DIR)) {
+  const filePath = path.normalize(path.join(dir, pathname));
+  if (!filePath.startsWith(dir + path.sep)) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
   }
 
   fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.writeHead(404);
-      res.end("Not found");
-      return;
-    }
+    if (err) return serveFrom(rest, pathname, res);
 
     const ext = path.extname(filePath).toLowerCase();
     const type = CONTENT_TYPES[ext] || "application/octet-stream";
+    const headers = { "Content-Type": type };
+    // Built files have a content hash in their name, so they never change; pages are always checked again.
+    if (dir === DIST_DIR && pathname.startsWith("/app/")) headers["Cache-Control"] = "public, max-age=31536000, immutable";
+    else if (ext === ".html") headers["Cache-Control"] = "no-cache";
 
-    res.writeHead(200, { "Content-Type": type });
+    res.writeHead(200, headers);
     res.end(data);
   });
 }
@@ -674,6 +680,9 @@ server.listen(PORT, "0.0.0.0", () => {
   const phoneUrl = PUBLIC_URL ? `${PUBLIC_URL.replace(/\/+$/, "")}/` : `http://${localIp()}:${port}/participant.html`;
   console.log(`Host view: ${hostUrl}`);
   console.log(`Participant link for phones: ${phoneUrl}`);
+  if (!fs.existsSync(path.join(DIST_DIR, "participant.html"))) {
+    console.warn("WARNING: The player app isn't built. Run npm run build before starting the server.");
+  }
   if (!HOST_PIN) {
     console.warn("WARNING: HOST_PIN is not set. Anyone who opens the host page can control the quiz. Set HOST_PIN before the event.");
   }

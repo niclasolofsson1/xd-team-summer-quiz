@@ -5,14 +5,14 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.1.0 (server hardening)
-- **Current phase:** L3 — Build (next: v1.2.0, not started; waits for the user's go)
+- **Current version:** v1.2.0 (Carbon player app)
+- **Current phase:** L3 — Build (next: v1.3.0 host app, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
 
 ## Next session
 
-v1.1.0 (server hardening) is done: tokens, presence, scores at reveal, early end, ties, rejoin by name, validation, join-info, PIN warning, stream headers, no-answer flag. `npm test` runs the server tests; `npm run simulate` plays a full quiz with 25 simulated players. Next: **v1.2.0 — build setup, Carbon foundation, live-state hook, player app** (spec sections 3, 6, 8, 9). Read `02_design_spec.md` and the wiki pages for the player screens; not the whole repo.
+v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connection with watchdog/backoff/foreground check and banner, answers locked only after server confirmation with retries, emoji avatars, all player screens. The server serves `dist/` first, then `public/` (arcade host and big screen). Tests: `npm test` (server + unit), `npm run test:e2e` (Playwright player flow), `npm run simulate`. Next: **v1.3.0 — host app** (spec sections 3 Host, 4, 5, 8; reuse `client/src/shared/`). Read `02_design_spec.md`, `docs/features/conventions.md` (Carbon section) and the host wiki pages; not the whole repo. Waiting for the user's visual check of the player app first.
 
 **Checkpoint rule (user's guardrail):** one version per session. After each version, stop and report (changes, tests run, what to check visually). Never start the next version without the user's explicit go. Check plan usage before starting a version; the user wants no extra-usage spend.
 
@@ -35,7 +35,8 @@ v1.1.0 (server hardening) is done: tokens, presence, scores at reveal, early end
 - L2 decisions: emoji avatars; ties broken by faster total correct-answer time, then shared rank; timer ends early when everyone answered; rejoin by name only for a disconnected player.
 - Font: IBM Plex Sans (self-hosted, as in Rinkside) — replaces the L1 note about overriding it.
 - Versions: arcade = v1; v2 work is v1.1.0–v1.5.0; v2.0.0 (merge to main) needs the user's explicit go after the rehearsal.
-- Hosting stays on Render (one long-running process holds the state; Vercel's serverless model doesn't fit).
+- Hosting stays on Render (one long-running process holds the state; Vercel's serverless model doesn't fit). Since v1.2.0 Render's build command must be `npm install && npm run build` (to change in the Render dashboard by the user before the next deploy).
+- v1.2.0: Carbon's Sass compiles under Vite 8 (spec risk cleared). Only the used Carbon component styles are compiled (CSS 28 KB gzipped).
 - Both live-event bugs (name wiped on setup screen, player stuck) trace back to the client redrawing the whole screen on every update and never reopening a stale connection — see the wiki's Discrepancies section.
 - The arcade theme must never be lost: tag `v1-arcade-summer` is on GitHub. To run it again, branch from the tag and deploy that branch.
 
@@ -44,3 +45,4 @@ v1.1.0 (server hardening) is done: tokens, presence, scores at reveal, early end
 | Date | Version | Iteration | Status |
 |---|---|---|---|
 | 2026-10-15 | v1.1.0 | Server hardening (spec section 6, items 1–9), server tests, 25-player simulation | Done |
+| 2026-11-06 | v1.2.0 | Build setup, Carbon foundation, live-state hook, player app; unit + e2e tests | Done (visual check by the user pending) |
