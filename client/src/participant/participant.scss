@@ -169,11 +169,11 @@ body {
 
 .answer-tile {
   --tile-color: var(--quiz-answer-a);
+  --tile-tint: var(--quiz-answer-a-tint);
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
   column-gap: $sp-16;
-  row-gap: $sp-4;
   min-block-size: 72px;
   inline-size: 100%;
   padding: $sp-12 $sp-16;
@@ -185,9 +185,9 @@ body {
   @include type.type-style('body-02');
   transition: opacity motion.$duration-fast-02 motion.motion(standard, productive);
 
-  &--b { --tile-color: var(--quiz-answer-b); }
-  &--c { --tile-color: var(--quiz-answer-c); }
-  &--d { --tile-color: var(--quiz-answer-d); }
+  &--b { --tile-color: var(--quiz-answer-b); --tile-tint: var(--quiz-answer-b-tint); }
+  &--c { --tile-color: var(--quiz-answer-c); --tile-tint: var(--quiz-answer-c-tint); }
+  &--d { --tile-color: var(--quiz-answer-d); --tile-tint: var(--quiz-answer-d-tint); }
 
   &:is(button) { cursor: pointer; }
   &:is(button):disabled { cursor: default; }
@@ -206,7 +206,13 @@ body {
     background: #ffffff;
     color: var(--tile-color);
     font-weight: 600;
-    grid-row: span 2;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    min-inline-size: 0;
   }
 
   &__mark,
@@ -215,7 +221,6 @@ body {
     align-items: center;
     gap: $sp-4;
     @include type.type-style('label-02');
-    grid-column: 2;
   }
 
   // The player's pick: a thick outline in the text colour on top of the tile colour.
@@ -224,8 +229,10 @@ body {
     outline-offset: 2px;
   }
 
+  // Not the answer that matters: a light tint of its own colour with dark text, so it recedes but stays readable.
   &--dim {
-    opacity: 0.4;
+    background: var(--tile-tint);
+    color: theme.$text-primary;
   }
 
   &--correct {
@@ -236,7 +243,6 @@ body {
   &--wrong {
     outline: 4px dashed theme.$text-primary;
     outline-offset: 2px;
-    opacity: 0.7;
   }
 }
 

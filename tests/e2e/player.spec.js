@@ -53,7 +53,7 @@ test("tap targets are phone-sized", async ({ page, request }) => {
   const height = async (locator) => (await locator.boundingBox()).height;
   await page.goto("/participant.html");
   expect(await height(page.getByRole("button", { name: "Join" }))).toBeGreaterThanOrEqual(48);
-  expect(await height(page.getByLabel("Your name"))).toBeGreaterThanOrEqual(40);
+  expect(await height(page.getByLabel("Your name"))).toBeGreaterThanOrEqual(48);
   expect(await height(page.locator("label.cds--tile--selectable").first())).toBeGreaterThanOrEqual(48);
 
   await joinAs(page, "Pia");
@@ -61,7 +61,12 @@ test("tap targets are phone-sized", async ({ page, request }) => {
   await host(request, "start");
   await expect(answerButton(page, "a")).toBeVisible();
   for (const letter of ["a", "b", "c", "d"]) {
-    expect(await height(answerButton(page, letter))).toBeGreaterThanOrEqual(72);
+    const tile = answerButton(page, letter);
+    expect(await height(tile)).toBeGreaterThanOrEqual(72);
+    // The answer text sits in the middle of the tile, top to bottom, level with the letter.
+    const box = await tile.boundingBox();
+    const text = await tile.locator(".answer-tile__text").boundingBox();
+    expect(Math.abs(text.y + text.height / 2 - (box.y + box.height / 2))).toBeLessThanOrEqual(2);
   }
 });
 

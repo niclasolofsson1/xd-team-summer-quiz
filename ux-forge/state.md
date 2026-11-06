@@ -5,7 +5,7 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.2.1 (player app: phone-sized buttons and fields)
+- **Current version:** v1.2.2 (player app: tidier answer tiles)
 - **Current phase:** L3 — Build (next: v1.3.0 host app, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
@@ -46,4 +46,5 @@ v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connect
 |---|---|---|---|
 | 2026-10-15 | v1.1.0 | Server hardening (spec section 6, items 1–9), server tests, 25-player simulation | Done |
 | 2026-11-06 | v1.2.0 | Build setup, Carbon foundation, live-state hook, player app; unit + e2e tests | Done |
-| 2026-11-06 | v1.2.1 | Fix: Carbon layout tokens missing (buttons/inputs 19 px tall); size e2e test | Done (visual check by the user pending; cosmetic changes to be batched next) |
+| 2026-11-06 | v1.2.1 | Fix: Carbon layout tokens missing (buttons/inputs 19 px tall); size e2e test | Done |
+| 2026-11-06 | v1.2.2 | Answer text centred vertically; readable tinted tiles on the reveal; name field 48 px | Done (user's phone check pending) |

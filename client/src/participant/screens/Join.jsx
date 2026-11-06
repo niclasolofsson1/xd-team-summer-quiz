@@ -49,6 +49,7 @@ export function Join({ phase, notice, onJoined }) {
       <TextInput
         id="player-name"
         labelText="Your name"
+        size="lg"
         value={name}
         maxLength={28}
         autoComplete="nickname"

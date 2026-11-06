@@ -19,11 +19,21 @@ $answer-c: colors.$teal-60; // #007d79
 $answer-d: colors.$magenta-60; // #d02670
 $answer-colors: ($answer-a, $answer-b, $answer-c, $answer-d);
 
+// Light tints for answers that recede after the reveal; they carry dark text (Gray 100), at least 4.5:1.
+$answer-a-tint: colors.$blue-20; // #d0e2ff
+$answer-b-tint: colors.$purple-20; // #e8daff
+$answer-c-tint: colors.$teal-20; // #9ef0f0
+$answer-d-tint: colors.$magenta-20; // #ffd6e8
+
 :root {
   --quiz-answer-a: #{$answer-a};
   --quiz-answer-b: #{$answer-b};
   --quiz-answer-c: #{$answer-c};
   --quiz-answer-d: #{$answer-d};
+  --quiz-answer-a-tint: #{$answer-a-tint};
+  --quiz-answer-b-tint: #{$answer-b-tint};
+  --quiz-answer-c-tint: #{$answer-c-tint};
+  --quiz-answer-d-tint: #{$answer-d-tint};
   --quiz-correct: #{colors.$green-50};
   --quiz-wrong: #{colors.$red-60};
   --quiz-confetti-1: #{colors.$blue-50};

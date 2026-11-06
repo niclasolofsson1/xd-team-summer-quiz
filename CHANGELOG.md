@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.2 — Tidier answer tiles
+
+- The answer text now sits in the middle of its tile, level with the letter, instead of near the top.
+- On the reveal, the answers that aren't right (or yours) are shown in a light tint of their colour with dark text, instead of faded out. They're now easy to read.
+- The name field on the Join screen is a bit taller (48 px), easier to tap.
+
 ## v1.2.1 — Phone-sized buttons and fields
 
 - Fixed: on the player app the Join button, the name field and other Carbon buttons were only as tall as their text. They're back to Carbon's normal 48 px height, easy to tap on a phone.

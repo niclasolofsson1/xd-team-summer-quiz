@@ -13,22 +13,25 @@ export function AnswerTile({ index, text, mark, disabled, onChoose, count }) {
   const content = (
     <>
       <span className="answer-tile__letter" aria-hidden="true">{letter}</span>
-      <span className="answer-tile__text">
-        <span className="visually-hidden">{letter}: </span>
-        {text}
+      {/* Text, mark and count are one group, centred next to the letter. */}
+      <span className="answer-tile__body">
+        <span className="answer-tile__text">
+          <span className="visually-hidden">{letter}: </span>
+          {text}
+        </span>
+        {mark === "correct" && (
+          <span className="answer-tile__mark">
+            <CheckmarkFilled size={20} aria-hidden="true" /> Correct answer
+          </span>
+        )}
+        {mark === "wrong" && (
+          <span className="answer-tile__mark">
+            <Close size={20} aria-hidden="true" /> Your answer
+          </span>
+        )}
+        {mark === "chosen" && <span className="answer-tile__mark">Your answer</span>}
+        {count !== undefined && <span className="answer-tile__count">{pickedLabel(count)}</span>}
       </span>
-      {mark === "correct" && (
-        <span className="answer-tile__mark">
-          <CheckmarkFilled size={20} aria-hidden="true" /> Correct answer
-        </span>
-      )}
-      {mark === "wrong" && (
-        <span className="answer-tile__mark">
-          <Close size={20} aria-hidden="true" /> Your answer
-        </span>
-      )}
-      {mark === "chosen" && <span className="answer-tile__mark">Your answer</span>}
-      {count !== undefined && <span className="answer-tile__count">{pickedLabel(count)}</span>}
     </>
   );
 

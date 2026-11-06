@@ -8,7 +8,7 @@
 
 ## What it is
 
-When the host reveals the answer, every phone shows a **result banner** — **"Correct! +850"**, **"Not this time"** or **"No answer"** — then the question with all four answers: the **correct answer** outlined and labelled "Correct answer", the **player's wrong pick** labelled "Your answer", the others dimmed. Each answer shows how many players picked it ("3 picks").
+When the host reveals the answer, every phone shows a **result banner** — **"Correct! +850"**, **"Not this time"** or **"No answer"** — then the question with all four answers: the **correct answer** outlined and labelled "Correct answer", the **player's wrong pick** labelled "Your answer" with a dashed outline, the others in a light tint of their colour with dark text (since v1.2.2; readable at WCAG AA). Each answer shows how many players picked it ("3 picks").
 
 ## How it works
 

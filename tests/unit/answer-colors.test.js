@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
-import { blue60, purple60, teal60, magenta60 } from "@carbon/colors";
+import { blue20, blue60, gray100, magenta20, magenta60, purple20, purple60, teal20, teal60 } from "@carbon/colors";
 
 // WCAG contrast ratio between two hex colours.
 function luminance(hex) {
@@ -27,6 +27,20 @@ describe("answer colours", () => {
     "white text on %s is at least 4.5:1",
     (_, color) => {
       expect(contrast(color, "#ffffff")).toBeGreaterThanOrEqual(4.5);
+    }
+  );
+
+  test("the receding tints are Carbon 20 shades", () => {
+    expect(tokens).toMatch(/\$answer-a-tint: colors\.\$blue-20;/);
+    expect(tokens).toMatch(/\$answer-b-tint: colors\.\$purple-20;/);
+    expect(tokens).toMatch(/\$answer-c-tint: colors\.\$teal-20;/);
+    expect(tokens).toMatch(/\$answer-d-tint: colors\.\$magenta-20;/);
+  });
+
+  test.each([["A", blue20], ["B", purple20], ["C", teal20], ["D", magenta20]])(
+    "dark text on the %s tint is at least 4.5:1",
+    (_, tint) => {
+      expect(contrast(gray100, tint)).toBeGreaterThanOrEqual(4.5);
     }
   );
 });
