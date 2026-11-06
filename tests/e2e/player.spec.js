@@ -66,6 +66,9 @@ test("tap targets are phone-sized", async ({ page, request }) => {
   await apiJoin(request, "Quinn");
   await host(request, "start");
   await expect(answerButton(page, "a")).toBeVisible();
+  // The timer bar drains with one smooth animation, not stepwise updates.
+  const bar = page.locator(".timer-bar .cds--progress-bar__bar");
+  expect(await bar.evaluate((el) => getComputedStyle(el).animationName)).toBe("timer-drain");
   for (const letter of ["a", "b", "c", "d"]) {
     const tile = answerButton(page, letter);
     expect(await height(tile)).toBeGreaterThanOrEqual(72);

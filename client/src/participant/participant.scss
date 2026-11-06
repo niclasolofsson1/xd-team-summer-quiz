@@ -157,6 +157,18 @@ body {
   color: theme.$text-primary;
 }
 
+// One linear drain instead of Carbon's eased step per update (which looked choppy). The animation
+// overrides the inline scaleX Carbon sets. It stays on with reduced motion: it shows the time left.
+.timer-bar .cds--progress-bar__bar {
+  transition: none;
+  animation: timer-drain var(--drain-ms) linear forwards;
+}
+
+@keyframes timer-drain {
+  from { transform: scaleX(var(--drain-from)); }
+  to { transform: scaleX(0); }
+}
+
 .answer-grid {
   display: grid;
   grid-template-columns: 1fr;

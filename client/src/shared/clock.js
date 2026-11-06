@@ -14,6 +14,15 @@ export function secondsLeft(endsAt, offsetMs, now = Date.now()) {
   return Math.ceil(msLeft(endsAt, offsetMs, now) / 1000);
 }
 
+// Where a smooth drain animation starts: the share of the bar still full (0–1) and how long it has left.
+// Mid-question (after a refresh or reconnect) it starts part-way instead of from full.
+export function drainStart(startedAt, endsAt, offsetMs, now = Date.now()) {
+  return {
+    fraction: percentLeft(startedAt, endsAt, offsetMs, now) / 100,
+    remainingMs: msLeft(endsAt, offsetMs, now)
+  };
+}
+
 // Share of the time still left, 0–100.
 export function percentLeft(startedAt, endsAt, offsetMs, now = Date.now()) {
   const total = endsAt - startedAt;

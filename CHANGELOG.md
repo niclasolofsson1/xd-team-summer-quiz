@@ -2,6 +2,10 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.7 — Smooth timer bar
+
+- The blue timer bar on the question now drains smoothly instead of in small jumps. After a refresh mid-question it carries on from the right point.
+
 ## v1.2.6 — Your pick in Carbon blue
 
 - Your answer is now marked with a solid blue frame (Carbon's "selected" style) everywhere: on the question, on Time's up and on the reveal. The dashed frame is gone.

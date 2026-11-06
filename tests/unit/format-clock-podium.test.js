@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { ordinal, playersJoined, rankLabel, pointsLabel } from "../../client/src/shared/format.js";
-import { clockOffset, msLeft, percentLeft, secondsLeft } from "../../client/src/shared/clock.js";
+import { clockOffset, drainStart, msLeft, percentLeft, secondsLeft } from "../../client/src/shared/clock.js";
 import { finalLayout, medalFor } from "../../client/src/shared/podium.js";
 
 describe("format", () => {
@@ -29,6 +29,15 @@ describe("clock", () => {
     expect(secondsLeft(115000, offset, 112000)).toBe(0);
     expect(percentLeft(105000, 115000, offset, 102500)).toBe(75);
     expect(clockOffset(undefined, 1)).toBe(0);
+  });
+
+  test("the drain starts full at the start, part-way mid-question, empty when time is up", () => {
+    // A 10 s answer window from server time 100 000 to 110 000; the phone's clock matches the server's.
+    expect(drainStart(100000, 110000, 0, 100000)).toEqual({ fraction: 1, remainingMs: 10000 });
+    expect(drainStart(100000, 110000, 0, 106000)).toEqual({ fraction: 0.4, remainingMs: 4000 });
+    expect(drainStart(100000, 110000, 0, 111000)).toEqual({ fraction: 0, remainingMs: 0 });
+    // The phone's clock is 2 s behind: it's really 106 000 on the server.
+    expect(drainStart(100000, 110000, 2000, 104000)).toEqual({ fraction: 0.4, remainingMs: 4000 });
   });
 });
 

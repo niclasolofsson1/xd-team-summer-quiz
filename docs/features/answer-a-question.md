@@ -16,7 +16,7 @@ Each question starts with a 3-second **countdown** ("Question 2 of 25" and a lar
 - **"Answer locked" only after the server confirms.** The reply includes the option the server recorded, and that is the option shown (S5). The first recorded answer always wins: if an earlier request got through but its reply was lost, the retry gets that first option back.
 - **Retries:** a network error, a timeout (5 s) or a server error is retried up to 3 times (after 0.5, 1 and 2 s). If all fail: "Couldn't send your answer. Tap again." and the tiles work again (S4). A closed window shows the server's "The answer window is closed."
 - The confirmed option is kept in the app and in `sessionStorage` (`xd-quiz-answer-<id>-<question>`), so it stays marked on "Time's up!" and the reveal, and after a refresh.
-- The answer window closes on the server's timer, not the phone's, **or as soon as every joined player has answered** (since v1.1.0). The timer follows the server's clock: each update carries `serverNow`, and the phone works out the difference (`clock.js`).
+- The answer window closes on the server's timer, not the phone's, **or as soon as every joined player has answered** (since v1.1.0). The timer follows the server's clock: each update carries `serverNow`, and the phone works out the difference (`clock.js`). The bar drains with one linear CSS animation from the time left (`drainStart`), smooth at the phone's frame rate; the seconds update every 250 ms (since v1.2.7).
 
 ## Rules & edge cases
 
