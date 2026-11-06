@@ -13,11 +13,6 @@ export function Reveal({ state, me, myAnswer }) {
   const mine = result?.optionIndex ?? (result?.noAnswer ? null : myAnswer);
   const counts = state.lastQuestionSummary?.optionCounts || [];
 
-  function markFor(index) {
-    if (index === correctIndex) return "correct";
-    if (index === mine) return "wrong";
-    return "dim";
-  }
 
   return (
     <section className="screen reveal">
@@ -25,7 +20,15 @@ export function Reveal({ state, me, myAnswer }) {
       <h1 className="question__text question__text--small">{state.question.text}</h1>
       <div className="answer-grid">
         {state.question.options.map((text, index) => (
-          <AnswerTile key={index} index={index} text={text} mark={markFor(index)} count={counts[index] ?? 0} />
+          <AnswerTile
+            key={index}
+            index={index}
+            text={text}
+            mine={index === mine}
+            correct={index === correctIndex}
+            dim={index !== correctIndex}
+            count={counts[index] ?? 0}
+          />
         ))}
       </div>
     </section>

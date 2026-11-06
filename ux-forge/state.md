@@ -5,7 +5,7 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.2.5 (player app: no iOS zoom on the name field)
+- **Current version:** v1.2.6 (player app: your pick in Carbon blue)
 - **Current phase:** L3 — Build (next: v1.3.0 host app, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
@@ -51,4 +51,5 @@ v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connect
 | 2026-11-06 | v1.2.2 | Answer text centred vertically; readable tinted tiles on the reveal; name field 48 px | Done |
 | 2026-11-06 | v1.2.3 | Reveal without green stroke (wrong pick tinted + dashed); confetti removed; medals on the podium | Done |
 | 2026-11-06 | v1.2.4 | Focus ring for keyboard users only (Rinkside pattern, incl. radio tiles) | Done |
-| 2026-11-06 | v1.2.5 | Text inputs at 16 px (no iOS focus zoom) | Done (user's phone check pending) |
+| 2026-11-06 | v1.2.5 | Text inputs at 16 px (no iOS focus zoom) | Done |
+| 2026-11-06 | v1.2.6 | One "your pick" style: solid Carbon blue stroke on question, Time's up and reveal | Done (user's phone check pending) |

@@ -2,6 +2,11 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.6 — Your pick in Carbon blue
+
+- Your answer is now marked with a solid blue frame (Carbon's "selected" style) everywhere: on the question, on Time's up and on the reveal. The dashed frame is gone.
+- On the reveal your pick is marked "Your answer" also when it was right, not only when it was wrong.
+
 ## v1.2.5 — No zoom when typing your name
 
 - Fixed: on iPhones, tapping the name field zoomed the page in and it stayed zoomed. The field's text is now 16 px, the size Safari doesn't zoom for. Pinch-zoom still works for anyone who needs it.

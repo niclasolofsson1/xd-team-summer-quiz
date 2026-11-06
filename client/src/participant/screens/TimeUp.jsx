@@ -6,7 +6,7 @@ export function TimeUp({ state, myAnswer }) {
       <h1 className="screen__title">Time's up!</h1>
       <p className="screen__lead">Waiting for the host to reveal the answer.</p>
       {myAnswer !== null && state.question && (
-        <AnswerTile index={myAnswer} text={state.question.options[myAnswer]} mark="chosen" />
+        <AnswerTile index={myAnswer} text={state.question.options[myAnswer]} mine />
       )}
     </section>
   );

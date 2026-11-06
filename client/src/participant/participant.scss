@@ -223,25 +223,18 @@ body {
     @include type.type-style('label-02');
   }
 
-  // The player's pick: a thick outline in the text colour on top of the tile colour.
-  &--chosen {
-    outline: 4px solid theme.$text-primary;
+  // The player's pick, on every screen: Carbon's "selected" stroke (interactive blue), with a white gap
+  // so it still reads around the blue A tile. Right or wrong comes from the tile itself and its marks.
+  &--mine {
+    outline: 3px solid theme.$border-interactive;
     outline-offset: 2px;
   }
 
-  // Not the answer that matters: a light tint of its own colour with dark text, so it recedes but stays readable.
+  // Not the answer that matters: a light tint of its own colour with dark text, so it recedes but stays
+  // readable. After the reveal the correct answer is the only full-colour tile.
   &--dim {
     background: var(--tile-tint);
     color: theme.$text-primary;
-  }
-
-  // Your wrong pick recedes like the others but keeps a dashed outline and its "Your answer" mark.
-  // The correct answer is left as the only full-colour tile, with its "Correct answer" mark.
-  &--wrong {
-    background: var(--tile-tint);
-    color: theme.$text-primary;
-    outline: 4px dashed theme.$text-primary;
-    outline-offset: 2px;
   }
 }
 

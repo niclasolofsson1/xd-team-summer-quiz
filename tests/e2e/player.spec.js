@@ -128,10 +128,15 @@ test("the full quiz on a phone: answer, reveal, leaderboard and final podium", a
     await answerButton(page, "b").click();
     // Cleo is the only player, so the answer window closes as soon as she has answered.
     await expect(page.getByRole("heading", { name: "Time's up!" })).toBeVisible();
-    await expect(page.locator(".answer-tile--chosen")).toHaveClass(/answer-tile--b/);
+    await expect(page.locator(".answer-tile--mine")).toHaveClass(/answer-tile--b/);
     await host(request, "reveal");
     await expect(page.locator(".result-banner")).toHaveText(/Correct! \+\d+|Not this time/);
     await expect(page.getByText("Correct answer")).toBeVisible();
+    // Your pick is marked on the reveal, right or wrong; only the correct answer keeps its full colour.
+    await expect(page.locator(".answer-tile--mine")).toHaveClass(/answer-tile--b/);
+    await expect(page.locator(".answer-tile--mine")).toContainText("Your answer");
+    await expect(page.locator(".answer-tile:not(.answer-tile--dim)")).toHaveCount(1);
+    await expect(page.locator(".answer-tile:not(.answer-tile--dim)")).toContainText("Correct answer");
     if (q < 3) {
       await host(request, "leaderboard");
       await expect(page.getByText("Your score")).toBeVisible();

@@ -41,7 +41,8 @@ export function Question({ state, offsetMs, me, session, myAnswer, onAnswered, o
             key={index}
             index={index}
             text={text}
-            mark={shownOption === index ? "chosen" : shownOption !== null ? "dim" : undefined}
+            mine={shownOption === index}
+            dim={shownOption !== null && shownOption !== index}
             disabled={busy}
             onChoose={choose}
           />
