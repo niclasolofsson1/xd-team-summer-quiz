@@ -5,14 +5,14 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.2.0 (Carbon player app)
+- **Current version:** v1.2.1 (player app: phone-sized buttons and fields)
 - **Current phase:** L3 — Build (next: v1.3.0 host app, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
 
 ## Next session
 
-v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connection with watchdog/backoff/foreground check and banner, answers locked only after server confirmation with retries, emoji avatars, all player screens. The server serves `dist/` first, then `public/` (arcade host and big screen). Tests: `npm test` (server + unit), `npm run test:e2e` (Playwright player flow), `npm run simulate`. Next: **v1.3.0 — host app** (spec sections 3 Host, 4, 5, 8; reuse `client/src/shared/`). Read `02_design_spec.md`, `docs/features/conventions.md` (Carbon section) and the host wiki pages; not the whole repo. Waiting for the user's visual check of the player app first.
+v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connection with watchdog/backoff/foreground check and banner, answers locked only after server confirmation with retries, emoji avatars, all player screens. The server serves `dist/` first, then `public/` (arcade host and big screen). Tests: `npm test` (server + unit), `npm run test:e2e` (Playwright player flow), `npm run simulate`. Next: **v1.3.0 — host app** (spec sections 3 Host, 4, 5, 8; reuse `client/src/shared/`). Read `02_design_spec.md`, `docs/features/conventions.md` (Carbon section) and the host wiki pages; not the whole repo. Waiting for the user's visual check of the player app first; the user will send cosmetic changes as one batch (iteration proposal, likely v1.2.2) before v1.3.0. Lesson: the trimmed Carbon stylesheet needs `scss/layout` (size tokens); `main.scss` lists it.
 
 **Checkpoint rule (user's guardrail):** one version per session. After each version, stop and report (changes, tests run, what to check visually). Never start the next version without the user's explicit go. Check plan usage before starting a version; the user wants no extra-usage spend.
 
@@ -45,4 +45,5 @@ v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connect
 | Date | Version | Iteration | Status |
 |---|---|---|---|
 | 2026-10-15 | v1.1.0 | Server hardening (spec section 6, items 1–9), server tests, 25-player simulation | Done |
-| 2026-11-06 | v1.2.0 | Build setup, Carbon foundation, live-state hook, player app; unit + e2e tests | Done (visual check by the user pending) |
+| 2026-11-06 | v1.2.0 | Build setup, Carbon foundation, live-state hook, player app; unit + e2e tests | Done |
+| 2026-11-06 | v1.2.1 | Fix: Carbon layout tokens missing (buttons/inputs 19 px tall); size e2e test | Done (visual check by the user pending; cosmetic changes to be batched next) |

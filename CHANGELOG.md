@@ -2,6 +2,11 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.1 — Phone-sized buttons and fields
+
+- Fixed: on the player app the Join button, the name field and other Carbon buttons were only as tall as their text. They're back to Carbon's normal 48 px height, easy to tap on a phone.
+- A browser test now checks that buttons and answer tiles stay phone-sized.
+
 ## v1.2.0 — Carbon player app
 
 A new player app for phones, built with IBM's Carbon design system. The host and big screen stay arcade for now.

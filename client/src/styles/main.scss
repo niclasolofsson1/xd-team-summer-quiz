@@ -12,6 +12,8 @@
 @use '@carbon/react/scss/theme';
 @use '@carbon/react/scss/reset';
 @use '@carbon/react/scss/layer';
+// Component heights and paddings (buttons, inputs) come from these :root size tokens.
+@use '@carbon/react/scss/layout';
 @use '@carbon/react/scss/components/button';
 @use '@carbon/react/scss/components/form';
 @use '@carbon/react/scss/components/text-input';

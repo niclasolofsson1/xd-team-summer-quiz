@@ -47,6 +47,24 @@ test("S1: a half-typed name survives 20 other players joining", async ({ page, r
   await expect(page.getByText("21 players joined")).toBeVisible();
 });
 
+// Tap targets ≥ 48 px, answer tiles ≥ 72 px (spec, Accessibility). Carbon's heights come from its
+// layout tokens, so this also catches a stylesheet that leaves them out.
+test("tap targets are phone-sized", async ({ page, request }) => {
+  const height = async (locator) => (await locator.boundingBox()).height;
+  await page.goto("/participant.html");
+  expect(await height(page.getByRole("button", { name: "Join" }))).toBeGreaterThanOrEqual(48);
+  expect(await height(page.getByLabel("Your name"))).toBeGreaterThanOrEqual(40);
+  expect(await height(page.locator("label.cds--tile--selectable").first())).toBeGreaterThanOrEqual(48);
+
+  await joinAs(page, "Pia");
+  await apiJoin(request, "Quinn");
+  await host(request, "start");
+  await expect(answerButton(page, "a")).toBeVisible();
+  for (const letter of ["a", "b", "c", "d"]) {
+    expect(await height(answerButton(page, letter))).toBeGreaterThanOrEqual(72);
+  }
+});
+
 test("join errors: empty name and a name that's taken", async ({ page, request }) => {
   // Bo is connected (an open stream with Bo's token), so the name counts as taken.
   const boJoin = await apiJoin(request, "Bo");
