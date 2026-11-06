@@ -1,6 +1,6 @@
 {
   "name": "xd-team-summer-gathering-quiz",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "private": true,
   "description": "Live quiz for the XD Team: phones join and answer, the host runs it from a laptop, the big screen shows it.",
   "scripts": {

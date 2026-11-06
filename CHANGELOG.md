@@ -2,6 +2,10 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.4 — No blue boxes after a tap
+
+- Fixed: tapping an avatar left a blue focus box around it. The blue focus ring now only appears when someone moves through the page with a keyboard. The name field still shows its line while you type.
+
 ## v1.2.3 — Calmer reveal and podium
 
 - The reveal no longer draws a green frame around the correct answer. The correct answer is now the only fully coloured tile, marked "Correct answer".

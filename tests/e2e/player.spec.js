@@ -70,6 +70,31 @@ test("tap targets are phone-sized", async ({ page, request }) => {
   }
 });
 
+// Carbon's focus ring shows for keyboard users only: a tap leaves none, Tab shows it.
+test("focus ring only for keyboard users", async ({ page }) => {
+  const outline = (locator) => locator.evaluate((el) => getComputedStyle(el).outlineStyle);
+  const shadow = (locator) => locator.evaluate((el) => getComputedStyle(el).boxShadow);
+  await page.goto("/participant.html");
+  const owl = page.locator("label.cds--tile--selectable", { hasText: "Owl" });
+  await owl.click();
+  await expect.poll(() => outline(owl)).toBe("none");
+
+  await page.getByLabel("Your name").focus();
+  await page.keyboard.press("Tab"); // into the avatar group, on the selected tile
+  await expect(page.getByRole("radio", { name: "Owl" })).toBeFocused();
+  await expect.poll(() => outline(owl)).not.toBe("none");
+
+  // A tapped button (empty name, so it stays on Join) has no ring; reached by keyboard it has one.
+  const join = page.getByRole("button", { name: "Join" });
+  await join.click();
+  await expect(page.getByText("Enter a name.")).toBeVisible();
+  await expect.poll(() => shadow(join)).toBe("none");
+  await page.getByRole("radio", { name: "Owl" }).focus();
+  await page.keyboard.press("Tab");
+  await expect(join).toBeFocused();
+  await expect.poll(() => shadow(join)).not.toBe("none");
+});
+
 test("join errors: empty name and a name that's taken", async ({ page, request }) => {
   // Bo is connected (an open stream with Bo's token), so the name counts as taken.
   const boJoin = await apiJoin(request, "Bo");

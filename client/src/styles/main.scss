@@ -59,20 +59,30 @@ body {
 }
 
 // ---------- Focus ring for keyboard users only ----------
-// Carbon draws its ring on :focus. When the browser doesn't count the focus as keyboard focus
-// (:not(:focus-visible)), the ring is removed, so a tap leaves no ring and Tab still shows Carbon's.
+// Carbon draws its ring on :focus (and some parts on :active). When the browser doesn't count the focus
+// as keyboard focus (:not(:focus-visible)), the ring is removed, so a tap leaves no ring and Tab still
+// shows Carbon's. `html` lifts these rules above Carbon's own focus selectors. Text fields are left alone:
+// browsers always count them as keyboard focus, and the line shows where you're typing.
 // Own components use :focus-visible from the start. A new Carbon part with its own :focus ring goes in this list.
-.cds--btn,
-.cds--tile--selectable,
-.cds--header__name,
-.cds--actionable-notification__action-button {
-  &:focus:not(:focus-visible) {
-    outline: none;
-    box-shadow: none;
-  }
+html
+  :is(
+    .cds--btn,
+    .cds--tile,
+    .cds--header__name,
+    .cds--actionable-notification__action-button
+  ):is(:focus, :active):not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
 }
-.cds--btn--primary:focus:not(:focus-visible) {
+html .cds--btn--primary:is(:focus, :active):not(:focus-visible) {
   border-color: transparent;
+}
+html .cds--header__name:focus:not(:focus-visible) {
+  border-color: transparent;
+}
+// Radio tiles (avatars): Carbon focuses the hidden radio and draws the ring on the tile next to it.
+html .cds--tile-input:focus:not(:focus-visible) + .cds--tile {
+  outline: none;
 }
 
 .visually-hidden {
