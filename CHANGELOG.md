@@ -2,6 +2,10 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.5 — No zoom when typing your name
+
+- Fixed: on iPhones, tapping the name field zoomed the page in and it stayed zoomed. The field's text is now 16 px, the size Safari doesn't zoom for. Pinch-zoom still works for anyone who needs it.
+
 ## v1.2.4 — No blue boxes after a tap
 
 - Fixed: tapping an avatar left a blue focus box around it. The blue focus ring now only appears when someone moves through the page with a keyboard. The name field still shows its line while you type.

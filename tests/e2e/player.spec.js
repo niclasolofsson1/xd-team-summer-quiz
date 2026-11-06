@@ -54,6 +54,12 @@ test("tap targets are phone-sized", async ({ page, request }) => {
   await page.goto("/participant.html");
   expect(await height(page.getByRole("button", { name: "Join" }))).toBeGreaterThanOrEqual(48);
   expect(await height(page.getByLabel("Your name"))).toBeGreaterThanOrEqual(48);
+  // iOS Safari zooms in on fields with text under 16 px.
+  const fontSizes = await page.locator("input:not([type=radio]), textarea").evaluateAll((els) =>
+    els.map((el) => parseFloat(getComputedStyle(el).fontSize))
+  );
+  expect(fontSizes.length).toBeGreaterThan(0);
+  for (const size of fontSizes) expect(size).toBeGreaterThanOrEqual(16);
   expect(await height(page.locator("label.cds--tile--selectable").first())).toBeGreaterThanOrEqual(48);
 
   await joinAs(page, "Pia");

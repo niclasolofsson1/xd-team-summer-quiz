@@ -10,6 +10,7 @@
 );
 @use '@carbon/react/scss/themes';
 @use '@carbon/react/scss/theme';
+@use '@carbon/react/scss/type';
 @use '@carbon/react/scss/reset';
 @use '@carbon/react/scss/layer';
 // Component heights and paddings (buttons, inputs) come from these :root size tokens.
@@ -83,6 +84,13 @@ html .cds--header__name:focus:not(:focus-visible) {
 // Radio tiles (avatars): Carbon focuses the hidden radio and draws the ring on the tile next to it.
 html .cds--tile-input:focus:not(:focus-visible) + .cds--tile {
   outline: none;
+}
+
+// ---------- Text fields at 16 px ----------
+// iOS Safari zooms the page in when a field with smaller text gets focus, and doesn't zoom back.
+// Carbon's inputs use 14 px, so they're raised to body-02 (16 px). Pinch-zoom stays allowed.
+html :is(.cds--text-input, .cds--password-input, .cds--text-area, .cds--search-input) {
+  @include type.type-style('body-02');
 }
 
 .visually-hidden {
