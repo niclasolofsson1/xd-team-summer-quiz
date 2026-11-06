@@ -1,3 +1,4 @@
+import { Tag } from "@carbon/react";
 import { Avatar } from "./Avatar.jsx";
 import { PODIUM_ORDER, medalFor } from "../podium.js";
 
@@ -19,11 +20,13 @@ export function Podium({ places, meId }) {
                 <>
                   <span className="podium__medal" aria-hidden="true">{medalFor(place.entry.rank)}</span>
                   <Avatar id={place.entry.avatarId} size="lg" />
-                  <span className="podium__name">
-                    {place.entry.name}
-                    {isMe && <span className="visually-hidden"> (you)</span>}
-                  </span>
+                  <span className="podium__name">{place.entry.name}</span>
                   <span className="podium__score">{place.entry.score} points</span>
+                  {isMe && (
+                    <Tag type="gray" size="sm" className="podium__you">
+                      You
+                    </Tag>
+                  )}
                 </>
               )}
               {place.state === "locked" && (

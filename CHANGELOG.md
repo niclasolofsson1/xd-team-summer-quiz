@@ -2,6 +2,10 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.2.8 — Calmer "you" on the podium
+
+- If you make the podium, your place now shows a small grey "You" tag under your name instead of a blue frame around it.
+
 ## v1.2.7 — Smooth timer bar
 
 - The blue timer bar on the question now drains smoothly instead of in small jumps. After a refresh mid-question it carries on from the right point.

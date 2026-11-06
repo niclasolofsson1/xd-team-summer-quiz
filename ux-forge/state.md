@@ -5,7 +5,7 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.2.7 (player app: smooth timer bar)
+- **Current version:** v1.2.8 (player app: "You" tag on the podium)
 - **Current phase:** L3 — Build (next: v1.3.0 host app, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
@@ -53,4 +53,5 @@ v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connect
 | 2026-11-06 | v1.2.4 | Focus ring for keyboard users only (Rinkside pattern, incl. radio tiles) | Done |
 | 2026-11-06 | v1.2.5 | Text inputs at 16 px (no iOS focus zoom) | Done |
 | 2026-11-06 | v1.2.6 | One "your pick" style: solid Carbon blue stroke on question, Time's up and reveal | Done |
-| 2026-11-06 | v1.2.7 | Timer bar drains with one linear CSS animation | Done (user's phone check pending) |
+| 2026-11-06 | v1.2.7 | Timer bar drains with one linear CSS animation | Done |
+| 2026-11-06 | v1.2.8 | Podium: "You" tag instead of a blue frame; reveal sequence (3 steps) kept, user confirmed | Done (user's phone check pending) |

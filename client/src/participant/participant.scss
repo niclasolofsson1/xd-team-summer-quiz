@@ -417,9 +417,9 @@ body {
   &__place--2 &__step { block-size: 72px; }
   &__place--3 &__step { block-size: 48px; }
 
-  &__place--me &__who {
-    outline: 2px solid theme.$border-interactive;
-    outline-offset: $sp-4;
+  // The player's own place is marked with a "You" tag under the name, not a frame.
+  &__you {
+    margin: 0;
   }
 
   &__place--revealed &__who {

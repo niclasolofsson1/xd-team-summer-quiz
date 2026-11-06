@@ -17,7 +17,7 @@ After the last question, phones and the big screen show the final results, unloc
 | 2 | **3rd place** unlocks |
 | 3 | **Champion and runner-up** unlock together |
 
-The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and "3rd place". Each revealed place shows its medal (🥇 🥈 🥉, by rank, so a shared place shares its medal), the avatar, the name and the points. No confetti on phones (removed in v1.2.3 at the user's request); the big screen's effect is decided in v1.4.0. Once the player's own place is revealed, the phone says "You finished 5th · 3200 points" and highlights the player on the podium or in the standings.
+The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and "3rd place". Each revealed place shows its medal (🥇 🥈 🥉, by rank, so a shared place shares its medal), the avatar, the name and the points. No confetti on phones (removed in v1.2.3 at the user's request); the big screen's effect is decided in v1.4.0. Once the player's own place is revealed, the phone says "You finished 5th · 3200 points" and marks the player with a grey "You" tag on the podium (since v1.2.8, no frame) or a highlighted row in the standings.
 
 (The big screen is still the arcade version until v1.4.0: pixel podium, "The roadtrip is complete".)
 
