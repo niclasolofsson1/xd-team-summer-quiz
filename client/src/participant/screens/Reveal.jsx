@@ -28,6 +28,7 @@ export function Reveal({ state, me, myAnswer }) {
             correct={index === correctIndex}
             dim={index !== correctIndex}
             count={counts[index] ?? 0}
+            reveal
           />
         ))}
       </div>

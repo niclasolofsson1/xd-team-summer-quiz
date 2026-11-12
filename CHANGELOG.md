@@ -2,6 +2,13 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.3.3 — Clearer reveal, bigger question
+
+- On the phone's reveal, each answer is now one tidy row: the letter, the answer, and how many people picked it on the right ("13 picks"), lined up on every tile.
+- Under the answer, small tags say what matters: a green **✓ Correct** on the right answer and a white **You** on your own pick. Your pick also keeps its blue outline, now as a single line instead of the old double border.
+- The question is bigger while you pick an answer (28 px instead of 20 px), so it's easier to read at arm's length. A very long question (over 90 characters) uses the old size so all four answers still fit on screen.
+- The host page is unchanged.
+
 ## v1.3.2 — Player polish
 
 - "Answer locked" is easier to read: the text is now dark, and only the check mark next to it is green. The old green text was too pale to pass the accessibility contrast check.

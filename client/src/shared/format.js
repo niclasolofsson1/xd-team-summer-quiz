@@ -30,3 +30,11 @@ export function splitMessage(message) {
   const match = /^(.*?[.!?])\s+(.+)$/s.exec(text);
   return match ? { title: match[1], subtitle: match[2] } : { title: text, subtitle: "" };
 }
+
+// Questions longer than this step down from heading-04 to heading-03 on the phone, so the four answers
+// still fit on screen without scrolling (v1.3.3).
+export const LONG_QUESTION_CHARS = 90;
+
+export function isLongQuestion(text) {
+  return String(text ?? "").length > LONG_QUESTION_CHARS;
+}

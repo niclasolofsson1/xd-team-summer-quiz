@@ -8,7 +8,7 @@
 
 ## What it is
 
-Each question starts with a 3-second **countdown** ("Question 2 of 25" and a large 3-2-1). Then the **question** shows with four answer tiles, each with its letter and colour (A Blue, B Purple, C Teal, D Magenta), and a timer bar with the seconds left. The player taps one answer: it shows **"Sending…"**, then **"Answer locked"** once the server has recorded it. The pick gets a solid Carbon blue stroke and "Your answer"; the other answers turn to a light tint. When the time runs out (or everyone has answered), the phone shows **"Time's up!"**, "Waiting for the host to reveal the answer." and the locked answer.
+Each question starts with a 3-second **countdown** ("Question 2 of 25" and a large 3-2-1). Then the **question** shows (Carbon heading-04, 28 px; over 90 characters it steps down to heading-03 so the four answers still fit, since v1.3.3) with four answer tiles, each with its letter and colour (A Blue, B Purple, C Teal, D Magenta), and a timer bar with the seconds left. The player taps one answer: it shows **"Sending…"**, then **"Answer locked"** once the server has recorded it. The pick gets a solid Carbon blue stroke and "Your answer"; the other answers turn to a light tint. When the time runs out (or everyone has answered), the phone shows **"Time's up!"**, "Waiting for the host to reveal the answer." and the locked answer.
 
 ## How it works
 

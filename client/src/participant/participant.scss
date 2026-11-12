@@ -130,7 +130,12 @@ body {
 
 // ---------- Question ----------
 .question__text {
-  @include type.type-style('heading-03');
+  // heading-04 (28 px) for readability at arm's length; long questions step down (v1.3.3).
+  @include type.type-style('heading-04');
+
+  &--long {
+    @include type.type-style('heading-03');
+  }
 
   &--small {
     @include type.type-style('heading-02');

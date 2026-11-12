@@ -127,6 +127,8 @@ test("the full quiz on a phone: answer, reveal, leaderboard and final podium", a
   await host(request, "start");
   for (let q = 1; q <= 3; q += 1) {
     await expect(page.getByText(`Question ${q} of 3`)).toBeVisible();
+    // Question in Carbon heading-04 (v1.3.3); the test questions are short, so no step-down.
+    expect(await page.locator(".question__text").evaluate((el) => getComputedStyle(el).fontSize)).toBe("28px");
     await expect(answerButton(page, "b")).toBeEnabled();
     await answerButton(page, "b").click();
     // Cleo is the only player, so the answer window closes as soon as she has answered.
@@ -134,12 +136,20 @@ test("the full quiz on a phone: answer, reveal, leaderboard and final podium", a
     await expect(page.locator(".answer-tile--mine")).toHaveClass(/answer-tile--b/);
     await host(request, "reveal");
     await expect(page.locator(".result-banner")).toHaveText(/Correct! \+\d+|Not this time/);
-    await expect(page.getByText("Correct answer")).toBeVisible();
-    // Your pick is marked on the reveal, right or wrong; only the correct answer keeps its full colour.
-    await expect(page.locator(".answer-tile--mine")).toHaveClass(/answer-tile--b/);
-    await expect(page.locator(".answer-tile--mine")).toContainText("Your answer");
+    // Reveal (v1.3.3): one row per tile, Carbon tags under the answer, picks in their own column.
+    // Your pick keeps the blue stroke as one line (no white gap) plus a "You" tag; only the correct
+    // answer keeps its full colour, with a "Correct" tag.
+    const mine = page.locator(".answer-tile--mine");
+    await expect(mine).toHaveClass(/answer-tile--b/);
+    await expect(mine.locator(".answer-tile__tags")).toContainText("You");
+    expect(await mine.evaluate((el) => getComputedStyle(el).outlineOffset)).toBe("0px");
+    const youTag = mine.locator(".cds--tag--outline");
+    expect(await youTag.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(255, 255, 255)");
+    expect(await youTag.evaluate((el) => getComputedStyle(el).boxShadow)).toBe("none");
     await expect(page.locator(".answer-tile:not(.answer-tile--dim)")).toHaveCount(1);
-    await expect(page.locator(".answer-tile:not(.answer-tile--dim)")).toContainText("Correct answer");
+    await expect(page.locator(".answer-tile--correct .cds--tag--green")).toHaveText("Correct");
+    await expect(page.locator(".answer-tile__picks")).toHaveCount(4);
+    await expect(page.locator(".answer-tile__picks-label").first()).toHaveText(/^picks?$/);
     if (q < 3) {
       await host(request, "leaderboard");
       await expect(page.getByText("Your score")).toBeVisible();

@@ -29,3 +29,14 @@ describe("splitMessage", () => {
     expect(splitMessage(undefined)).toEqual({ title: "", subtitle: "" });
   });
 });
+
+import { isLongQuestion } from "../../client/src/shared/format.js";
+
+describe("isLongQuestion", () => {
+  test("over 90 characters steps down", () => {
+    expect(isLongQuestion("How many countries are hosting the 2026 FIFA World Cup?")).toBe(false);
+    expect(isLongQuestion("x".repeat(90))).toBe(false);
+    expect(isLongQuestion("x".repeat(91))).toBe(true);
+    expect(isLongQuestion(undefined)).toBe(false);
+  });
+});

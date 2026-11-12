@@ -112,6 +112,42 @@
     outline-offset: 2px;
   }
 
+  // Player reveal (v1.3.3): one row per tile — letter | answer with Carbon tags | picks in a fixed column.
+  // The pick keeps its blue stroke, as one line on the tile's edge (no white gap, so no double border).
+  &--reveal {
+    grid-template-columns: auto 1fr auto;
+
+    &.answer-tile--mine {
+      outline-offset: 0;
+    }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-4;
+
+    .cds--tag {
+      margin: 0;
+    }
+  }
+
+  &__picks {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-inline-size: 48px;
+    text-align: center;
+  }
+
+  &__picks-n {
+    @include type.type-style('heading-03');
+  }
+
+  &__picks-label {
+    @include type.type-style('label-01');
+  }
+
   // Not the answer that matters: a light tint of its own colour with dark text, so it recedes but stays
   // readable. After the reveal the correct answer is the only full-colour tile.
   &--dim {
@@ -250,4 +286,10 @@
   .podium__place--revealed .podium__who {
     animation: none;
   }
+}
+
+// The "You" tag on the player reveal: Carbon's outline tag (white, dark text) without its dark stroke
+// (user's call, v1.3.3). Selector is stronger than Carbon's own outline-tag rule.
+.answer-tile .answer-tile__tags .cds--tag--outline:not(.cds--tag--operational):not(span) {
+  box-shadow: none;
 }

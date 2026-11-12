@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>v1.3.3 player mockup</title>
+<!--
+  Mockup for v1.3.3 (player reveal tile layout + more readable question).
+  It loads the app's OWN built stylesheet: the script below reads /participant.html from the quiz server
+  and copies its <link rel="stylesheet"> tags, so Carbon, the quiz tokens and IBM Plex are exactly what
+  the phone gets, whatever the build hashes are. Open it through the quiz server, not as a file.
+  Only the proposed changes are in the <style> block, scoped to .after frames.
+-->
+<script>
+  fetch("/participant.html")
+    .then((r) => r.text())
+    .then((html) => {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      doc.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+        const copy = document.createElement("link");
+        copy.rel = "stylesheet";
+        copy.href = link.getAttribute("href");
+        document.head.prepend(copy);
+      });
+    })
+    .catch(() => {
+      // Opened as a file: the app stylesheet can't load here, so point to the served copy.
+      document.body.insertAdjacentHTML("afterbegin", '<p class="err">This copy can\'t load the app\'s styles. Open <a href="http://localhost:4173/mockups/v1.3.3-player.html">localhost:4173/mockups/v1.3.3-player.html</a> (quiz server running) to see the mockup properly.</p>');
+    });
+</script>
+<style>
+  /* ---------- Mockup page (not part of the app) ---------- */
+  body { padding: 0 !important; background: #f4f4f4 !important; }
+  .page { padding: 24px 16px 64px; max-width: 1280px; margin: 0 auto; }
+  .page > h1 { font-size: 28px; line-height: 36px; margin: 0 0 8px; }
+  .cmp > h2 { font-size: 20px; line-height: 28px; margin: 48px 0 8px; }
+  .page > p, .cmp > p { font-size: 14px; line-height: 20px; max-width: 72ch; margin: 0 0 16px; color: #525252; }
+  .err { background: #fff1f1; padding: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .col { display: flex; flex-direction: column; gap: 8px; }
+  .lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .32px; text-transform: uppercase; }
+  .lbl--now { color: #6f6f6f; }
+  .lbl--new { color: #0f62fe; }
+  .phone { position: relative; width: 390px; max-width: 100%; background: #fff; border: 1px solid #c6c6c6; overflow: hidden; }
+  .phone .cds--header { position: absolute; }
+  .phone .player-main { margin-top: 48px; }
+  /* The app switches to 2×2 tiles at a 600 px+ browser window. These frames are 390 px phones,
+     so they always show the phone's single column, even when the page is opened on a laptop. */
+  .phone .answer-grid { grid-template-columns: 1fr !important; }
+  .fold { position: absolute; left: 0; right: 0; top: 664px; border-top: 2px dashed #da1e28; pointer-events: none; }
+  .fold span { position: absolute; right: 4px; top: 2px; font-size: 11px; line-height: 14px; color: #da1e28; background: #fff; padding: 0 4px; }
+  @media (max-width: 440px) { .page { padding-inline: 0; } .page > h1, .page > h2, .page > p, .cmp > p, .lbl { padding-inline: 16px; } .phone { border-inline: 0; } }
+
+  /* ---------- PROPOSED v1.3.3 changes (only inside .after frames) ---------- */
+  /* Question screen: Carbon heading-04 (28/36, regular). Over ~90 characters it steps down to heading-03. */
+  .after .question .question__text { font-size: 1.75rem; line-height: 2.25rem; font-weight: 400; letter-spacing: 0; }
+  .after .question .question__text--long { font-size: 1.25rem; line-height: 1.75rem; }
+
+  /* Reveal tile: one row. Letter | answer + tags | pick count (same column on every tile). */
+  .after .reveal .answer-tile { grid-template-columns: auto 1fr auto; }
+  .after .reveal .answer-tile--mine { outline: none; } /* no double border: the "You" tag marks the pick */
+  /* Option B: keep the blue "your pick" stroke, but as one line on the tile's edge (no white gap). */
+  .after.stroke .reveal .answer-tile--mine { outline: 3px solid var(--cds-border-interactive, #0f62fe); outline-offset: 0; }
+  .after .answer-tile__tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .after .answer-tile__tags .cds--tag { margin: 0; }
+  .after .answer-tile__tags .cds--tag--outline:not(span) { box-shadow: none; } /* white "You" tag without Carbon's outline stroke */
+  .after .answer-tile__picks { display: flex; flex-direction: column; align-items: center; min-inline-size: 48px; text-align: center; }
+  .after .answer-tile__picks-n { font-size: 1.25rem; line-height: 1.75rem; font-weight: 400; }   /* heading-03 */
+  .after .answer-tile__picks-label { font-size: .75rem; line-height: 1rem; letter-spacing: .32px; } /* label-01 */
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>v1.3.3 player: reveal tiles and question text</h1>
+  <p>Each pair shows today (left) and the proposal (right) on a 390 px phone, drawn with the app's own Carbon stylesheet. The red dashed line is roughly where Safari's visible area ends on a 390 px iPhone.</p>
+
+  <section class="cmp">
+    <h2>1. Question: short</h2>
+    <p>Question in Carbon heading-04 (28 px, regular) instead of heading-03 (20 px).</p>
+    <div class="row" data-pair="q-short"></div>
+  </section>
+
+  <section class="cmp">
+    <h2>2. Question: the longest in the real set (65 characters)</h2>
+    <p>Still heading-04: it is under the ~90-character step-down.</p>
+    <div class="row" data-pair="q-real-long"></div>
+  </section>
+
+  <section class="cmp">
+    <h2>3. Question: over 90 characters (example, not in the sets)</h2>
+    <p>No question in the real or test set is over 90 characters today. This made-up one shows the step-down to heading-03, so the four answers still fit above the fold.</p>
+    <div class="row" data-pair="q-over90"></div>
+  </section>
+
+  <section class="cmp">
+    <h2>4. Reveal: you were right</h2>
+    <p>One row per tile: letter, answer, then the picks in a fixed right column. Under the answer, Carbon tags: "✓ Correct" and "You". No double border. Wrong answers stay dimmed. The banner is unchanged.</p>
+    <div class="row" data-pair="r-correct"></div>
+  </section>
+
+  <section class="cmp">
+    <h2>5. Reveal: you were wrong</h2>
+    <p>Your pick gets "You"; the correct tile gets "✓ Correct". Option B also keeps the blue "your pick" stroke you saw when you tapped, as one line with no white gap.</p>
+    <div class="row" data-pair="r-wrong"></div>
+  </section>
+
+  <section class="cmp">
+    <h2>6. Reveal: no answer</h2>
+    <div class="row" data-pair="r-none"></div>
+  </section>
+</div>
+
+<script>
+  const LETTERS = ["A", "B", "C", "D"];
+  const ICON = {
+    checkFilled: '<svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2ZM14,21.5908l-5-5L10.5906,15,14,18.4092,21.41,11l1.5957,1.5859Z"/><path fill="none" d="M14 21.591L9 16.591 10.591 15 14 18.409 21.41 11 23.005 12.585 14 21.591z"/></svg>',
+    close: '<svg width="20" height="20" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M17.4141 16L24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"/></svg>',
+    check16: '<svg width="16" height="16" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M13 24L4 15 5.414 13.586 13 21.171 26.586 7.586 28 9 13 24z"/></svg>'
+  };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const picks = (n) => (n === 1 ? "1 pick" : `${n} picks`);
+
+  const Q1 = { n: 1, text: "How many countries are hosting the 2026 FIFA World Cup?", options: ["1", "2", "3", "4"], correct: 2, counts: [1, 4, 13, 2] };
+  const QLONG = { n: 14, text: "Which is the southernmost point in the continental United States?", options: ["Miami Point", "Key West", "South Beach", "Gulf Point"] };
+  const Q90 = { n: 7, text: "The 2026 World Cup final will be played at MetLife Stadium. Which US state is that stadium actually in?", options: ["New York", "New Jersey", "Pennsylvania", "Connecticut"] };
+
+  function header() {
+    return `<header class="cds--header" aria-label="XD Team Quiz">
+      <a class="cds--header__name">XD Team Quiz</a>
+      <div class="cds--header__global"><div class="player-chip">
+        <span class="quiz-avatar quiz-avatar--sm" style="--avatar-bg:#ffd7d9" aria-hidden="true">🦊</span>
+        <span class="player-chip__name">Anna</span>
+      </div></div>
+    </header>`;
+  }
+  const phone = (inner) => `<div class="phone">${header()}<main class="player-main">${inner}</main><div class="fold"><span>fold ≈ 664 px</span></div></div>`;
+
+  function timer() {
+    return `<div class="timer-bar" style="--drain-from:0.6;--drain-ms:999999999ms">
+      <div class="cds--progress-bar cds--progress-bar--big cds--progress-bar--default">
+        <div class="cds--progress-bar__label cds--visually-hidden"><span class="cds--progress-bar__label-text">Time left</span></div>
+        <div class="cds--progress-bar__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="60"><div class="cds--progress-bar__bar" style="transform:scaleX(0.6)"></div></div>
+        <div class="cds--progress-bar__helper-text">12 s</div>
+      </div></div>`;
+  }
+
+  // Today's tile, as AnswerTile.jsx renders it.
+  function tileNow(i, text, { mine, correct, dim, count, button }) {
+    const cls = ["answer-tile", `answer-tile--${LETTERS[i].toLowerCase()}`, mine && "answer-tile--mine", correct && "answer-tile--correct", dim && "answer-tile--dim"].filter(Boolean).join(" ");
+    const body = `<span class="answer-tile__letter" aria-hidden="true">${LETTERS[i]}</span>
+      <span class="answer-tile__body">
+        <span class="answer-tile__text"><span class="visually-hidden">${LETTERS[i]}: </span>${esc(text)}</span>
+        ${correct ? `<span class="answer-tile__mark">${ICON.checkFilled} Correct answer</span>` : ""}
+        ${mine ? `<span class="answer-tile__mark">${dim ? ICON.close : ""} Your answer</span>` : ""}
+        ${count !== undefined ? `<span class="answer-tile__count">${picks(count)}</span>` : ""}
+      </span>`;
+    return button ? `<button type="button" class="${cls}" aria-pressed="false">${body}</button>` : `<div class="${cls}">${body}</div>`;
+  }
+
+  // Proposed reveal tile: one row, tags under the answer, picks in a fixed right column.
+  function tileNew(i, text, { mine, correct, dim, count }) {
+    const cls = ["answer-tile", `answer-tile--${LETTERS[i].toLowerCase()}`, mine && "answer-tile--mine", correct && "answer-tile--correct", dim && "answer-tile--dim"].filter(Boolean).join(" ");
+    const tags = [
+      correct ? `<div class="cds--tag cds--tag--green"><div class="cds--tag__custom-icon">${ICON.check16}</div><span class="cds--tag__label">Correct</span></div>` : "",
+      mine ? `<div class="cds--tag cds--tag--outline"><span class="cds--tag__label">You</span></div>` : ""
+    ].join("");
+    return `<div class="${cls}">
+      <span class="answer-tile__letter" aria-hidden="true">${LETTERS[i]}</span>
+      <span class="answer-tile__body">
+        <span class="answer-tile__text"><span class="visually-hidden">${LETTERS[i]}: </span>${esc(text)}</span>
+        ${tags ? `<span class="answer-tile__tags">${tags}</span>` : ""}
+      </span>
+      <span class="answer-tile__picks"><span class="answer-tile__picks-n">${count}</span><span class="answer-tile__picks-label">${count === 1 ? "pick" : "picks"}</span></span>
+    </div>`;
+  }
+
+  function question(q, after) {
+    const long = after && q.text.length > 90;
+    return phone(`<section class="screen question">
+      <p class="screen__eyebrow">Question ${q.n} of 25</p>
+      <h1 class="question__text${long ? " question__text--long" : ""}">${esc(q.text)}</h1>
+      ${timer()}
+      <div class="answer-grid">${q.options.map((t, i) => tileNow(i, t, { button: true })).join("")}</div>
+      <div class="question__status"></div>
+    </section>`);
+  }
+
+  function reveal(q, mine, banner, after) {
+    const tiles = q.options.map((t, i) => {
+      const opts = { mine: i === mine, correct: i === q.correct, dim: i !== q.correct, count: q.counts[i] };
+      return after ? tileNew(i, t, opts) : tileNow(i, t, opts);
+    }).join("");
+    return phone(`<section class="screen reveal">
+      <p class="result-banner result-banner--${banner.kind}">${banner.text}</p>
+      <h1 class="question__text question__text--small">${esc(q.text)}</h1>
+      <div class="answer-grid">${tiles}</div>
+    </section>`);
+  }
+
+  const trio = (name, now, a, b) => {
+    document.querySelector(`[data-pair="${name}"]`).innerHTML =
+      `<div class="col"><span class="lbl lbl--now">Today (v1.3.2)</span>${now}</div>` +
+      `<div class="col after"><span class="lbl lbl--new">Option A · "You" tag only</span>${a}</div>` +
+      `<div class="col after stroke"><span class="lbl lbl--new">Option B · blue stroke + "You" (recommended)</span>${b}</div>`;
+  };
+  const pair = (name, now, next) => {
+    document.querySelector(`[data-pair="${name}"]`).innerHTML =
+      `<div class="col"><span class="lbl lbl--now">Today (v1.3.2)</span>${now}</div>` +
+      `<div class="col after"><span class="lbl lbl--new">Proposal (v1.3.3)</span>${next}</div>`;
+  };
+
+  pair("q-short", question(Q1, false), question(Q1, true));
+  pair("q-real-long", question(QLONG, false), question(QLONG, true));
+  pair("q-over90", question(Q90, false), question(Q90, true));
+  const right = { kind: "correct", text: "Correct! +334" }, wrong = { kind: "wrong", text: "Not this time" };
+  trio("r-correct", reveal(Q1, 2, right, false), reveal(Q1, 2, right, true), reveal(Q1, 2, right, true));
+  trio("r-wrong", reveal(Q1, 1, wrong, false), reveal(Q1, 1, wrong, true), reveal(Q1, 1, wrong, true));
+  pair("r-none", reveal(Q1, null, { kind: "none", text: "No answer" }, false), reveal(Q1, null, { kind: "none", text: "No answer" }, true));
+</script>
+</body>
+</html>

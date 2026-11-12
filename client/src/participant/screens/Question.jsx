@@ -4,7 +4,7 @@ import { CheckmarkFilled } from "@carbon/icons-react";
 import { AnswerTile } from "../../shared/components/AnswerTile.jsx";
 import { TimerBar } from "../../shared/components/TimerBar.jsx";
 import { submitAnswer } from "../../shared/answer.js";
-import { splitMessage } from "../../shared/format.js";
+import { isLongQuestion, splitMessage } from "../../shared/format.js";
 
 const SEND_FAILED = "Couldn't send your answer. Tap again.";
 
@@ -36,7 +36,9 @@ export function Question({ state, offsetMs, me, session, myAnswer, onAnswered, o
       <p className="screen__eyebrow">
         Question {questionIndex + 1} of {state.totalQuestions}
       </p>
-      <h1 className="question__text">{state.question.text}</h1>
+      <h1 className={isLongQuestion(state.question.text) ? "question__text question__text--long" : "question__text"}>
+        {state.question.text}
+      </h1>
       <TimerBar startedAt={state.phaseStartedAt} endsAt={state.phaseEndsAt} offsetMs={offsetMs} />
       <div className="answer-grid">
         {state.question.options.map((text, index) => (
