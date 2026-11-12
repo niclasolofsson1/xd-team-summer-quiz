@@ -33,14 +33,15 @@ Next: **v1.4.0 — big-screen app** (g100, QR from `/api/join-info`, never scrol
 
 - Exact date of the Christmas party.
 - Render plan: make sure it doesn't sleep during the event.
+- Before the v2.0.0 deploy on Render: build command `npm install && npm run build`, no `NODE_ENV=production` at install, `HOST_PIN` set, `PUBLIC_URL=https://xd-team-summer-quiz.onrender.com`, auto-deploy branch `main`. Hosting is Render, not Vercel.
 
 ## Decisions worth remembering
 
-- v2 = improved stability + Carbon UI. Christmas theme is a later, separate step on top of the Carbon base.
+- v2 = improved stability + Carbon UI. Christmas look is v1.6.0 (cosmetic assets, avatar polish, winter/Christmas effects), added by the user 2026-11-13, after the v1.5.0 stability pass and before the v2.0.0 merge. Mockup first; re-run all tests and the simulation at its end; the rehearsal happens after v1.6.0.
 - Server and SSE setup stay; only the client is rebuilt (Vite + React 19 + @carbon/react).
 - L2 decisions: emoji avatars; ties broken by faster total correct-answer time, then shared rank; timer ends early when everyone answered; rejoin by name only for a disconnected player.
 - Font: IBM Plex Sans (self-hosted, as in Rinkside) — replaces the L1 note about overriding it.
-- Versions: arcade = v1; v2 work is v1.1.0–v1.5.0; v2.0.0 (merge to main) needs the user's explicit go after the rehearsal.
+- Versions: arcade = v1; v2 work is v1.1.0–v1.6.0; v2.0.0 (merge to main) needs the user's explicit go after the rehearsal.
 - Hosting stays on Render (one long-running process holds the state; Vercel's serverless model doesn't fit). Since v1.2.0 Render's build command must be `npm install && npm run build` (to change in the Render dashboard by the user before the next deploy).
 - v1.2.3 (user's call): no confetti on phones, medals 🥇🥈🥉 instead; deviates from L2 "CSS-only confetti at the champion stage". Big-screen celebration to be decided in v1.4.0.
 - v1.2.0: Carbon's Sass compiles under Vite 8 (spec risk cleared). Only the used Carbon component styles are compiled (CSS 28 KB gzipped).

@@ -167,7 +167,7 @@ Welcome and setup are **merged into one Join screen** to keep joining under 30 s
 
 ## 9. Release plan
 
-The arcade counts as v1, so this work goes v1.1 → v1.5, then v2.0.0. **One version per session; after each version the user decides whether to continue** (see `state.md`).
+The arcade counts as v1, so this work goes v1.1 → v1.6, then v2.0.0. **One version per session; after each version the user decides whether to continue** (see `state.md`).
 
 | Version | Content | Usable after? |
 |---|---|---|
@@ -175,14 +175,15 @@ The arcade counts as v1, so this work goes v1.1 → v1.5, then v2.0.0. **One ver
 | **v1.2.0** | Build setup, Carbon foundation, live-state hook, **player app** | Yes — new phones, arcade host and display |
 | **v1.3.0** | **Host app** | Yes |
 | **v1.4.0** | **Big-screen app**; `public/` removed | Yes — full v2 UI |
-| **v1.5.0** | Stability pass: e2e tests, accessibility scan, full S7 run, README, event checklist | Ready for rehearsal |
+| **v1.5.0** | Stability pass: e2e tests, accessibility scan, full S7 run, README, event checklist | Stable baseline |
+| **v1.6.0** | *Added 2026-11-13 by the user.* Cosmetic assets, avatar polish, winter/Christmas effects (on top of the Carbon base, via `quiz-tokens.scss` and the avatar data file). Hi-fi mockup approved first; ends by re-running the full test suite and the 25-player simulation | Party look; ready for rehearsal |
 | **v2.0.0** | After the user's real-phone rehearsal (S8): merge to `main` and deploy | Party version — needs the user's explicit go-ahead |
 
 ## 10. Validation plan
 
 - Every version: `npm test` (server + unit) and `npm run build`.
 - From v1.2.0: e2e tests for the changed screens.
-- v1.1.0 and v1.5.0: `npm run simulate` (25 players).
+- v1.1.0, v1.5.0 and v1.6.0: `npm run simulate` (25 players).
 - Visual checks by the user (`Visual checks: user`): after each version, a list of screens, widths and states to look at.
 - Before v2.0.0: rehearsal checklist — a phone on mobile data, the venue Wi-Fi if possible, all questions, reset, Render plan not sleeping.
 
