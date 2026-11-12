@@ -37,7 +37,7 @@ Next: **v1.4.0 — big-screen app** (g100, QR from `/api/join-info`, never scrol
 
 ## Decisions worth remembering
 
-- v2 = improved stability + Carbon UI. Christmas look is v1.6.0 (cosmetic assets, avatar polish, winter/Christmas effects), added by the user 2026-11-13, after the v1.5.0 stability pass and before the v2.0.0 merge. Mockup first; re-run all tests and the simulation at its end; the rehearsal happens after v1.6.0.
+- v2 = improved stability + Carbon UI. Christmas look is v1.6.0 (cosmetic assets, avatar polish, winter/Christmas effects), added by the user 2026-11-13, after the v1.5.0 stability pass and before the v2.0.0 merge. Mockup first; re-run all tests and the simulation at its end; the rehearsal happens after v1.6.0. v1.6.0 also revisits the start moment: the arcade "Press to start" screen was merged into Join in v1.2.0 (faster joining); the user wants something similar back once most is built — mockup both a festive Join header and a separate splash, user decides.
 - Server and SSE setup stay; only the client is rebuilt (Vite + React 19 + @carbon/react).
 - L2 decisions: emoji avatars; ties broken by faster total correct-answer time, then shared rank; timer ends early when everyone answered; rejoin by name only for a disconnected player.
 - Font: IBM Plex Sans (self-hosted, as in Rinkside) — replaces the L1 note about overriding it.
