@@ -1,39 +1,25 @@
-import { Header, HeaderGlobalBar, HeaderName, OverflowMenu, OverflowMenuItem, Tag } from "@carbon/react";
-import { phaseLabel } from "./hostSteps.js";
+import { Header, HeaderGlobalBar, HeaderName, OverflowMenu, OverflowMenuItem } from "@carbon/react";
 
 const CONNECTION = {
-  connecting: { type: "gray", text: "Connecting…" },
-  connected: { type: "green", text: "Connected" },
-  reconnecting: { type: "warm-gray", text: "Reconnecting…" },
-  lost: { type: "red", text: "Connection lost" }
+  connecting: "Connecting…",
+  connected: "Connected",
+  reconnecting: "Reconnecting…",
+  lost: "Connection lost"
 };
 
-// "XD Team Quiz", the phase, the question set, the connection, and Reset tucked away in the menu.
-export function HostHeader({ state, status, onReset }) {
-  const connection = CONNECTION[status] || CONNECTION.connecting;
-  const testSet = state?.questionSetId === "test";
+// Carbon's "header only" global header: the title, then the global actions (the connection, and Reset
+// tucked away in the menu). Where the quiz is lives in the page itself, not here.
+export function HostHeader({ status, onReset }) {
   return (
     <Header aria-label="XD Team Quiz host" className="host-header">
       <HeaderName prefix="" href="/host.html">
         XD Team Quiz
       </HeaderName>
-      <div className="host-header__tags">
-        {state && (
-          <>
-            <Tag type="blue" size="md" className="host-header__phase">
-              {phaseLabel(state.phase)}
-            </Tag>
-            <Tag type={testSet ? "magenta" : "cool-gray"} size="md">
-              {state.questionSetName}
-            </Tag>
-          </>
-        )}
-      </div>
       <HeaderGlobalBar className="host-header__bar">
-        <Tag type={connection.type} size="md" className="host-header__connection" role="status">
+        <p className="host-header__connection" role="status">
           <span className={`status-dot status-dot--${status}`} aria-hidden="true" />
-          {connection.text}
-        </Tag>
+          <span className="host-header__connection-text">{CONNECTION[status] || CONNECTION.connecting}</span>
+        </p>
         <OverflowMenu
           aria-label="Quiz menu"
           iconDescription="Quiz menu"

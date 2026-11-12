@@ -5,16 +5,16 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.3.0 (Carbon host app)
+- **Current version:** v1.3.1 (host redesign)
 - **Current phase:** L3 — Build (next: v1.4.0 big screen, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
 
 ## Next session
 
-v1.3.0 (Carbon host app) is done, waiting for the user's laptop check: g10 theme, PIN gate, header (phase, question set, connection, ⋮ → Reset with a danger modal), stage panel with one primary button per step, players panel, lobby setup and join link with Copy, test-set warning, private final preview, clicker keys (→ / PageDown / Space, debounced 1 s). Host actions are sent once, never auto-retried. Shared component styles moved to `client/src/styles/shared-components.scss`; host-only Carbon styles are in `host.scss` (phone CSS unchanged). `public/host.html` removed; `public/` now only serves the arcade big screen. Tests: `npm test` (server + unit), `npm run test:e2e` (player + host), `npm run simulate`.
+v1.3.1 (host redesign) is done, waiting for the user's laptop check. The v1.3.0 host looked broken to the user ("looks awful"), so the host app was redone from Carbon's own guidance (via the Carbon MCP): 2x Grid with a main area (10/16) and one control column (6/16) filling the screen; join address first with Copy link and a player wall (empty state before anyone joins); Carbon Select instead of content switchers; low-contrast test-set note; one fluid xl primary button per screen (label left, arrow right, label centred vertically — the one override); a temporarily disabled primary stays visible with a line saying what unlocks it (Carbon's disabled-state rule); "header only" global header (title, connection, ⋮). Mockup approved by the user first: `ux-forge/mockups/v1.3.1-host.html`. Behaviour unchanged (PIN gate, clicker, send-once, private preview, Reset modal).
 
-Next: **v1.4.0 — big-screen app** (g100, QR from `/api/join-info`, never scrolls at 1280×720; decide the champion celebration, since phones use medals instead of confetti), then remove `public/` (the favicon at `public/assets/favicon.svg` must move to `client/public/` or similar). Read `02_design_spec.md`, the Carbon section of `conventions.md` and the big-screen wiki pages; reuse `client/src/shared/`. Carry over the approved v1.2.x decisions (keyboard-only focus, Carbon-blue pick, smooth timer, medals, 16 px inputs). Lesson: the trimmed Carbon stylesheet needs `scss/layout` (size tokens); `main.scss` lists it.
+Next: **v1.4.0 — big-screen app** (g100, QR from `/api/join-info`, never scrolls at 1280×720; decide the champion celebration, since phones use medals instead of confetti), then remove `public/` (the favicon at `public/assets/favicon.svg` must move to `client/public/` or similar). Read `02_design_spec.md`, the Carbon section of `conventions.md` and the big-screen wiki pages; reuse `client/src/shared/`. Carry over the approved v1.2.x decisions (keyboard-only focus, Carbon-blue pick, smooth timer, medals, 16 px inputs). Lessons: the trimmed Carbon stylesheet needs `scss/layout` (size tokens); for visual work, make a static mockup from the Carbon MCP guidance and get the user's approval before building.
 
 **Checkpoint rule (user's guardrail):** one version per session. After each version, stop and report (changes, tests run, what to check visually). Never start the next version without the user's explicit go. Check plan usage before starting a version; the user wants no extra-usage spend.
 
@@ -57,4 +57,5 @@ Next: **v1.4.0 — big-screen app** (g100, QR from `/api/join-info`, never scrol
 | 2026-11-06 | v1.2.6 | One "your pick" style: solid Carbon blue stroke on question, Time's up and reveal | Done |
 | 2026-11-06 | v1.2.7 | Timer bar drains with one linear CSS animation | Done |
 | 2026-11-06 | v1.2.8 | Podium: "You" tag instead of a blue frame; reveal sequence (3 steps) kept, user confirmed | Done; user's phone check passed ("smooth and nice, very Carbon") |
-| 2026-11-12 | v1.3.0 | Carbon host app (spec section 3 Host); user's decisions: remove `public/host.html`, no auto-retry of host actions, clicker rules, primary disabled during countdown/answering | Done; laptop check by the user pending |
+| 2026-11-12 | v1.3.0 | Carbon host app (spec section 3 Host); user's decisions: remove `public/host.html`, no auto-retry of host actions, clicker rules, primary disabled during countdown/answering | Done; user's laptop check failed ("looks awful") → v1.3.1 |
+| 2026-11-12 | v1.3.1 | Host redesign from Carbon MCP guidance; static mockup approved first; disabled Start stays visible with a hint (Carbon rule, user accepted with the mockup) | Done; laptop check by the user pending |

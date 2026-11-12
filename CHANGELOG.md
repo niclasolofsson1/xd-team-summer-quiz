@@ -2,6 +2,16 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.3.1 — Host redesign
+
+- The host page has a new, calmer layout built on Carbon's own guidance: a large main area on the left and one control column on the right, both filling the screen.
+- In the lobby the join address comes first, in large type, with a **Copy link** button. Players appear underneath as big avatars as they join; before anyone joins it says "Waiting for the first player" and what to do.
+- Question set and answer time are now simple dropdowns. The test-questions warning is a quiet note instead of a loud yellow box.
+- There's one big button for the next step, across the full width of the control column, with its text centred and an arrow. When it can't be pressed yet, a line above it says why ("Start unlocks when the first player joins.").
+- During a question the question itself takes centre stage in large type, with bigger answer tiles and the timer below; the control column shows the next step and the players list with a check for everyone who has answered.
+- The header is simpler: just the title, the connection status and the ⋮ menu (with Reset).
+- The page now works from phone width up, without scrolling sideways.
+
 ## v1.3.0 — Carbon host app
 
 - The host page (`/host.html`) is new, in the same clean Carbon style as the player app (light grey theme, made for a laptop).

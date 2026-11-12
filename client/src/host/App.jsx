@@ -8,9 +8,11 @@ import { hostStep } from "./hostSteps.js";
 import { createClicker } from "./clicker.js";
 import { PinGate } from "./PinGate.jsx";
 import { HostHeader } from "./HostHeader.jsx";
-import { StagePanel } from "./StagePanel.jsx";
-import { SetupPanel } from "./SetupPanel.jsx";
+import { ControlPanel } from "./ControlPanel.jsx";
+import { StageView } from "./StageView.jsx";
+import { SetupFields } from "./SetupFields.jsx";
 import { JoinPanel } from "./JoinPanel.jsx";
+import { PlayerWall } from "./PlayerWall.jsx";
 import { PlayersPanel } from "./PlayersPanel.jsx";
 import { ResetModal } from "./ResetModal.jsx";
 
@@ -51,6 +53,7 @@ function Dashboard({ pin, onLocked }) {
   const step = hostStep(state);
   const phase = state?.phase;
   const stage = state?.finalRevealStage;
+  const lobby = phase === "lobby";
 
   // One request at a time; a 403 means the PIN stopped working (server restarted with a new one).
   async function send(action, body) {
@@ -116,7 +119,6 @@ function Dashboard({ pin, onLocked }) {
   return (
     <>
       <HostHeader
-        state={state}
         status={status}
         onReset={() => {
           setResetError("");
@@ -130,30 +132,28 @@ function Dashboard({ pin, onLocked }) {
             <InlineLoading description="Connecting…" />
           </div>
         ) : (
-          <div className="host-layout">
-            <div className="host-layout__main">
-              <StagePanel
-                state={state}
-                offsetMs={offsetMs}
-                step={step}
-                busy={busy}
-                error={error}
-                onPrimary={primary}
-                preview={preview}
-              />
-              {state.phase === "lobby" && (
-                <div className="host-layout__lobby">
-                  <SetupPanel
-                    state={state}
-                    busy={busy}
-                    onSetQuestionSet={(questionSetId) => send("set-question-set", { questionSetId })}
-                    onSetAnswerTime={(answerSeconds) => send("set-answer-time", { answerSeconds })}
-                  />
-                  <JoinPanel playerCount={state.participants.length} />
-                </div>
+          // Carbon 2x grid: the main area (10 of 16 columns) and one control column (6). In the lobby the
+          // join address and the player wall lead; during the game the question takes centre stage.
+          <div className={`host-grid host-grid--${lobby ? "lobby" : "game"}`}>
+            {lobby ? (
+              <>
+                <JoinPanel />
+                <PlayerWall players={state.participants} />
+              </>
+            ) : (
+              <StageView state={state} offsetMs={offsetMs} preview={preview} />
+            )}
+            <ControlPanel step={step} busy={busy} error={error} onPrimary={primary}>
+              {lobby && (
+                <SetupFields
+                  state={state}
+                  busy={busy}
+                  onSetQuestionSet={(questionSetId) => send("set-question-set", { questionSetId })}
+                  onSetAnswerTime={(answerSeconds) => send("set-answer-time", { answerSeconds })}
+                />
               )}
-            </div>
-            <PlayersPanel state={state} />
+            </ControlPanel>
+            {!lobby && <PlayersPanel state={state} />}
           </div>
         )}
       </main>

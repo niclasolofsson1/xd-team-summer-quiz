@@ -40,11 +40,13 @@ export function hostStep(state) {
     case "lobby":
       return {
         eyebrow: phaseLabel("lobby"),
-        title: players ? playersJoinedTitle(players) : "Waiting for players",
+        title: players ? playersJoinedTitle(players) : "Set up the quiz",
         label: "Start quiz",
         action: "start",
         enabled: players > 0,
-        hint: players ? `${state.questionSetName} · ${state.totalQuestions} questions` : "Start is available once a player has joined."
+        hint: players
+          ? `${state.questionSetName} · ${state.totalQuestions} questions · ${Math.round(state.answerMs / 1000)} s each`
+          : "Start unlocks when the first player joins."
       };
     case "countdown":
       return {
@@ -62,7 +64,7 @@ export function hostStep(state) {
         label: "Reveal answer",
         action: null,
         enabled: false,
-        hint: "Answer timer is running."
+        hint: "Reveal unlocks when the time is up or everyone has answered."
       };
     case "awaitingReveal":
       return {
@@ -81,7 +83,7 @@ export function hostStep(state) {
         label: last ? "Reveal final results" : "Show leaderboard",
         action: "leaderboard",
         enabled: true,
-        hint: last ? "That was the last question." : ""
+        hint: last ? "That was the last question." : "Next: the leaderboard after this question."
       };
     }
     case "leaderboard":

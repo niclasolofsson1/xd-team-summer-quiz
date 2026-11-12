@@ -73,8 +73,7 @@ html
     .cds--actionable-notification__action-button,
     .cds--overflow-menu,
     .cds--overflow-menu-options__btn,
-    .cds--content-switcher-btn,
-    .cds--copy-btn,
+    .cds--select-input,
     .cds--modal-close
   ):is(:focus, :active):not(:focus-visible) {
   outline: none;

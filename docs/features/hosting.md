@@ -12,7 +12,7 @@
 | URL | What |
 |---|---|
 | `/participant.html` (and `/`, which redirects there) | Players (Carbon app, from `dist/`) |
-| `/host.html` | Host dashboard (arcade, from `public/` until v1.3.0) |
+| `/host.html` | Host dashboard (Carbon, from `dist/`, since v1.3.0) |
 | `/display.html` | Big screen (arcade, from `public/` until v1.4.0) |
 
 ## Developing

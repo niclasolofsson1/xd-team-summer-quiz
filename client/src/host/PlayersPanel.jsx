@@ -4,15 +4,16 @@ import { playersSummary } from "./hostSteps.js";
 
 const QUESTION_PHASES = new Set(["countdown", "answering", "awaitingReveal"]);
 
-// Every player: avatar, name, connected dot, answered check (during a question), score.
+// During the game: every player with avatar, name, connected dot, answered check or an empty ring
+// (during a question), and score.
 // In the final reveal, players the podium hasn't revealed yet stay "Locked player", as on every screen.
 export function PlayersPanel({ state }) {
   const showAnswered = QUESTION_PHASES.has(state.phase);
   const players = state.participants;
   return (
-    <section className="host-card players-panel" aria-labelledby="players-title">
+    <section className="host-panel players-panel" aria-labelledby="players-title">
       <div className="players-panel__head">
-        <h2 id="players-title" className="host-card__title">
+        <h2 id="players-title" className="host-panel__title">
           Players
         </h2>
         <p className="players-panel__summary" aria-live="polite">
@@ -39,12 +40,17 @@ export function PlayersPanel({ state }) {
                   </span>
                 )}
                 <span className="player-row__answered">
-                  {showAnswered && player.answered && (
-                    <>
-                      <CheckmarkFilled size={16} aria-hidden="true" />
-                      <span className="visually-hidden">Answered</span>
-                    </>
-                  )}
+                  {showAnswered &&
+                    (player.answered ? (
+                      <>
+                        <CheckmarkFilled size={16} aria-hidden="true" />
+                        <span className="visually-hidden">Answered</span>
+                      </>
+                    ) : (
+                      <span className="player-row__waiting">
+                        <span className="visually-hidden">Not answered yet</span>
+                      </span>
+                    ))}
                 </span>
                 <span className="player-row__score">{locked ? "—" : player.score}</span>
               </li>

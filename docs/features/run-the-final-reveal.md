@@ -1,6 +1,6 @@
 # Run the final reveal
 
-> **Host → stage panel after the last question**: unlock the final results in three steps, with a private preview of who's next.
+> **Host → control column after the last question**: unlock the final results in three steps, with a private preview of who's next.
 
 | Status | Since | Depends on |
 |---|---|---|
@@ -8,7 +8,7 @@
 
 ## What it is
 
-After the last question the stage panel shows "Final results" and "Stage x of 3":
+After the last question the stage shows "Final results" and the control column "Stage x of 3":
 
 | Stage | Primary button | Host sees |
 |---|---|---|

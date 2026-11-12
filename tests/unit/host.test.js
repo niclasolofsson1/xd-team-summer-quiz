@@ -13,6 +13,7 @@ function state(overrides = {}) {
     finalRevealStage: 0,
     questionSetId: "test",
     questionSetName: "Test questions",
+    answerMs: 20000,
     participants: [player("a"), player("b")],
     ...overrides
   };
@@ -21,9 +22,10 @@ function state(overrides = {}) {
 describe("hostStep", () => {
   it("starts from the lobby once a player has joined", () => {
     expect(hostStep(state())).toMatchObject({ label: "Start quiz", action: "start", enabled: true, title: "2 players joined" });
+    expect(hostStep(state()).hint).toBe("Test questions · 3 questions · 20 s each");
     const empty = hostStep(state({ participants: [] }));
-    expect(empty).toMatchObject({ action: "start", enabled: false, title: "Waiting for players" });
-    expect(empty.hint).toMatch(/once a player has joined/);
+    expect(empty).toMatchObject({ action: "start", enabled: false, title: "Set up the quiz" });
+    expect(empty.hint).toMatch(/when the first player joins/);
   });
 
   it("waits during the countdown and the answer window", () => {
@@ -31,7 +33,7 @@ describe("hostStep", () => {
       const step = hostStep(state({ phase, currentQuestionIndex: 1 }));
       expect(step).toMatchObject({ label: "Reveal answer", enabled: false, eyebrow: "Question 2 of 3" });
     }
-    expect(hostStep(state({ phase: "answering" })).hint).toBe("Answer timer is running.");
+    expect(hostStep(state({ phase: "answering" })).hint).toBe("Reveal unlocks when the time is up or everyone has answered.");
   });
 
   it("reveals, then shows the leaderboard, then the next question", () => {

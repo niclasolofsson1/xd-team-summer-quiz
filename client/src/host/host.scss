@@ -1,5 +1,6 @@
-// Host app (laptop, Carbon g10 theme). Designed for 1280 px and up, works down to 1024 px;
-// below that the players panel stacks under the stage.
+// Host app (laptop, Carbon g10 theme). Layout from Carbon's 2x Grid: from 1024 px a main area
+// (10 of 16 columns) and one control column (6), 32 px gutters, panels filling the screen height.
+// Below 1024 px the panels stack; from 360 px nothing scrolls sideways.
 //
 // Carbon parts only the host uses are compiled here, so the phones' stylesheet doesn't grow.
 @use '@carbon/react/scss/config' with (
@@ -11,8 +12,7 @@
 @use '@carbon/react/scss/type';
 @use '@carbon/react/scss/components/modal';
 @use '@carbon/react/scss/components/overflow-menu';
-@use '@carbon/react/scss/components/content-switcher';
-@use '@carbon/react/scss/components/copy-button';
+@use '@carbon/react/scss/components/select';
 @use '@carbon/react/scss/components/popover';
 @use '@carbon/react/scss/components/tooltip';
 @use '../styles/quiz-tokens' as *;
@@ -29,28 +29,19 @@ body:has(.host-gate) {
   padding-block-start: 0;
 }
 
-// ---------- Header ----------
+// ---------- Header (Carbon global header, "header only") ----------
 .host-header {
-  &__tags {
-    display: flex;
-    align-items: center;
-    gap: $sp-8;
-    padding-inline-start: $sp-16;
-    min-inline-size: 0;
-
-    .cds--tag {
-      margin: 0;
-    }
-  }
-
   &__bar {
     align-items: center;
-    gap: $sp-8;
   }
 
   &__connection {
+    display: flex;
+    align-items: center;
     gap: $sp-8;
-    margin: 0;
+    padding-inline: $sp-16;
+    @include type.type-style('body-compact-01');
+    color: theme.$text-secondary;
   }
 
   // Carbon's overflow trigger is 48 px in the header; keep the shell's own colours.
@@ -60,11 +51,23 @@ body:has(.host-gate) {
   }
 }
 
+// On a phone the dot alone shows the connection; the text stays for screen readers.
+@media (max-width: 479px) {
+  .host-header__connection-text {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
 .status-dot {
   display: inline-block;
   flex: none;
-  inline-size: 10px;
-  block-size: 10px;
+  inline-size: 8px;
+  block-size: 8px;
   border-radius: 50%;
   background: theme.$icon-disabled;
 
@@ -78,11 +81,15 @@ body:has(.host-gate) {
   }
 }
 
-// ---------- Layout ----------
+// ---------- Page and grid ----------
+$header: 48px;
+
 .host-main {
-  max-inline-size: 1440px;
-  margin-inline: auto;
-  padding: $sp-24;
+  padding: $sp-16;
+
+  @media (min-width: 672px) {
+    padding: $sp-32;
+  }
 
   &__loading {
     padding-block: $sp-48;
@@ -99,43 +106,48 @@ body:has(.host-gate) {
   }
 }
 
-.host-layout {
+// Stacked (below 1024 px): one column, in the order that matters for the phase.
+.host-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: $sp-24;
-  align-items: start;
+  gap: $sp-16;
+  max-inline-size: 1584px; // Carbon's max breakpoint
+  margin-inline: auto;
 
+  &--lobby {
+    grid-template-areas: 'join' 'control' 'wall';
+  }
+
+  &--game {
+    grid-template-areas: 'control' 'stage' 'players';
+  }
+
+  @media (min-width: 672px) {
+    gap: $sp-32;
+  }
+
+  // Side by side: 10 + 6 of 16 columns, filling the screen height (32 px padding above and below).
   @media (min-width: 1024px) {
-    grid-template-columns: minmax(0, 1fr) 340px;
-  }
+    grid-template-columns: minmax(0, 10fr) minmax(0, 6fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    block-size: calc(100dvh - #{$header} - #{2 * $sp-32});
+    min-block-size: 560px;
 
-  @media (min-width: 1280px) {
-    grid-template-columns: minmax(0, 1fr) 400px;
-  }
+    &--lobby {
+      grid-template-areas: 'join control' 'wall control';
+    }
 
-  &__main {
-    display: flex;
-    flex-direction: column;
-    gap: $sp-24;
-    min-inline-size: 0;
-  }
-
-  &__lobby {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: $sp-24;
-
-    @media (min-width: 1280px) {
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    &--game {
+      grid-template-areas: 'stage control' 'stage players';
     }
   }
 }
 
-.host-card {
+.host-panel {
   display: flex;
   flex-direction: column;
-  gap: $sp-16;
-  padding: $sp-24;
+  min-inline-size: 0;
+  min-block-size: 0;
   background: theme.$layer-01;
 
   &__title {
@@ -143,85 +155,340 @@ body:has(.host-gate) {
   }
 }
 
-// ---------- Stage panel ----------
-.stage-panel {
-  gap: $sp-24;
+// ---------- Join (the lobby's lead) ----------
+.join-panel {
+  grid-area: join;
+  gap: $sp-16;
+  padding: $sp-16;
+
+  @media (min-width: 672px) {
+    padding: $sp-32;
+  }
+
+  &__label {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  &__url {
+    @include type.type-style('heading-04');
+    font-weight: 300;
+    overflow-wrap: anywhere;
+
+    @media (min-width: 672px) {
+      @include type.type-style('heading-06');
+      font-weight: 300;
+    }
+
+    b {
+      font-weight: 600;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-16;
+
+    @media (max-width: 479px) {
+      .cds--btn {
+        flex: 1 1 100%;
+        max-inline-size: none;
+      }
+    }
+  }
+}
+
+// ---------- Player wall (lobby) ----------
+.player-wall {
+  grid-area: wall;
+  min-block-size: 240px;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $sp-16;
+    padding: $sp-16 $sp-16 0;
+
+    @media (min-width: 672px) {
+      padding: $sp-24 $sp-24 0;
+    }
+  }
+
+  &__count {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    align-content: start;
+    gap: $sp-16;
+    padding: $sp-16;
+    overflow-y: auto;
+
+    @media (min-width: 672px) {
+      grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+      padding: $sp-24;
+    }
+  }
+
+  &__who {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-8;
+    min-inline-size: 0;
+    text-align: center;
+  }
+
+  // The newest player gets a ring in Carbon's interactive blue.
+  &__who--new .quiz-avatar {
+    box-shadow: 0 0 0 2px theme.$layer-01, 0 0 0 4px theme.$border-interactive;
+  }
+
+  &__name {
+    @include type.type-style('body-compact-01');
+    max-inline-size: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__offline {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  // Empty state: placeholder seats, then a title and what to do.
+  &--empty &__grid {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__seat {
+    inline-size: 64px;
+    block-size: 64px;
+    border: 2px dashed theme.$border-subtle-01;
+    border-radius: 50%;
+  }
+
+  &__seat-name {
+    inline-size: 56px;
+    block-size: 12px;
+    background: theme.$layer-02;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-8;
+    max-inline-size: 480px;
+    padding: 0 $sp-16 $sp-16;
+
+    @media (min-width: 672px) {
+      padding: 0 $sp-24 $sp-24;
+    }
+  }
+
+  &__empty-title {
+    @include type.type-style('heading-03');
+  }
+
+  &__empty-body {
+    @include type.type-style('body-01');
+    color: theme.$text-secondary;
+  }
+}
+
+// ---------- Control column ----------
+.control-panel {
+  grid-area: control;
+
+  &__top {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    padding: $sp-16;
+
+    @media (min-width: 672px) {
+      padding: $sp-24;
+    }
+  }
 
   &__eyebrow {
-    @include type.type-style('label-02');
+    @include type.type-style('label-01');
     color: theme.$text-secondary;
-    min-block-size: 1.25rem;
+    min-block-size: 1rem;
   }
 
   &__title {
     @include type.type-style('heading-05');
-    margin-block-start: -$sp-16;
   }
 
-  &__countdown {
-    font-size: 120px;
-    font-weight: 300;
-    line-height: 1;
-  }
-
-  &__count {
-    @include type.type-style('heading-03');
-  }
-
-  &__action {
+  &__body {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: $sp-12;
+    gap: $sp-24;
+    padding: 0 $sp-16 $sp-16;
+
+    @media (min-width: 672px) {
+      padding: 0 $sp-24 $sp-24;
+    }
+
+    // Fields on a white panel use the second field colour; 16 px text (no iOS zoom).
+    .cds--select-input {
+      background: theme.$field-02;
+      @include type.type-style('body-02');
+    }
   }
 
-  &__primary {
-    min-inline-size: 320px;
-    @include type.type-style('heading-03');
+  &__foot {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-16;
+    margin-block-start: auto;
+  }
+
+  &__warning.cds--inline-notification {
+    max-inline-size: none;
+    margin: 0;
+  }
+
+  &__error.cds--inline-notification {
+    max-inline-size: none;
+    margin: 0 $sp-16;
+
+    @media (min-width: 672px) {
+      margin: 0 $sp-24;
+    }
   }
 
   &__hint {
     @include type.type-style('body-01');
     color: theme.$text-secondary;
+    padding-inline: $sp-16;
+
+    @media (min-width: 672px) {
+      padding-inline: $sp-24;
+    }
   }
 
-  &__error {
+  // The one primary step: fluid, bleeding to the panel's edges (Carbon's xl size for that), label left,
+  // arrow right. One override on Carbon: the label is centred vertically instead of sitting at the top.
+  &__primary.cds--btn {
+    inline-size: 100%;
     max-inline-size: none;
-    margin: 0;
+    align-items: center;
+    padding-block: 0;
+    @include type.type-style('body-compact-02');
+
+    .cds--btn__icon {
+      inset-block-start: 50%;
+      margin-block-start: 0;
+      transform: translateY(-50%);
+    }
   }
 }
 
-.stage-question {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: $sp-16;
+// ---------- Stage (during the game) ----------
+.stage-view {
+  grid-area: stage;
+  gap: $sp-24;
+  padding: $sp-16;
+  overflow-y: auto;
 
-  &__category {
+  @media (min-width: 672px) {
+    gap: $sp-32;
+    padding: $sp-32;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $sp-12;
+  }
+
+  &__category.cds--tag {
     margin: 0;
   }
 
-  &__text {
+  &__meta-label {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  &__heading {
     @include type.type-style('heading-04');
   }
 
+  &__question {
+    @include type.type-style('heading-04');
+    font-weight: 300;
+
+    @media (min-width: 1024px) {
+      @include type.type-style('heading-06');
+      font-weight: 300;
+    }
+  }
+
+  &__countdown {
+    display: grid;
+    flex: 1;
+    place-items: center;
+    font-size: 160px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  &__foot {
+    margin-block-start: auto;
+  }
+
   .answer-grid {
-    inline-size: 100%;
-    grid-template-columns: 1fr 1fr;
+    gap: $sp-16;
+  }
+
+  .answer-tile {
+    min-block-size: 96px;
+    padding: $sp-16 $sp-24;
+    @include type.type-style('heading-03');
+
+    &__letter {
+      inline-size: 48px;
+      block-size: 48px;
+    }
+  }
+
+  .leaderboard {
+    background: theme.$layer-01;
+  }
+
+  .podium {
+    max-inline-size: 640px;
   }
 }
 
 .reveal-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 160px));
-  gap: $sp-16;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin-block-start: auto;
+  background: theme.$border-subtle-01;
 
   > div {
     display: flex;
     flex-direction: column;
     gap: $sp-4;
-    padding: $sp-16;
-    background: theme.$layer-02;
+    padding-block-start: $sp-16;
+    background: theme.$layer-01;
+  }
+
+  > div + div {
+    padding-inline-start: $sp-24;
   }
 
   dt {
@@ -230,12 +497,59 @@ body:has(.host-gate) {
   }
 
   dd {
-    @include type.type-style('heading-05');
+    @include type.type-style('heading-06');
+    font-weight: 300;
   }
 }
 
-.stage-panel .leaderboard {
-  background: theme.$layer-02;
+// ---------- Players (during the game) ----------
+.players-panel {
+  grid-area: players;
+  min-block-size: 200px;
+
+  &__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: $sp-4 $sp-16;
+    padding: $sp-16 $sp-16 $sp-8;
+
+    @media (min-width: 672px) {
+      padding: $sp-24 $sp-24 $sp-8;
+    }
+  }
+
+  &__summary {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  &__empty {
+    @include type.type-style('body-01');
+    color: theme.$text-secondary;
+    padding: 0 $sp-24 $sp-24;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    padding: 0 $sp-16 $sp-16;
+    overflow-y: auto;
+
+    @media (min-width: 672px) {
+      padding: 0 $sp-24 $sp-16;
+    }
+  }
+}
+
+.player-row__waiting {
+  display: block;
+  inline-size: 12px;
+  block-size: 12px;
+  margin: 2px;
+  border: 2px solid theme.$border-strong-01;
+  border-radius: 50%;
 }
 
 // ---------- Final reveal ----------
@@ -256,101 +570,10 @@ body:has(.host-gate) {
   }
 }
 
-.stage-panel .podium {
-  max-inline-size: 640px;
-}
-
-// ---------- Setup and join ----------
-.setup-panel {
-  &__field {
-    display: flex;
-    flex-direction: column;
-    gap: $sp-8;
-  }
-
-  &__label {
-    @include type.type-style('label-02');
-    color: theme.$text-secondary;
-  }
-
-  &__note {
-    @include type.type-style('helper-text-01');
-    color: theme.$text-secondary;
-  }
-
-  &__warning {
-    max-inline-size: none;
-    margin: 0;
-  }
-}
-
-.join-panel {
-  align-items: flex-start;
-
-  &__label {
-    @include type.type-style('label-02');
-    color: theme.$text-secondary;
-    margin-block-end: -$sp-8;
-  }
-
-  &__link {
-    display: flex;
-    align-items: center;
-    gap: $sp-8;
-    inline-size: 100%;
-    background: theme.$field-01;
-    padding-inline-start: $sp-12;
-  }
-
-  &__url {
-    flex: 1;
-    min-inline-size: 0;
-    overflow-wrap: anywhere;
-    @include type.type-style('code-02');
-    padding-block: $sp-12;
-  }
-
-  &__count {
-    @include type.type-style('body-01');
-  }
-}
-
-// ---------- Players panel ----------
-.players-panel {
-  gap: $sp-12;
-
-  @media (min-width: 1024px) {
-    position: sticky;
-    inset-block-start: calc(48px + #{$sp-24});
-    max-block-size: calc(100vh - 48px - #{$sp-48});
-    overflow-y: auto;
-  }
-
-  &__head {
-    display: flex;
-    flex-direction: column;
-    gap: $sp-4;
-  }
-
-  &__summary {
-    @include type.type-style('body-01');
-    color: theme.$text-secondary;
-  }
-
-  &__empty {
-    @include type.type-style('body-01');
-    color: theme.$text-secondary;
-  }
-
-  &__list {
-    display: flex;
-    flex-direction: column;
-  }
-}
 
 .player-row {
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) 10px 16px 56px;
+  grid-template-columns: 32px minmax(0, 1fr) 8px 16px 56px;
   align-items: center;
   gap: $sp-12;
   min-block-size: 48px;

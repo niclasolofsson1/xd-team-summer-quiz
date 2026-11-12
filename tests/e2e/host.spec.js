@@ -19,7 +19,7 @@ async function unlock(page) {
   await page.goto("/host.html");
   await page.getByLabel("Host PIN").fill(HOST_PIN);
   await page.getByRole("button", { name: "Open dashboard" }).click();
-  await expect(page.locator(".stage-panel")).toBeVisible();
+  await expect(page.locator(".control-panel")).toBeVisible();
 }
 
 async function phonePlayer(browser, name) {
@@ -33,7 +33,7 @@ async function phonePlayer(browser, name) {
   return { page, context };
 }
 
-const primary = (page) => page.locator(".stage-panel__primary");
+const primary = (page) => page.locator(".control-panel__primary");
 
 test.beforeEach(async ({ request }) => {
   await api(request, "reset");
@@ -47,9 +47,9 @@ test("PIN gate: a wrong PIN is refused, the right one opens the dashboard and su
   await expect(page.getByText("Host PIN is incorrect.")).toBeVisible();
   await page.getByLabel("Host PIN").fill(HOST_PIN);
   await page.getByRole("button", { name: "Open dashboard" }).click();
-  await expect(page.getByRole("heading", { name: "Waiting for players" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Set up the quiz" })).toBeVisible();
   await page.reload();
-  await expect(page.getByRole("heading", { name: "Waiting for players" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Set up the quiz" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Host access" })).toHaveCount(0);
 });
 
@@ -57,40 +57,42 @@ test("lobby: question set, answer time, test-set warning and join link", async (
   await unlock(page);
   await expect(primary(page)).toBeDisabled();
   await expect(page.getByText("You're about to run the test questions.")).toBeVisible();
-  await expect(page.locator(".join-panel__url")).toHaveText(/^https?:\/\/\S+$/);
+  await expect(page.locator(".join-panel__url")).toHaveAttribute("data-url", /^https?:\/\/\S+$/);
+  await expect(page.getByText("Waiting for the first player")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open display screen" })).toHaveAttribute("href", "/display.html");
 
-  await page.getByRole("tab", { name: /Real questions/ }).click();
+  await page.getByLabel("Question set").selectOption("real");
   await expect.poll(async () => (await state(request)).questionSetId).toBe("real");
   await expect(page.getByText("You're about to run the test questions.")).toHaveCount(0);
-  await expect(page.locator(".host-header")).toContainText("Real questions");
+  await expect(page.getByLabel("Question set")).toHaveValue("real");
 
-  await page.getByRole("tab", { name: "10 s", exact: true }).click();
+  await page.getByLabel("Answer time").selectOption("10");
   await expect.poll(async () => (await state(request)).answerMs).toBe(10000);
 
-  await page.getByRole("tab", { name: /Test questions/ }).click();
+  await page.getByLabel("Question set").selectOption("test");
   await expect(page.getByText("You're about to run the test questions.")).toBeVisible();
 
   await api(request, "join", { name: "Bea", avatarId: "fox" });
   await expect(page.getByRole("heading", { name: "1 player joined" })).toBeVisible();
-  await expect(page.locator(".players-panel")).toContainText("Bea");
+  await expect(page.locator(".player-wall")).toContainText("Bea");
+  await expect(page.locator(".control-panel__hint")).toHaveText("Test questions · 3 questions · 10 s each");
   await expect(primary(page)).toBeEnabled();
 });
 
 test("a full quiz run with a player, through the final reveal with the private preview", async ({ page, browser, request }) => {
   await unlock(page);
-  await page.getByRole("tab", { name: "5 s", exact: true }).click();
+  await page.getByLabel("Answer time").selectOption("5");
   await expect.poll(async () => (await state(request)).answerMs).toBe(5000);
   const ada = await phonePlayer(browser, "Ada");
   const bot = await api(request, "join", { name: "Bob", avatarId: "owl" });
   const cy = await api(request, "join", { name: "Cy", avatarId: "cat" });
-  await expect(page.locator(".players-panel__summary")).toContainText("3 players");
+  await expect(page.locator(".player-wall__count")).toHaveText("3 joined");
 
   await primary(page).click();
   const { totalQuestions } = await state(request);
   for (let q = 0; q < totalQuestions; q += 1) {
-    await expect(page.locator(".stage-panel__eyebrow")).toHaveText(`Question ${q + 1} of ${totalQuestions}`);
-    await expect(page.locator(".stage-question__text")).toBeVisible();
+    await expect(page.locator(".control-panel__eyebrow")).toHaveText(`Question ${q + 1} of ${totalQuestions}`);
+    await expect(page.locator(".stage-view__question")).toBeVisible();
     await expect(primary(page)).toBeDisabled();
     await ada.page.locator("button.answer-tile--a").click();
     await expect(ada.page.getByText("Answer locked")).toBeVisible();
@@ -110,30 +112,30 @@ test("a full quiz run with a player, through the final reveal with the private p
     await expect(primary(page)).toHaveText(last ? "Reveal final results" : "Show leaderboard");
     await primary(page).click();
     if (!last) {
-      await expect(page.locator(".stage-panel .leaderboard")).toBeVisible();
+      await expect(page.locator(".stage-view .leaderboard")).toBeVisible();
       await expect(primary(page)).toHaveText("Next question");
       await primary(page).click();
     }
   }
 
   // Final reveal: stage 0 → 1 → 2 → 3, with the private preview at stages 1 and 2.
-  await expect(page.locator(".stage-panel__eyebrow")).toHaveText("Stage 0 of 3");
+  await expect(page.locator(".control-panel__eyebrow")).toHaveText("Stage 0 of 3");
   await expect(primary(page)).toHaveText("Start final reveal");
   await primary(page).click();
-  await expect(page.locator(".stage-panel__eyebrow")).toHaveText("Stage 1 of 3");
+  await expect(page.locator(".control-panel__eyebrow")).toHaveText("Stage 1 of 3");
   await expect(page.getByText("Preview of the next step · only on your screen")).toBeVisible();
   await expect(page.locator(".final-panel__preview .podium__place--revealed")).toHaveCount(1);
   await expect(primary(page)).toHaveText("Reveal 3rd place");
   await primary(page).click();
-  await expect(page.locator(".stage-panel__eyebrow")).toHaveText("Stage 2 of 3");
+  await expect(page.locator(".control-panel__eyebrow")).toHaveText("Stage 2 of 3");
   await expect(page.locator(".final-panel__preview .podium__place--revealed")).toHaveCount(3);
   // The champion is still hidden from everyone else.
   expect((await state(request)).participants.some((p) => p.name === "Locked player")).toBe(true);
   await expect(primary(page)).toHaveText("Reveal champion");
   await primary(page).click();
-  await expect(page.locator(".stage-panel__eyebrow")).toHaveText("Stage 3 of 3");
+  await expect(page.locator(".control-panel__eyebrow")).toHaveText("Stage 3 of 3");
   await expect(primary(page)).toBeDisabled();
-  await expect(page.locator(".stage-panel .podium__place--revealed")).toHaveCount(3);
+  await expect(page.locator(".stage-view .podium__place--revealed")).toHaveCount(3);
   await expect(ada.page.getByText("Champion").first()).toBeVisible();
   await ada.context.close();
 });
@@ -144,7 +146,7 @@ test("clicker: → / PageDown / Space step the quiz, debounced, never inside the
   await expect(primary(page)).toBeEnabled();
 
   // Space on the Copy button copies; it doesn't start the quiz.
-  await page.locator(".join-panel .cds--copy-btn").focus();
+  await page.locator(".join-panel__copy").focus();
   await page.keyboard.press("Space");
   await page.waitForTimeout(300);
   expect((await state(request)).phase).toBe("lobby");
@@ -178,7 +180,7 @@ test("clicker: → / PageDown / Space step the quiz, debounced, never inside the
 test("reset from the menu, through the danger modal, clears the quiz for everyone", async ({ page, browser, request }) => {
   await unlock(page);
   const ada = await phonePlayer(browser, "Ada");
-  await page.getByRole("tab", { name: /Real questions/ }).click();
+  await page.getByLabel("Question set").selectOption("real");
   await expect.poll(async () => (await state(request)).questionSetId).toBe("real");
 
   await page.getByRole("button", { name: "Quiz menu" }).click();
@@ -191,29 +193,46 @@ test("reset from the menu, through the danger modal, clears the quiz for everyon
   const after = await state(request);
   expect(after.participants).toHaveLength(0);
   expect(after.questionSetId).toBe("test");
-  await expect(page.getByRole("heading", { name: "Waiting for players" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Set up the quiz" })).toBeVisible();
   await expect(ada.page.getByText("The quiz was reset. Join again to play.")).toBeVisible();
   await ada.context.close();
 });
 
-test("layout: panels side by side from 1024 px, stacked below, never scrolling sideways", async ({ page }) => {
+test("layout: control column beside the main area from 1024 px, stacked below, never scrolling sideways", async ({ page, request }) => {
   await unlock(page);
-  const boxes = async () => ({
-    stage: await page.locator(".stage-panel").boundingBox(),
-    players: await page.locator(".players-panel").boundingBox()
-  });
-  for (const width of [1280, 1024]) {
+  const box = (selector) => page.locator(selector).boundingBox();
+  for (const width of [1440, 1280, 1024]) {
     await page.setViewportSize({ width, height: 800 });
-    const { stage, players } = await boxes();
-    expect(players.x).toBeGreaterThan(stage.x + stage.width - 1);
+    const wall = await box(".player-wall");
+    const control = await box(".control-panel");
+    expect(control.x).toBeGreaterThan(wall.x + wall.width - 1);
+    // Panels fill the screen height: the control column reaches the bottom padding.
+    expect(control.y + control.height).toBeGreaterThan(800 - 32 - 2);
   }
   await page.setViewportSize({ width: 900, height: 800 });
-  const { stage, players } = await boxes();
-  expect(players.y).toBeGreaterThan(stage.y + stage.height - 1);
-  for (const width of [1440, 1024, 900]) {
+  const join = await box(".join-panel");
+  const control = await box(".control-panel");
+  expect(control.y).toBeGreaterThan(join.y + join.height - 1);
+  for (const width of [1440, 1024, 900, 600, 360]) {
     await page.setViewportSize({ width, height: 800 });
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     expect(overflow).toBeLessThanOrEqual(0);
   }
-  expect((await primary(page).boundingBox()).height).toBeGreaterThanOrEqual(48);
+
+  // The primary step: full panel width, 64 px, label centred vertically (not in the top corner).
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await api(request, "join", { name: "Bea", avatarId: "fox" });
+  await expect(primary(page)).toBeEnabled();
+  const panel = await box(".control-panel");
+  const button = await primary(page).boundingBox();
+  expect(button.height).toBeGreaterThanOrEqual(64);
+  expect(Math.abs(button.width - panel.width)).toBeLessThanOrEqual(1);
+  const label = await primary(page).evaluate((el) => {
+    const range = document.createRange();
+    range.selectNodeContents(el.firstChild);
+    const r = range.getBoundingClientRect();
+    return { top: r.top, bottom: r.bottom };
+  });
+  const middle = (label.top + label.bottom) / 2;
+  expect(Math.abs(middle - (button.y + button.height / 2))).toBeLessThanOrEqual(3);
 });

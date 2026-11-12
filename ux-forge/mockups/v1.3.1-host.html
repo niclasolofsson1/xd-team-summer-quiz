@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Host redesign mockup</title>
+<!-- Real Carbon CSS from the project's node_modules (@carbon/styles 1.119), g10 theme. Static mockup, no app code. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@carbon/styles@1.119.0/css/styles.min.css">
+<style>
+  :root { --quiz-a:#0f62fe; --quiz-b:#8a3ffc; --quiz-c:#007d79; --quiz-d:#d02670;
+          --quiz-a-t:#d0e2ff; --quiz-b-t:#e8daff; --quiz-c-t:#9ef0f0; --quiz-d-t:#ffd6e8; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #8d8d8d; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+  .doc { padding: 24px; color: #fff; }
+  .doc h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  .doc p { margin: 0; font-size: 14px; max-width: 960px; line-height: 1.5; }
+  .nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .nav a { color: #fff; font-size: 14px; }
+  .frame-label { color: #fff; font: 600 14px/1 'IBM Plex Sans', sans-serif; margin: 32px 24px 8px; }
+  .frame-wrap { padding: 0 24px; }
+  .frame { container-type: inline-size; width: 1440px; height: 900px; overflow: hidden; position: relative;
+           background: var(--cds-background); color: var(--cds-text-primary); box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+  .frame--phone { width: 390px; height: auto; min-height: 844px; }
+
+  /* ---------- Header: title, connection, menu ---------- */
+  .hd { display: flex; align-items: center; height: 48px; background: var(--cds-background);
+        border-bottom: 1px solid var(--cds-border-subtle-01); padding-left: 16px; }
+  .hd__name { font-size: 14px; font-weight: 600; letter-spacing: .16px; flex: 1; }
+  .hd__status { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--cds-text-secondary); padding: 0 16px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cds-support-success); flex: none; }
+  .hd__menu { width: 48px; height: 48px; display: grid; place-items: center; border-left: 1px solid var(--cds-border-subtle-01); }
+
+  /* ---------- 2x grid: 16 columns, 32 px gutter, panels fill the height ---------- */
+  .page { display: grid; grid-template-columns: repeat(16, minmax(0,1fr)); column-gap: 32px; row-gap: 32px;
+          padding: 32px; height: calc(100% - 48px); }
+  .col-main { grid-column: 1 / span 10; display: flex; flex-direction: column; gap: 32px; min-height: 0; }
+  .col-side { grid-column: 11 / span 6; display: flex; flex-direction: column; gap: 32px; min-height: 0; }
+
+  .tile { background: var(--cds-layer-01); display: flex; flex-direction: column; min-height: 0; }
+  .tile__pad { padding: 24px; }
+  .label { font-size: 12px; line-height: 16px; letter-spacing: .32px; color: var(--cds-text-secondary); margin: 0; }
+  .h-section { font-size: 20px; line-height: 28px; font-weight: 400; margin: 0; }
+  .h-page { font-size: 32px; line-height: 40px; font-weight: 400; margin: 4px 0 0; }
+
+  /* ---------- Join (the star of the lobby) ---------- */
+  .join { padding: 32px; gap: 16px; }
+  .join__url { font-size: 42px; line-height: 50px; font-weight: 300; margin: 0; word-break: break-all; }
+  .join__url b { font-weight: 600; }
+  .join__actions { display: flex; flex-wrap: wrap; gap: 16px; }
+
+  /* ---------- Avatar wall ---------- */
+  .wall { flex: 1; }
+  .wall__head { display: flex; align-items: baseline; justify-content: space-between; padding: 24px 24px 0; }
+  .wall__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 16px; padding: 24px; align-content: start; overflow: auto; }
+  .who { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; min-width: 0; }
+  .av { display: grid; place-items: center; border-radius: 50%; line-height: 1; flex: none; }
+  .av--xl { width: 72px; height: 72px; font-size: 40px; }
+  .av--sm { width: 32px; height: 32px; font-size: 18px; }
+  .who__name { font-size: 14px; line-height: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+  .who--new .av { box-shadow: 0 0 0 2px var(--cds-layer-01), 0 0 0 4px var(--cds-border-interactive); }
+  .ghost-av { width: 72px; height: 72px; border-radius: 50%; border: 2px dashed var(--cds-border-subtle-01); }
+  .ghost-bar { width: 64px; height: 12px; background: var(--cds-layer-02); }
+  .empty { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 8px; max-width: 480px; }
+  .empty__title { font-size: 20px; line-height: 28px; margin: 0; }
+  .empty__body { font-size: 14px; line-height: 20px; color: var(--cds-text-secondary); margin: 0; }
+  .wall--empty .wall__grid { opacity: .9; overflow: hidden; flex: 1; }
+
+  /* ---------- Control column ---------- */
+  .control { flex: 1; }
+  .control__top { padding: 24px; display: flex; flex-direction: column; gap: 4px; }
+  .control__body { padding: 0 24px 24px; display: flex; flex-direction: column; gap: 24px; flex: 1; min-height: 0; }
+  .control__note { font-size: 14px; line-height: 20px; color: var(--cds-text-secondary); margin: 0; }
+  .control__foot { margin-top: auto; }
+  .control__foot .control__note { padding: 0 24px 16px; }
+  .facts { display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; margin: 0; font-size: 14px; line-height: 20px; }
+  .facts dt { color: var(--cds-text-secondary); }
+  .facts dd { margin: 0; text-align: right; }
+  .control .cds--select-input { background: var(--cds-field-02); font-size: 16px; }
+  .control .cds--inline-notification { max-width: none; margin: 0; min-height: 0; }
+
+  /* The one primary step: a fluid button bleeding to the tile's edges (Carbon: buttons that bleed to a
+     container's edges use xl, label left, icon right). Override: label centred vertically. */
+  .step { width: 100%; max-width: none; min-height: 64px; align-items: center; padding-top: 0; padding-bottom: 0;
+          font-size: 16px; }
+  .step .cds--btn__icon { margin-top: 0; }
+  .kbd { font-size: 12px; line-height: 16px; color: var(--cds-text-helper); padding: 8px 24px 0; margin: 0; }
+
+  .big-count { font-size: 54px; line-height: 64px; font-weight: 300; margin: 0; font-variant-numeric: tabular-nums; }
+  .big-count span { font-size: 20px; color: var(--cds-text-secondary); font-weight: 400; }
+
+  /* ---------- Stage (question takes centre stage) ---------- */
+  .stage { flex: 1; padding: 32px; gap: 32px; }
+  .stage__meta { display: flex; align-items: center; gap: 12px; }
+  .stage__meta .cds--tag { margin: 0; }
+  .q { font-size: 42px; line-height: 50px; font-weight: 300; margin: 0; }
+  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ans { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; min-height: 96px;
+         padding: 16px 24px; background: var(--c); color: #fff; font-size: 20px; line-height: 28px; }
+  .ans__l { width: 48px; height: 48px; border-radius: 50%; background: #fff; color: var(--c); display: grid; place-items: center; font-weight: 600; }
+  .ans__mark { display: flex; align-items: center; gap: 4px; font-size: 14px; line-height: 18px; margin-top: 4px; }
+  .ans__n { font-size: 28px; line-height: 36px; font-weight: 300; font-variant-numeric: tabular-nums; text-align: right; }
+  .ans__n small { display: block; font-size: 12px; line-height: 16px; }
+  .ans--dim { background: var(--t); color: var(--cds-text-primary); }
+  .A { --c: var(--quiz-a); --t: var(--quiz-a-t); } .B { --c: var(--quiz-b); --t: var(--quiz-b-t); }
+  .C { --c: var(--quiz-c); --t: var(--quiz-c-t); } .D { --c: var(--quiz-d); --t: var(--quiz-d-t); }
+  .stage__foot { margin-top: auto; }
+  .stage .cds--progress-bar__label { font-size: 14px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--cds-border-subtle-01); margin-top: auto; }
+  .stat { background: var(--cds-layer-01); padding: 16px 0 0; }
+  .stat:not(:first-child) { padding-left: 24px; }
+  .stat dd { margin: 4px 0 0; font-size: 42px; line-height: 50px; font-weight: 300; }
+
+  /* ---------- Players list ---------- */
+  .players { flex: 1; }
+  .players__head { padding: 24px 24px 8px; display: flex; justify-content: space-between; align-items: baseline; }
+  .players__list { list-style: none; margin: 0; padding: 0 24px 16px; overflow: auto; }
+  .row { display: grid; grid-template-columns: 32px 1fr 20px 48px; align-items: center; gap: 12px; height: 48px;
+         border-bottom: 1px solid var(--cds-border-subtle-01); font-size: 14px; }
+  .row__check { color: var(--cds-support-success); display: flex; }
+  .row__wait { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--cds-border-strong-01); }
+  .row__score { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .row__plus { color: var(--cds-support-success); font-weight: 400; font-size: 12px; display: block; }
+
+  /* ---------- Narrow (phone-width host) ---------- */
+  @container (max-width: 671px) {
+    .hd__status span.txt { display: none; }
+    .page { display: flex; flex-direction: column; padding: 16px; gap: 16px; height: auto; }
+    .col-main, .col-side { gap: 16px; }
+    .join { padding: 16px; }
+    .join__url { font-size: 24px; line-height: 32px; }
+    .join__actions .cds--btn { flex: 1 1 100%; max-width: none; }
+    .wall__grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); padding: 16px; }
+    .av--xl { width: 56px; height: 56px; font-size: 30px; }
+    .control__top { padding: 16px; } .control__body { padding: 0 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="doc">
+  <h1>v1.3.1 host redesign: static mockup</h1>
+  <p>Real Carbon CSS (g10), 1440 × 900 frames plus one phone-width frame. Layout from Carbon's 2x Grid (16 columns, 32 px gutter, fluid columns), Global header pattern (header only: title + global actions), fluid button guidance (one primary per screen, bleeding to its container's edges, label left, icon right), disabled-state guidance (a temporarily disabled control stays visible, with a line saying how to enable it), Select instead of Content switcher for settings (Carbon reserves the switcher for switching views), Callout for the test-set note, and an empty-state pattern for the player wall. Not clickable.</p>
+  <div class="nav"><a href="#f1">1 · Lobby, no players</a><a href="#f2">2 · Lobby, 8 players</a><a href="#f3">3 · Question, answering</a><a href="#f4">4 · Question, reveal</a><a href="#f5">5 · Lobby at 390 px</a></div>
+</div>
+
+<!-- SVG icons (Carbon icon paths, 32 grid) -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-arrow" viewBox="0 0 32 32"><path d="M18 6 16.57 7.393 24.15 15 4 15 4 17 24.15 17 16.57 24.573 18 26 28 16 18 6z"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 32 32"><path d="M28,10V28H10V10H28m0-2H10a2,2,0,0,0-2,2V28a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V10a2,2,0,0,0-2-2Z"/><path d="M4,18H2V4A2,2,0,0,1,4,2H18V4H4Z"/></symbol>
+  <symbol id="i-launch" viewBox="0 0 32 32"><path d="M26,28H6a2.0027,2.0027,0,0,1-2-2V6A2.0027,2.0027,0,0,1,6,4H16V6H6V26H26V16h2V26A2.0027,2.0027,0,0,1,26,28Z"/><path d="M20 2 20 4 26.586 4 18 12.586 19.414 14 28 5.414 28 12 30 12 30 2 20 2z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 32 32"><circle cx="16" cy="8" r="2"/><circle cx="16" cy="16" r="2"/><circle cx="16" cy="24" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 32 32"><path d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2ZM14,21.5908l-5-5L10.5906,15,14,18.4092,21.41,11l1.5957,1.5859Z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 32 32"><path d="M16 22 6 12 7.4 10.6 16 19.2 24.6 10.6 26 12z"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 32 32"><path d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm-1.1,6h2.2V19H14.9Zm1.1,16.25A1.25,1.25,0,1,1,17.25,23,1.25,1.25,0,0,1,16,24.25Z"/></symbol>
+</svg>
+
+<template id="header">
+  <header class="hd">
+    <span class="hd__name">XD Team Quiz</span>
+    <span class="hd__status"><span class="dot"></span><span class="txt">Connected</span></span>
+    <span class="hd__menu" aria-label="Quiz menu"><svg width="16" height="16" fill="currentColor"><use href="#i-more"/></svg></span>
+  </header>
+</template>
+
+<template id="setup">
+  <div class="cds--form-item">
+    <div class="cds--select">
+      <label class="cds--label">Question set</label>
+      <div class="cds--select-input__wrapper">
+        <select class="cds--select-input"><option>World Cup 2026 (20 questions)</option></select>
+        <svg class="cds--select__arrow" width="16" height="16" fill="currentColor"><use href="#i-chev"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="cds--form-item">
+    <div class="cds--select">
+      <label class="cds--label">Answer time</label>
+      <div class="cds--select-input__wrapper">
+        <select class="cds--select-input"><option>20 seconds</option></select>
+        <svg class="cds--select__arrow" width="16" height="16" fill="currentColor"><use href="#i-chev"/></svg>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ============ 1. Lobby, no players ============ -->
+<div class="frame-label" id="f1">1 · Lobby, no players yet (1440 × 900)</div>
+<div class="frame-wrap"><div class="frame cds--g10" data-header>
+  <div class="page">
+    <div class="col-main">
+      <section class="tile join">
+        <p class="label">Players join on their phones at</p>
+        <p class="join__url">192.168.1.24:4173/<b>participant.html</b></p>
+        <div class="join__actions">
+          <button class="cds--btn cds--btn--secondary cds--btn--lg">Copy link<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-copy"/></svg></button>
+          <button class="cds--btn cds--btn--ghost cds--btn--lg">Open display screen<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-launch"/></svg></button>
+        </div>
+      </section>
+      <section class="tile wall wall--empty">
+        <div class="wall__head"><h2 class="h-section">Players</h2><p class="label">0 joined</p></div>
+        <div class="wall__grid">
+          <!-- placeholder seats -->
+          <div class="who"><div class="ghost-av"></div><div class="ghost-bar"></div></div>
+          <div class="who"><div class="ghost-av"></div><div class="ghost-bar"></div></div>
+          <div class="who"><div class="ghost-av"></div><div class="ghost-bar"></div></div>
+          <div class="who"><div class="ghost-av"></div><div class="ghost-bar"></div></div>
+          <div class="who"><div class="ghost-av"></div><div class="ghost-bar"></div></div>
+          <div class="who"><div class="ghost-av"></div><div class="ghost-bar"></div></div>
+          <div class="who"><div class="ghost-av"></div><div class="ghost-bar"></div></div>
+        </div>
+        <div class="empty">
+          <p class="empty__title">Waiting for the first player</p>
+          <p class="empty__body">Players appear here as they join. Share the link above, or open the display screen so the room can scan the QR code.</p>
+        </div>
+      </section>
+    </div>
+    <div class="col-side">
+      <section class="tile control">
+        <div class="control__top"><p class="label">Lobby</p><h1 class="h-page">Set up the quiz</h1></div>
+        <div class="control__body" data-setup></div>
+        <div class="control__foot">
+          <p class="control__note">Start unlocks when the first player joins.</p>
+          <button class="cds--btn cds--btn--primary step" disabled>Start quiz<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-arrow"/></svg></button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ 2. Lobby, 8 players, test set ============ -->
+<div class="frame-label" id="f2">2 · Lobby, 8 players, test set picked (1440 × 900)</div>
+<div class="frame-wrap"><div class="frame cds--g10" data-header>
+  <div class="page">
+    <div class="col-main">
+      <section class="tile join">
+        <p class="label">Players join on their phones at</p>
+        <p class="join__url">192.168.1.24:4173/<b>participant.html</b></p>
+        <div class="join__actions">
+          <button class="cds--btn cds--btn--secondary cds--btn--lg">Copy link<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-copy"/></svg></button>
+          <button class="cds--btn cds--btn--ghost cds--btn--lg">Open display screen<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-launch"/></svg></button>
+        </div>
+      </section>
+      <section class="tile wall">
+        <div class="wall__head"><h2 class="h-section">Players</h2><p class="label">8 joined</p></div>
+        <div class="wall__grid" data-wall="8"></div>
+      </section>
+    </div>
+    <div class="col-side">
+      <section class="tile control">
+        <div class="control__top"><p class="label">Lobby</p><h1 class="h-page">8 players joined</h1></div>
+        <div class="control__body">
+          <div class="cds--form-item">
+            <div class="cds--select">
+              <label class="cds--label">Question set</label>
+              <div class="cds--select-input__wrapper">
+                <select class="cds--select-input"><option>Test questions (3 questions)</option></select>
+                <svg class="cds--select__arrow" width="16" height="16" fill="currentColor"><use href="#i-chev"/></svg>
+              </div>
+            </div>
+          </div>
+          <div class="cds--inline-notification cds--inline-notification--low-contrast cds--inline-notification--warning cds--inline-notification--hide-close-button" role="status">
+            <div class="cds--inline-notification__details">
+              <svg class="cds--inline-notification__icon" width="20" height="20" fill="currentColor"><use href="#i-warn"/></svg>
+              <div class="cds--inline-notification__text-wrapper"><div class="cds--inline-notification__subtitle">You're about to run the test questions.</div></div>
+            </div>
+          </div>
+          <div class="cds--form-item">
+            <div class="cds--select">
+              <label class="cds--label">Answer time</label>
+              <div class="cds--select-input__wrapper">
+                <select class="cds--select-input"><option>20 seconds</option></select>
+                <svg class="cds--select__arrow" width="16" height="16" fill="currentColor"><use href="#i-chev"/></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="control__foot">
+          <p class="control__note">Test questions · 3 questions · 20 s each</p>
+          <button class="cds--btn cds--btn--primary step">Start quiz<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-arrow"/></svg></button>
+          <p class="kbd" style="padding-bottom:16px">Clicker: → · Page Down · Space</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ 3. Question, answering ============ -->
+<div class="frame-label" id="f3">3 · Question 4 of 20, players answering (1440 × 900)</div>
+<div class="frame-wrap"><div class="frame cds--g10" data-header>
+  <div class="page">
+    <div class="col-main">
+      <section class="tile stage">
+        <div class="stage__meta"><span class="cds--tag cds--tag--cool-gray cds--tag--md"><span class="cds--tag__label">Geography</span></span><p class="label">Question 4 of 20</p></div>
+        <p class="q">Which of the three host countries has the most World Cup 2026 host cities?</p>
+        <div class="answers">
+          <div class="ans A"><span class="ans__l">A</span><span>USA</span><span></span></div>
+          <div class="ans B"><span class="ans__l">B</span><span>Mexico</span><span></span></div>
+          <div class="ans C"><span class="ans__l">C</span><span>Canada</span><span></span></div>
+          <div class="ans D"><span class="ans__l">D</span><span>They all have the same number</span><span></span></div>
+        </div>
+        <div class="stage__foot">
+          <div class="cds--progress-bar cds--progress-bar--big">
+            <div class="cds--progress-bar__label"><span class="cds--progress-bar__label-text">Time left</span></div>
+            <div class="cds--progress-bar__track"><div class="cds--progress-bar__bar" style="transform:scaleX(.6)"></div></div>
+            <div class="cds--progress-bar__helper-text">12 s</div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="col-side">
+      <section class="tile">
+        <div class="control__top"><p class="label">Question 4 of 20</p><h1 class="h-page">Players are answering</h1></div>
+        <div class="control__body" style="gap:8px">
+          <p class="big-count">14 <span>of 22 answered</span></p>
+        </div>
+        <div class="control__foot">
+          <p class="control__note">Reveal unlocks when the time is up or everyone has answered.</p>
+          <button class="cds--btn cds--btn--primary step" disabled>Reveal answer<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-arrow"/></svg></button>
+        </div>
+      </section>
+      <section class="tile players">
+        <div class="players__head"><h2 class="h-section">Players</h2><p class="label">14 of 22 answered · 1 offline</p></div>
+        <ul class="players__list" data-rows="answering"></ul>
+      </section>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ 4. Question, reveal ============ -->
+<div class="frame-label" id="f4">4 · Question 4 of 20, answer revealed (1440 × 900)</div>
+<div class="frame-wrap"><div class="frame cds--g10" data-header>
+  <div class="page">
+    <div class="col-main">
+      <section class="tile stage">
+        <div class="stage__meta"><span class="cds--tag cds--tag--cool-gray cds--tag--md"><span class="cds--tag__label">Geography</span></span><p class="label">Question 4 of 20</p></div>
+        <p class="q">Which of the three host countries has the most World Cup 2026 host cities?</p>
+        <div class="answers">
+          <div class="ans A"><span class="ans__l">A</span><span>USA<span class="ans__mark"><svg width="20" height="20" fill="currentColor"><use href="#i-check"/></svg>Correct answer</span></span><span class="ans__n">15<small>picked</small></span></div>
+          <div class="ans ans--dim B"><span class="ans__l">B</span><span>Mexico</span><span class="ans__n">4<small>picked</small></span></div>
+          <div class="ans ans--dim C"><span class="ans__l">C</span><span>Canada</span><span class="ans__n">1<small>picked</small></span></div>
+          <div class="ans ans--dim D"><span class="ans__l">D</span><span>They all have the same number</span><span class="ans__n">0<small>picked</small></span></div>
+        </div>
+        <dl class="stats">
+          <div class="stat"><dt class="label">Correct</dt><dd>15</dd></div>
+          <div class="stat"><dt class="label">Missed</dt><dd>7</dd></div>
+          <div class="stat"><dt class="label">Players</dt><dd>22</dd></div>
+        </dl>
+      </section>
+    </div>
+    <div class="col-side">
+      <section class="tile">
+        <div class="control__top"><p class="label">Question 4 of 20</p><h1 class="h-page">Answer revealed</h1></div>
+        <div class="control__foot">
+          <p class="control__note">Next: the leaderboard after this question.</p>
+          <button class="cds--btn cds--btn--primary step">Show leaderboard<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-arrow"/></svg></button>
+        </div>
+      </section>
+      <section class="tile players">
+        <div class="players__head"><h2 class="h-section">Players</h2><p class="label">22 players · 1 offline</p></div>
+        <ul class="players__list" data-rows="reveal"></ul>
+      </section>
+    </div>
+  </div>
+</div></div>
+
+<!-- ============ 5. Lobby at phone width ============ -->
+<div class="frame-label" id="f5">5 · Lobby, 8 players, at 390 px (same layout, stacked)</div>
+<div class="frame-wrap" style="padding-bottom:48px"><div class="frame frame--phone cds--g10" data-header>
+  <div class="page">
+    <div class="col-main">
+      <section class="tile join">
+        <p class="label">Players join on their phones at</p>
+        <p class="join__url">192.168.1.24:4173/<b>participant.html</b></p>
+        <div class="join__actions">
+          <button class="cds--btn cds--btn--secondary cds--btn--lg">Copy link<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-copy"/></svg></button>
+          <button class="cds--btn cds--btn--ghost cds--btn--lg">Open display screen<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-launch"/></svg></button>
+        </div>
+      </section>
+    </div>
+    <div class="col-side">
+      <section class="tile control">
+        <div class="control__top"><p class="label">Lobby</p><h1 class="h-page">8 players joined</h1></div>
+        <div class="control__body" data-setup></div>
+        <div class="control__foot">
+          <p class="control__note">World Cup 2026 · 20 questions · 20 s each</p>
+          <button class="cds--btn cds--btn--primary step">Start quiz<svg class="cds--btn__icon" width="16" height="16" fill="currentColor"><use href="#i-arrow"/></svg></button>
+        </div>
+      </section>
+    </div>
+    <div class="col-main">
+      <section class="tile wall">
+        <div class="wall__head"><h2 class="h-section">Players</h2><p class="label">8 joined</p></div>
+        <div class="wall__grid" data-wall="8"></div>
+      </section>
+    </div>
+  </div>
+</div></div>
+
+<script>
+  // Fill the repeated parts (mockup only).
+  const AV = [["🦊","#ffd7d9","Anna"],["🐼","#e0e0e0","Björn"],["🐸","#a7f0ba","Carla"],["🦉","#e8daff","David"],["🐙","#ffd6e8","Eva"],["🦁","#fcf4d6","Fredrik"],["🐧","#d0e2ff","Gustav"],["🐨","#e5e0df","Hanna"],["🐯","#ffd9be","Ines"],["🐻","#f2f4f8","Johan"],["🐰","#bae6ff","Karin"],["🐮","#9ef0f0","Lars"]];
+  const header = document.getElementById("header").content;
+  const setup = document.getElementById("setup").content;
+  document.querySelectorAll("[data-header]").forEach((f) => f.prepend(header.cloneNode(true)));
+  document.querySelectorAll("[data-setup]").forEach((el) => el.append(setup.cloneNode(true)));
+  document.querySelectorAll("[data-wall]").forEach((el) => {
+    const n = Number(el.dataset.wall);
+    el.innerHTML = AV.slice(0, n).map(([e, c, name], i) =>
+      `<div class="who${i === n - 1 ? " who--new" : ""}"><span class="av av--xl" style="background:${c}">${e}</span><span class="who__name">${name}</span></div>`).join("");
+  });
+  const names = AV.map((a) => a[2]).concat(["Maja","Nils","Olivia","Per","Rut","Sara","Tor","Ulla","Viktor","Wilma"]);
+  document.querySelectorAll("[data-rows]").forEach((el) => {
+    const reveal = el.dataset.rows === "reveal";
+    el.innerHTML = names.map((name, i) => {
+      const [e, c] = AV[i % AV.length];
+      const answered = reveal || i % 3 !== 2;
+      const score = reveal ? 2400 - i * 90 : 1800 - i * 70;
+      const mark = reveal ? "" : answered
+        ? `<span class="row__check"><svg width="16" height="16" fill="currentColor"><use href="#i-check"/></svg></span>`
+        : `<span class="row__wait" title="Waiting"></span>`;
+      const plus = reveal && i % 3 !== 2 ? `<span class="row__plus">+${600 - i * 10}</span>` : "";
+      const offline = i === 9 ? ' style="color:var(--cds-text-secondary)"' : "";
+      return `<li class="row"${offline}><span class="av av--sm" style="background:${c}">${e}</span><span>${name}${i === 9 ? " · offline" : ""}</span>${mark || "<span></span>"}<span class="row__score">${score}${plus}</span></li>`;
+    }).join("");
+  });
+</script>
+</body>
+</html>
