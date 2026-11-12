@@ -92,9 +92,10 @@ test("the built player app is served first, the arcade host and big screen still
   const asset = await fetch(`${server.base}/app/participant-abc123.js`);
   assert.match(asset.headers.get("cache-control"), /immutable/);
   await asset.text();
-  const host = await fetch(`${server.base}/host.html`);
-  assert.equal(host.status, 200);
-  assert.match(await host.text(), /data-view="host"/);
+  // Not in dist/: falls back to the arcade big screen in public/ (until v1.4.0).
+  const display = await fetch(`${server.base}/display.html`);
+  assert.equal(display.status, 200);
+  assert.match(await display.text(), /data-view="display"/);
   const missing = await fetch(`${server.base}/nope.html`);
   assert.equal(missing.status, 404);
   await missing.text();

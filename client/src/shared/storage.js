@@ -1,4 +1,4 @@
-// What a phone remembers. The session (id + token) survives a refresh; the last name is kept
+// What the browser remembers. On a phone, the session (id + token) survives a refresh; the last name is kept
 // even after a reset so rejoining is quick. Every access is guarded: private mode can throw.
 
 const SESSION_KEY = "xd-quiz-player";
@@ -54,4 +54,15 @@ export function loadAnswer(playerId, questionIndex) {
 
 export function saveAnswer(playerId, questionIndex, optionIndex) {
   write(session, `${ANSWER_PREFIX}${playerId}-${questionIndex}`, String(optionIndex));
+}
+
+// The host PIN, for this browser tab's session only (the same key as the arcade host page).
+const HOST_PIN_KEY = "xd-summer-quiz-host-pin";
+
+export function loadHostPin() {
+  return read(session, HOST_PIN_KEY);
+}
+
+export function saveHostPin(pin) {
+  write(session, HOST_PIN_KEY, pin);
 }

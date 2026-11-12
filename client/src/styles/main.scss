@@ -26,7 +26,7 @@
 @use '@carbon/react/scss/components/tag';
 @use '@carbon/react/scss/components/ui-shell';
 
-// Phones use the White theme. The host (g10) and big screen (g100) set their own in later versions.
+// Phones use the White theme. The host sets g10 in host.scss; the big screen (g100) follows in v1.4.0.
 :root {
   @include theme.theme(themes.$white);
 }
@@ -70,7 +70,12 @@ html
     .cds--btn,
     .cds--tile,
     .cds--header__name,
-    .cds--actionable-notification__action-button
+    .cds--actionable-notification__action-button,
+    .cds--overflow-menu,
+    .cds--overflow-menu-options__btn,
+    .cds--content-switcher-btn,
+    .cds--copy-btn,
+    .cds--modal-close
   ):is(:focus, :active):not(:focus-visible) {
   outline: none;
   box-shadow: none;

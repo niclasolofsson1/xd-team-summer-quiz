@@ -21,7 +21,8 @@ export default defineConfig({
     assetsDir: "app",
     rollupOptions: {
       input: {
-        participant: "client/participant.html"
+        participant: "client/participant.html",
+        host: "client/host.html"
       }
     }
   },

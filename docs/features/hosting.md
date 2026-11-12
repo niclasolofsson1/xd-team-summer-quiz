@@ -20,9 +20,10 @@
 `npm run dev` starts the quiz server (port 4173, restarts on changes to `server.js`) and the Vite dev server (port 5173) together. Vite passes `/api` and `/events` through to the quiz server.
 
 - Player: `http://localhost:5173/participant.html` (reloads on change; phones on the same network can use the laptop's IP with port 5173)
-- Arcade host and big screen: `http://localhost:4173/host.html`, `/display.html`
+- Host: `http://localhost:5173/host.html` (Carbon, since v1.3.0)
+- Arcade big screen: `http://localhost:4173/display.html` (until v1.4.0)
 
-Tests: `npm test` (server tests and unit tests), `npm run test:e2e` (Playwright: builds, starts the server on port 4199 and plays the player flow on a phone-sized browser; needs `npx playwright install chromium` once), `npm run simulate` (25 simulated players through the real quiz).
+Tests: `npm test` (server tests and unit tests), `npm run test:e2e` (Playwright: builds, starts the server on port 4199 and plays the player flow on a phone-sized browser and the host flow at 1280×800; needs `npx playwright install chromium` once), `npm run simulate` (25 simulated players through the real quiz).
 
 ## Public deployment (Render, used at the Summer Gathering)
 
@@ -44,7 +45,7 @@ Without `HOST_PIN`, anyone can control the quiz. Since v1.1.0 the server prints 
 
 ## Static files
 
-`serveStatic` in `server.js` looks in **`dist/` first** (the built Carbon apps; `QUIZ_DIST_DIR` overrides it, for tests), **then `public/`** (arcade host and big screen, their assets), with a type map (html, css, js, json, png, jpg, webp, svg, ico, woff, woff2). Built files live under `/app/` with a content hash in their names and are cached for a year; pages are sent with `no-cache` so a new build is picked up at once. Paths outside those folders get 403; missing files 404. Request bodies over 10 KB get 413, broken JSON 400.
+`serveStatic` in `server.js` looks in **`dist/` first** (the built Carbon apps; `QUIZ_DIST_DIR` overrides it, for tests), **then `public/`** (the arcade big screen and its assets; the arcade host page was removed in v1.3.0), with a type map (html, css, js, json, png, jpg, webp, svg, ico, woff, woff2). Built files live under `/app/` with a content hash in their names and are cached for a year; pages are sent with `no-cache` so a new build is picked up at once. Paths outside those folders get 403; missing files 404. Request bodies over 10 KB get 413, broken JSON 400.
 
 ## Event-day checklist
 

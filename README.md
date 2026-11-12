@@ -23,9 +23,9 @@ For phones, use the participant link printed in the terminal. Phones must be on 
 
 ## Develop and test
 
-- `npm run dev`: quiz server on port 4173 plus the Vite dev server on port 5173. Player app: `http://localhost:5173/participant.html`; arcade host: `http://localhost:4173/host.html`.
+- `npm run dev`: quiz server on port 4173 plus the Vite dev server on port 5173. Player app: `http://localhost:5173/participant.html`; host app: `http://localhost:5173/host.html`; arcade big screen: `http://localhost:4173/display.html`.
 - `npm test`: server tests and unit tests.
-- `npm run test:e2e`: the player flow in a phone-sized browser (run `npx playwright install chromium` once first).
+- `npm run test:e2e`: the player flow in a phone-sized browser and the host flow at laptop size (run `npx playwright install chromium` once first).
 - `npm run simulate`: 25 simulated players through the whole quiz.
 
 ## Public Event Deployment
@@ -70,19 +70,20 @@ Do not commit the real `HOST_PIN`. Set it only as an environment variable in Ren
 - Participants answer four-option questions from their phones.
 - Missed or wrong answers score 0 points.
 - Correct answers score up to 1000 points, with faster answers scoring higher.
+- Host runs everything with one large button per step (→, PageDown or Space on a presentation clicker work too) and sees who is online and who has answered.
 - Host reveals the correct answer.
 - Host shows the running leaderboard after non-final questions.
 - After the final question, host reveals the final results instead of the running leaderboard.
-- Prototype quiz length is currently 3 questions for faster testing.
+- Two question sets: Test questions (3) and Real questions (25). The host is warned while the test set is selected.
 
 ## Notes
 
 - The current join flow uses a shareable participant link. A scannable QR code can be added once the core flow is reviewed.
 - Participant links and QR codes should use `/participant.html`.
-- The quiz data is fixed in `server.js` for the prototype.
+- Questions live in `questions/test.md` and `questions/real.md`.
 - No accounts or persistent storage are included.
 - Host-only actions are protected by `HOST_PIN` when that environment variable is set.
-- Live updates use Server-Sent Events with a heartbeat. The UI shows a small connection status.
+- Live updates use Server-Sent Events with a heartbeat. Phones and the host reconnect on their own and show a connection banner; the host header shows the connection status.
 
 ## Event-Day Test Checklist
 
@@ -96,6 +97,6 @@ Before the real session:
 - Ask the Canada participant to join a rehearsal if possible.
 - Run through all questions once.
 - Confirm answers, reveal, leaderboard, next question, final results, and reset all work.
-- Watch that host and participant pages show `Connected`.
-- Reset the quiz immediately before the live event.
+- Watch that the host header shows `Connected` and phones show no connection banner.
+- Reset the quiz immediately before the live event (header menu → Reset quiz…), then pick Real questions.
 - Keep a backup plan ready: local same-network hosting or a tunnel if the public service has issues.

@@ -5,14 +5,16 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.2.8 (player app: "You" tag on the podium)
-- **Current phase:** L3 — Build (next: v1.3.0 host app, not started; waits for the user's go)
+- **Current version:** v1.3.0 (Carbon host app)
+- **Current phase:** L3 — Build (next: v1.4.0 big screen, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
 
 ## Next session
 
-v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connection with watchdog/backoff/foreground check and banner, answers locked only after server confirmation with retries, emoji avatars, all player screens. The server serves `dist/` first, then `public/` (arcade host and big screen). Tests: `npm test` (server + unit), `npm run test:e2e` (Playwright player flow), `npm run simulate`. Next: **v1.3.0 — host app** (spec sections 3 Host, 4, 5, 8; reuse `client/src/shared/`). Read `02_design_spec.md`, `docs/features/conventions.md` (Carbon section) and the host wiki pages; not the whole repo. The user checked the player app on a real iPhone and approved it after patches v1.2.1–v1.2.8 (sizes, centring, tints, Carbon-blue pick, no confetti + medals, keyboard-only focus, 16 px inputs, smooth timer, "You" tag). Carry these into the host and big screen. Lesson: the trimmed Carbon stylesheet needs `scss/layout` (size tokens); `main.scss` lists it.
+v1.3.0 (Carbon host app) is done, waiting for the user's laptop check: g10 theme, PIN gate, header (phase, question set, connection, ⋮ → Reset with a danger modal), stage panel with one primary button per step, players panel, lobby setup and join link with Copy, test-set warning, private final preview, clicker keys (→ / PageDown / Space, debounced 1 s). Host actions are sent once, never auto-retried. Shared component styles moved to `client/src/styles/shared-components.scss`; host-only Carbon styles are in `host.scss` (phone CSS unchanged). `public/host.html` removed; `public/` now only serves the arcade big screen. Tests: `npm test` (server + unit), `npm run test:e2e` (player + host), `npm run simulate`.
+
+Next: **v1.4.0 — big-screen app** (g100, QR from `/api/join-info`, never scrolls at 1280×720; decide the champion celebration, since phones use medals instead of confetti), then remove `public/` (the favicon at `public/assets/favicon.svg` must move to `client/public/` or similar). Read `02_design_spec.md`, the Carbon section of `conventions.md` and the big-screen wiki pages; reuse `client/src/shared/`. Carry over the approved v1.2.x decisions (keyboard-only focus, Carbon-blue pick, smooth timer, medals, 16 px inputs). Lesson: the trimmed Carbon stylesheet needs `scss/layout` (size tokens); `main.scss` lists it.
 
 **Checkpoint rule (user's guardrail):** one version per session. After each version, stop and report (changes, tests run, what to check visually). Never start the next version without the user's explicit go. Check plan usage before starting a version; the user wants no extra-usage spend.
 
@@ -55,3 +57,4 @@ v1.2.0 (Carbon player app) is done: Vite + React 19 + Carbon build, live connect
 | 2026-11-06 | v1.2.6 | One "your pick" style: solid Carbon blue stroke on question, Time's up and reveal | Done |
 | 2026-11-06 | v1.2.7 | Timer bar drains with one linear CSS animation | Done |
 | 2026-11-06 | v1.2.8 | Podium: "You" tag instead of a blue frame; reveal sequence (3 steps) kept, user confirmed | Done; user's phone check passed ("smooth and nice, very Carbon") |
+| 2026-11-12 | v1.3.0 | Carbon host app (spec section 3 Host); user's decisions: remove `public/host.html`, no auto-retry of host actions, clicker rules, primary disabled during countdown/answering | Done; laptop check by the user pending |

@@ -2,6 +2,19 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.3.0 — Carbon host app
+
+- The host page (`/host.html`) is new, in the same clean Carbon style as the player app (light grey theme, made for a laptop).
+- One large button always does the next step: Start quiz → Reveal answer → Show leaderboard → Next question → and at the end the three steps of the final reveal.
+- A presentation clicker works: →, PageDown or Space press that button. A quick double press only counts once, and nothing happens while you're typing or the Reset window is open.
+- During a question you see the question, its category, the timer and how many have answered. After the reveal: the right answer, how many got it right, missed it, and played.
+- The players list on the right shows everyone's avatar, name, score, a green dot when they're online and a check when they've answered, plus a line like "18 of 20 answered · 2 offline".
+- In the lobby you pick the question set and answer time, copy the join link and open the big screen. A warning shows while the test questions are selected.
+- During the final reveal you get a private preview of the next podium step, only on your screen.
+- Reset moved into the menu (⋮) in the header and asks you to confirm in a red dialog.
+- The header shows the phase, the question set and whether the host is connected; if the connection drops, the page reconnects on its own.
+- The big screen is still the arcade version until v1.4.0. The old arcade host page is removed (it's kept in the `v1-arcade-summer` tag).
+
 ## v1.2.8 — Calmer "you" on the podium
 
 - If you make the podium, your place now shows a small grey "You" tag under your name instead of a blue frame around it.

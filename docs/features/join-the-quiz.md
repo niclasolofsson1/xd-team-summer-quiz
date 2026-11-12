@@ -25,7 +25,7 @@ Players scan the QR code on the big screen (or open the link) and land on `/part
 - An unknown avatar id falls back to the fox (`normalizeAvatarId`). The arcade ids are still accepted until the arcade screens go (v1.4.0).
 - Refreshing on the same phone keeps you in the game (same id and token). **Rejoin by name** (since v1.1.0): entering the exact name of a player who is *disconnected* takes over that player, score included, in any phase. The server issues a new token, so the old device can no longer answer (it is sent back to Join if it tries).
 - **The typed name is never cleared** by live updates (fixed in v1.2.0, Discrepancies 1): the field belongs to the Join screen alone.
-- The arcade host and big screen show the emoji avatars too (`avatarSrc` in `public/app.js`, a temporary copy of the list).
+- The host app (since v1.3.0) uses the shared avatars; the arcade big screen shows them too (`avatarSrc` in `public/app.js`, a temporary copy of the list, until v1.4.0).
 
 ## Entry points
 

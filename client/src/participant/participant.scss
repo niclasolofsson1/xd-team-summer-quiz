@@ -1,4 +1,5 @@
-// Player app (phones, White theme). Designed for 360–430 px, works from 320 px.
+// Player app (phones, White theme). Parts shared with the host and big screen are in styles/shared-components.scss.
+// Designed for 360–430 px, works from 320 px.
 // Answer tiles stack in one column; 2×2 from 600 px.
 @use '@carbon/react/scss/theme';
 @use '@carbon/react/scss/type';
@@ -88,21 +89,6 @@ body {
   }
 }
 
-// ---------- Avatars ----------
-.quiz-avatar {
-  display: inline-grid;
-  place-items: center;
-  flex: none;
-  border-radius: 50%;
-  background: var(--avatar-bg);
-  line-height: 1;
-
-  &--sm { inline-size: 32px; block-size: 32px; font-size: 18px; }
-  &--md { inline-size: 48px; block-size: 48px; font-size: 28px; }
-  &--lg { inline-size: 64px; block-size: 64px; font-size: 36px; }
-  &--xl { inline-size: 96px; block-size: 96px; font-size: 56px; }
-}
-
 .avatar-grid {
   > div {
     display: grid;
@@ -152,104 +138,6 @@ body {
   }
 }
 
-.timer-bar .cds--progress-bar__helper-text {
-  @include type.type-style('label-02');
-  color: theme.$text-primary;
-}
-
-// One linear drain instead of Carbon's eased step per update (which looked choppy). The animation
-// overrides the inline scaleX Carbon sets. It stays on with reduced motion: it shows the time left.
-.timer-bar .cds--progress-bar__bar {
-  transition: none;
-  animation: timer-drain var(--drain-ms) linear forwards;
-}
-
-@keyframes timer-drain {
-  from { transform: scaleX(var(--drain-from)); }
-  to { transform: scaleX(0); }
-}
-
-.answer-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: $sp-12;
-
-  @media (min-width: 600px) {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.answer-tile {
-  --tile-color: var(--quiz-answer-a);
-  --tile-tint: var(--quiz-answer-a-tint);
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  column-gap: $sp-16;
-  min-block-size: 72px;
-  inline-size: 100%;
-  padding: $sp-12 $sp-16;
-  border: 2px solid transparent;
-  background: var(--tile-color);
-  color: #ffffff;
-  text-align: start;
-  font: inherit;
-  @include type.type-style('body-02');
-  transition: opacity motion.$duration-fast-02 motion.motion(standard, productive);
-
-  &--b { --tile-color: var(--quiz-answer-b); --tile-tint: var(--quiz-answer-b-tint); }
-  &--c { --tile-color: var(--quiz-answer-c); --tile-tint: var(--quiz-answer-c-tint); }
-  &--d { --tile-color: var(--quiz-answer-d); --tile-tint: var(--quiz-answer-d-tint); }
-
-  &:is(button) { cursor: pointer; }
-  &:is(button):disabled { cursor: default; }
-
-  &:focus-visible {
-    outline: 2px solid theme.$focus;
-    outline-offset: 2px;
-  }
-
-  &__letter {
-    display: grid;
-    place-items: center;
-    inline-size: 40px;
-    block-size: 40px;
-    border-radius: 50%;
-    background: #ffffff;
-    color: var(--tile-color);
-    font-weight: 600;
-  }
-
-  &__body {
-    display: flex;
-    flex-direction: column;
-    gap: $sp-4;
-    min-inline-size: 0;
-  }
-
-  &__mark,
-  &__count {
-    display: flex;
-    align-items: center;
-    gap: $sp-4;
-    @include type.type-style('label-02');
-  }
-
-  // The player's pick, on every screen: Carbon's "selected" stroke (interactive blue), with a white gap
-  // so it still reads around the blue A tile. Right or wrong comes from the tile itself and its marks.
-  &--mine {
-    outline: 3px solid theme.$border-interactive;
-    outline-offset: 2px;
-  }
-
-  // Not the answer that matters: a light tint of its own colour with dark text, so it recedes but stays
-  // readable. After the reveal the correct answer is the only full-colour tile.
-  &--dim {
-    background: var(--tile-tint);
-    color: theme.$text-primary;
-  }
-}
-
 .question__status {
   min-block-size: 48px;
 }
@@ -273,11 +161,6 @@ body {
   &--correct { border-color: theme.$support-success; }
   &--wrong { border-color: theme.$support-error; }
   &--none { border-color: theme.$border-strong; }
-}
-
-@keyframes reveal-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
 }
 
 // ---------- Leaderboard ----------
@@ -304,134 +187,15 @@ body {
   }
 }
 
-.leaderboard {
-  margin-block-end: 0;
-
-  .cds--structured-list-td {
-    vertical-align: middle;
-  }
-
-  &__rank {
-    inline-size: 56px;
-    font-weight: 600;
-  }
-
-  &__player {
-    display: flex;
-    align-items: center;
-    gap: $sp-8;
-    min-inline-size: 0;
-  }
-
-  &__name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__score {
-    text-align: end;
-    font-variant-numeric: tabular-nums;
-  }
-
-  &__row--me {
-    background: theme.$highlight;
-    font-weight: 600;
-  }
-
-  &__gap .cds--structured-list-td {
-    color: theme.$text-secondary;
-  }
-}
-
 // ---------- Final ----------
 .final__mine {
   @include type.type-style('heading-02');
 }
 
-.podium {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: end;
-  gap: $sp-8;
-  padding-block-start: $sp-24;
-
-  &__place {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $sp-8;
-    min-inline-size: 0;
-    text-align: center;
-  }
-
-  &__who {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $sp-4;
-    min-inline-size: 0;
-    inline-size: 100%;
-  }
-
-  &__name {
-    @include type.type-style('heading-compact-01');
-    overflow-wrap: anywhere;
-  }
-
-  &__score {
-    @include type.type-style('label-01');
-    color: theme.$text-secondary;
-  }
-
-  &__medal {
-    font-size: 32px;
-    line-height: 1;
-  }
-
-  &__locked {
-    display: grid;
-    place-items: center;
-    inline-size: 64px;
-    block-size: 64px;
-    border-radius: 50%;
-    background: theme.$layer-accent-01;
-    @include type.type-style('heading-04');
-    color: theme.$text-secondary;
-  }
-
-  &__empty {
-    @include type.type-style('label-01');
-    color: theme.$text-secondary;
-  }
-
-  &__step {
-    inline-size: 100%;
-    padding: $sp-8 $sp-4;
-    background: theme.$layer-accent-01;
-    @include type.type-style('label-02');
-    font-weight: 600;
-  }
-
-  &__place--1 &__step { block-size: 96px; background: theme.$background-brand; color: theme.$text-on-color; }
-  &__place--2 &__step { block-size: 72px; }
-  &__place--3 &__step { block-size: 48px; }
-
-  // The player's own place is marked with a "You" tag under the name, not a frame.
-  &__you {
-    margin: 0;
-  }
-
-  &__place--revealed &__who {
-    animation: reveal-in motion.$duration-moderate-02 motion.motion(entrance, expressive);
-  }
-}
-
 // Reduced motion: no countdown pop, no reveal slide.
 @media (prefers-reduced-motion: reduce) {
   .countdown__number,
-  .result-banner,
-  .podium__place--revealed .podium__who {
+  .result-banner {
     animation: none;
   }
 }

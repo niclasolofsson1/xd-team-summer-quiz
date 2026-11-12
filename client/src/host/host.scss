@@ -1,0 +1,424 @@
+// Host app (laptop, Carbon g10 theme). Designed for 1280 px and up, works down to 1024 px;
+// below that the players panel stacks under the stage.
+//
+// Carbon parts only the host uses are compiled here, so the phones' stylesheet doesn't grow.
+@use '@carbon/react/scss/config' with (
+  $css--font-face: false,
+  $use-akamai-cdn: false
+);
+@use '@carbon/react/scss/themes';
+@use '@carbon/react/scss/theme';
+@use '@carbon/react/scss/type';
+@use '@carbon/react/scss/components/modal';
+@use '@carbon/react/scss/components/overflow-menu';
+@use '@carbon/react/scss/components/content-switcher';
+@use '@carbon/react/scss/components/copy-button';
+@use '@carbon/react/scss/components/popover';
+@use '@carbon/react/scss/components/tooltip';
+@use '../styles/quiz-tokens' as *;
+
+:root {
+  @include theme.theme(themes.$g10);
+}
+
+body {
+  padding-block-start: 48px; // Carbon UI Shell header height
+}
+
+body:has(.host-gate) {
+  padding-block-start: 0;
+}
+
+// ---------- Header ----------
+.host-header {
+  &__tags {
+    display: flex;
+    align-items: center;
+    gap: $sp-8;
+    padding-inline-start: $sp-16;
+    min-inline-size: 0;
+
+    .cds--tag {
+      margin: 0;
+    }
+  }
+
+  &__bar {
+    align-items: center;
+    gap: $sp-8;
+  }
+
+  &__connection {
+    gap: $sp-8;
+    margin: 0;
+  }
+
+  // Carbon's overflow trigger is 48 px in the header; keep the shell's own colours.
+  &__menu.cds--overflow-menu {
+    block-size: 48px;
+    inline-size: 48px;
+  }
+}
+
+.status-dot {
+  display: inline-block;
+  flex: none;
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 50%;
+  background: theme.$icon-disabled;
+
+  &--connected { background: theme.$support-success; }
+  &--reconnecting,
+  &--connecting { background: theme.$support-warning; }
+  &--lost,
+  &--offline {
+    background: transparent;
+    box-shadow: inset 0 0 0 2px theme.$support-error;
+  }
+}
+
+// ---------- Layout ----------
+.host-main {
+  max-inline-size: 1440px;
+  margin-inline: auto;
+  padding: $sp-24;
+
+  &__loading {
+    padding-block: $sp-48;
+  }
+}
+
+.connection-banner {
+  margin-block-end: $sp-16;
+
+  .cds--inline-notification,
+  .cds--actionable-notification {
+    max-inline-size: none;
+    margin: 0;
+  }
+}
+
+.host-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: $sp-24;
+  align-items: start;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: minmax(0, 1fr) 400px;
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-24;
+    min-inline-size: 0;
+  }
+
+  &__lobby {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: $sp-24;
+
+    @media (min-width: 1280px) {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+  }
+}
+
+.host-card {
+  display: flex;
+  flex-direction: column;
+  gap: $sp-16;
+  padding: $sp-24;
+  background: theme.$layer-01;
+
+  &__title {
+    @include type.type-style('heading-03');
+  }
+}
+
+// ---------- Stage panel ----------
+.stage-panel {
+  gap: $sp-24;
+
+  &__eyebrow {
+    @include type.type-style('label-02');
+    color: theme.$text-secondary;
+    min-block-size: 1.25rem;
+  }
+
+  &__title {
+    @include type.type-style('heading-05');
+    margin-block-start: -$sp-16;
+  }
+
+  &__countdown {
+    font-size: 120px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  &__count {
+    @include type.type-style('heading-03');
+  }
+
+  &__action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $sp-12;
+  }
+
+  &__primary {
+    min-inline-size: 320px;
+    @include type.type-style('heading-03');
+  }
+
+  &__hint {
+    @include type.type-style('body-01');
+    color: theme.$text-secondary;
+  }
+
+  &__error {
+    max-inline-size: none;
+    margin: 0;
+  }
+}
+
+.stage-question {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $sp-16;
+
+  &__category {
+    margin: 0;
+  }
+
+  &__text {
+    @include type.type-style('heading-04');
+  }
+
+  .answer-grid {
+    inline-size: 100%;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.reveal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 160px));
+  gap: $sp-16;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    padding: $sp-16;
+    background: theme.$layer-02;
+  }
+
+  dt {
+    @include type.type-style('label-01');
+    color: theme.$text-secondary;
+  }
+
+  dd {
+    @include type.type-style('heading-05');
+  }
+}
+
+.stage-panel .leaderboard {
+  background: theme.$layer-02;
+}
+
+// ---------- Final reveal ----------
+.final-panel {
+  &__label {
+    @include type.type-style('label-02');
+    color: theme.$text-secondary;
+  }
+
+  &__note {
+    @include type.type-style('body-01');
+    color: theme.$text-secondary;
+  }
+
+  &__preview {
+    padding: $sp-16;
+    border: 1px dashed theme.$border-strong;
+  }
+}
+
+.stage-panel .podium {
+  max-inline-size: 640px;
+}
+
+// ---------- Setup and join ----------
+.setup-panel {
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-8;
+  }
+
+  &__label {
+    @include type.type-style('label-02');
+    color: theme.$text-secondary;
+  }
+
+  &__note {
+    @include type.type-style('helper-text-01');
+    color: theme.$text-secondary;
+  }
+
+  &__warning {
+    max-inline-size: none;
+    margin: 0;
+  }
+}
+
+.join-panel {
+  align-items: flex-start;
+
+  &__label {
+    @include type.type-style('label-02');
+    color: theme.$text-secondary;
+    margin-block-end: -$sp-8;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: $sp-8;
+    inline-size: 100%;
+    background: theme.$field-01;
+    padding-inline-start: $sp-12;
+  }
+
+  &__url {
+    flex: 1;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    @include type.type-style('code-02');
+    padding-block: $sp-12;
+  }
+
+  &__count {
+    @include type.type-style('body-01');
+  }
+}
+
+// ---------- Players panel ----------
+.players-panel {
+  gap: $sp-12;
+
+  @media (min-width: 1024px) {
+    position: sticky;
+    inset-block-start: calc(48px + #{$sp-24});
+    max-block-size: calc(100vh - 48px - #{$sp-48});
+    overflow-y: auto;
+  }
+
+  &__head {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+  }
+
+  &__summary {
+    @include type.type-style('body-01');
+    color: theme.$text-secondary;
+  }
+
+  &__empty {
+    @include type.type-style('body-01');
+    color: theme.$text-secondary;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.player-row {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 10px 16px 56px;
+  align-items: center;
+  gap: $sp-12;
+  min-block-size: 48px;
+  border-block-end: 1px solid theme.$border-subtle-01;
+
+  &__name {
+    @include type.type-style('body-compact-02');
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__answered {
+    display: flex;
+    color: theme.$support-success;
+  }
+
+  &__score {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  &__locked {
+    display: grid;
+    place-items: center;
+    inline-size: 32px;
+    block-size: 32px;
+    border-radius: 50%;
+    background: theme.$layer-accent-01;
+    color: theme.$text-secondary;
+  }
+
+  &--locked {
+    grid-template-columns: 32px minmax(0, 1fr) 16px 56px;
+    color: theme.$text-secondary;
+  }
+}
+
+// ---------- PIN gate ----------
+.host-gate {
+  display: grid;
+  place-items: center;
+  min-block-size: 100vh;
+  padding: $sp-24;
+
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-24;
+    inline-size: 100%;
+    max-inline-size: 400px;
+    padding: $sp-32;
+    background: theme.$layer-01;
+  }
+
+  &__title {
+    @include type.type-style('heading-04');
+  }
+
+  &__lead {
+    @include type.type-style('body-01');
+    color: theme.$text-secondary;
+    margin-block-start: -$sp-16;
+  }
+}
+
+.reset-modal__error {
+  margin-block-start: $sp-16;
+  color: theme.$text-error;
+}
