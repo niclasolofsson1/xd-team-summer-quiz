@@ -176,7 +176,7 @@ The arcade counts as v1, so this work goes v1.1 → v1.6, then v2.0.0. **One ver
 | **v1.3.0** | **Host app** | Yes |
 | **v1.4.0** | **Big-screen app**; `public/` removed | Yes — full v2 UI |
 | **v1.5.0** | Stability pass: e2e tests, accessibility scan, full S7 run, README, event checklist | Stable baseline |
-| **v1.6.0** | *Added 2026-11-13 by the user.* Cosmetic assets, avatar polish, winter/Christmas effects (on top of the Carbon base, via `quiz-tokens.scss` and the avatar data file). Hi-fi mockup approved first; ends by re-running the full test suite and the 25-player simulation | Party look; ready for rehearsal |
+| **v1.6.0** | *Added 2026-11-13 by the user.* Cosmetic assets, avatar polish, winter/Christmas effects on the **player app and big screen only; the host stays as is** (on top of the Carbon base, via `quiz-tokens.scss` and the avatar data file). Hi-fi mockup approved first; ends by re-running the full test suite and the 25-player simulation | Party look; ready for rehearsal |
 | **v2.0.0** | After the user's real-phone rehearsal (S8): merge to `main` and deploy | Party version — needs the user's explicit go-ahead |
 
 ## 10. Validation plan
