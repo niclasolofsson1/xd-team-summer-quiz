@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player polish mockup</title>
+<!-- Real Carbon CSS (@carbon/styles 1.119, White theme), same as the v1.3.1 host mockup. Static mockup, no app code. -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@carbon/styles@1.119.0/css/styles.min.css">
+<style>
+  :root { --quiz-a:#0f62fe; --quiz-b:#8a3ffc; --quiz-c:#007d79; --quiz-d:#d02670;
+          --quiz-a-t:#d0e2ff; --quiz-b-t:#e8daff; --quiz-c-t:#9ef0f0; --quiz-d-t:#ffd6e8; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #8d8d8d; font-family: 'IBM Plex Sans', system-ui, sans-serif; }
+  .doc { padding: 24px; color: #fff; max-width: 1000px; }
+  .doc h1 { font-size: 20px; font-weight: 600; margin: 0 0 8px; }
+  .doc p { margin: 0 0 8px; font-size: 14px; line-height: 1.5; }
+  .doc a { color: #fff; }
+
+  section.cmp { padding: 0 24px 40px; }
+  .cmp h2 { color: #fff; font-size: 18px; font-weight: 600; margin: 24px 0 4px; }
+  .cmp > p { color: #fff; font-size: 14px; line-height: 1.5; margin: 0 0 16px; max-width: 900px; }
+  .row { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .col { display: flex; flex-direction: column; gap: 8px; }
+  .lbl { color: #fff; font-size: 14px; font-weight: 600; }
+  .lbl--now::before { content: "NOW · "; color: #ffd7d9; }
+  .lbl--new::before { content: "NEW · "; color: #a7f0ba; }
+
+  /* ---------- Phone frame (390 px, White theme) ---------- */
+  .phone { width: 390px; max-width: calc(100vw - 48px); background: var(--cds-background); color: var(--cds-text-primary);
+           box-shadow: 0 2px 12px rgba(0,0,0,.3); overflow: hidden; }
+  .phone--strip .main { padding-bottom: 16px; }
+  .hd { display: flex; align-items: center; height: 48px; border-bottom: 1px solid var(--cds-border-subtle-01); padding-left: 16px; }
+  .hd__name { font-size: 14px; font-weight: 600; letter-spacing: .16px; flex: 1; }
+  .chip { display: flex; align-items: center; gap: 8px; padding-right: 16px; font-size: 14px; }
+  .main { padding: 16px 16px 48px; display: flex; flex-direction: column; gap: 24px; }
+  .title { font-size: 28px; line-height: 36px; font-weight: 400; margin: 0; }
+  .eyebrow { font-size: 14px; line-height: 18px; color: var(--cds-text-secondary); margin: 0; letter-spacing: .16px; }
+  .qtext { font-size: 20px; line-height: 28px; font-weight: 400; margin: 0; }
+  .main .cds--inline-notification { max-width: none; margin: 0; }
+  .main .cds--text-input { font-size: 16px; }
+
+  .av { display: inline-grid; place-items: center; border-radius: 50%; line-height: 1; flex: none; }
+  .av--sm { width: 32px; height: 32px; font-size: 18px; }
+  .av--md { width: 48px; height: 48px; font-size: 28px; }
+
+  /* Avatar grid: Carbon radio tiles, 4 columns */
+  .cds--tile-group > div { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+  .avatar-tile.cds--tile--selectable { display: grid; place-items: center; min-height: 72px; min-width: 0; padding: 8px; position: relative; }
+  .avatar-tile .cds--tile__checkmark { position: absolute; top: 4px; right: 4px; opacity: 1; }
+  .avatar-tile .cds--tile__checkmark svg { fill: var(--cds-icon-primary); }
+  .btn-full { width: 100%; max-width: none; }
+
+  /* Timer */
+  .timer .cds--progress-bar__bar { transform: scaleX(.55); }
+  .timer .cds--progress-bar__helper-text { font-size: 14px; color: var(--cds-text-primary); }
+
+  /* Answer tiles (from shared-components.scss) */
+  .grid { display: grid; gap: 12px; }
+  .tile { --c: var(--quiz-a); --t: var(--quiz-a-t); display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 16px;
+          min-height: 72px; padding: 12px 16px; border: 2px solid transparent; background: var(--c); color: #fff; font-size: 16px; line-height: 24px; }
+  .tile--b { --c: var(--quiz-b); --t: var(--quiz-b-t); }
+  .tile--c { --c: var(--quiz-c); --t: var(--quiz-c-t); }
+  .tile--d { --c: var(--quiz-d); --t: var(--quiz-d-t); }
+  .tile__l { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #fff; color: var(--c); font-weight: 600; }
+  .tile--mine { outline: 3px solid var(--cds-border-interactive); outline-offset: 2px; }
+  .tile--dim { background: var(--t); color: var(--cds-text-primary); }
+  .status { min-height: 48px; }
+
+  /* NOW: green text (3.35:1, fails AA) */
+  .locked-now { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; color: var(--cds-support-success); }
+  .locked-now svg { fill: currentColor; }
+  /* NEW B: same size, dark text, green icon only */
+  .locked-b { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; color: var(--cds-text-primary); }
+  .locked-b svg { fill: var(--cds-support-success); }
+
+  .ratio { font-size: 12px; color: #fff; }
+  .unchanged { color: #fff; font-size: 14px; background: rgba(0,0,0,.18); padding: 12px 16px; max-width: 900px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="doc">
+  <h1>v1.3.2 player polish: now vs new</h1>
+  <p>Static mockup built with Carbon's real CSS (White theme) at phone width (390 px). Each row shows the current app on the left and the proposed change on the right. Only the parts marked as changing differ. Everything else on the screens stays as it is today.</p>
+  <p><a href="#locked">1. Answer locked</a> · <a href="#join">2. Join: quiz already started</a> · <a href="#failed">3. Answer not sent</a> · <a href="#other">4. Other messages</a> · <a href="#invisible">5. Changes you won't see</a></p>
+</div>
+
+<!-- ============ 1. Answer locked ============ -->
+<section class="cmp" id="locked">
+  <h2>1. Question: "Answer locked" (contrast fix)</h2>
+  <p>Today the line is green text on white at 3.35:1, below the 4.5:1 that WCAG AA requires for text this size. There are two ways to fix it. <strong>A</strong> uses Carbon's own InlineLoading "finished" state, the same component that already shows "Sending…": smaller, grey text with a green check. <strong>B</strong> keeps today's size and weight but makes the text dark, with only the check icon green, so it stays easy to read at arm's length. I recommend B.</p>
+  <div class="row">
+    <div class="col"><span class="lbl lbl--now">Green text</span><div class="phone" data-question="now"></div><span class="ratio">Text contrast 3.35:1, fails AA</span></div>
+    <div class="col"><span class="lbl lbl--new">A · Carbon InlineLoading "finished"</span><div class="phone" data-question="a"></div><span class="ratio">Text contrast 7.8:1 (Carbon's secondary text), passes AA</span></div>
+    <div class="col"><span class="lbl lbl--new">B · Dark text, green icon (recommended)</span><div class="phone" data-question="b"></div><span class="ratio">Text contrast 18:1, passes AA</span></div>
+  </div>
+</section>
+
+<!-- ============ 2. Join ============ -->
+<section class="cmp" id="join">
+  <h2>2. Join: "The quiz has started" (short title + body text)</h2>
+  <p>Carbon notifications have a short bold title followed by regular body text. Today the whole message is bold. The new version keeps the approved words and splits them: the first sentence is the title, the rest is the body.</p>
+  <div class="row">
+    <div class="col"><span class="lbl lbl--now">All bold</span><div class="phone" data-join="now"></div></div>
+    <div class="col"><span class="lbl lbl--new">Title + body</span><div class="phone" data-join="new"></div></div>
+  </div>
+</section>
+
+<!-- ============ 3. Answer not sent ============ -->
+<section class="cmp" id="failed">
+  <h2>3. Question: "Couldn't send your answer"</h2>
+  <p>The same split applies.</p>
+  <div class="row">
+    <div class="col"><span class="lbl lbl--now">All bold</span><div class="phone" data-failed="now"></div></div>
+    <div class="col"><span class="lbl lbl--new">Title + body</span><div class="phone" data-failed="new"></div></div>
+  </div>
+</section>
+
+<!-- ============ 4. Other messages ============ -->
+<section class="cmp" id="other">
+  <h2>4. Other messages (Join screen)</h2>
+  <p>After a reset, and when the phone can't reach the quiz. "Connection lost." with Retry is already short and stays as it is.</p>
+  <div class="row">
+    <div class="col"><span class="lbl lbl--now">All bold</span><div class="phone phone--strip" data-other="now"></div></div>
+    <div class="col"><span class="lbl lbl--new">Title + body</span><div class="phone phone--strip" data-other="new"></div></div>
+  </div>
+</section>
+
+<!-- ============ 5. Invisible ============ -->
+<section class="cmp" id="invisible">
+  <h2>5. Changes you won't see</h2>
+  <div class="unchanged">
+    <strong>Leaderboard and final standings:</strong> add column headers (Rank, Player, Score) that only screen readers announce. Nothing changes on screen.<br>
+    <strong>Optional, header:</strong> place your name and avatar in Carbon's header action area (HeaderGlobalBar), and stop the "XD Team Quiz" title from reloading the page when tapped. The header looks the same.
+  </div>
+</section>
+
+<script>
+  // Carbon's CSS only defines its colour tokens inside a theme class: every phone gets the White theme.
+  document.querySelectorAll(".phone").forEach((p) => p.classList.add("cds--white"));
+  const AV =[["🦊","#ffd7d9"],["🐼","#e0e0e0"],["🐸","#a7f0ba"],["🦉","#e8daff"],["🐙","#ffd6e8"],["🦁","#fcf4d6"],
+              ["🐧","#d0e2ff"],["🐨","#e5e0df"],["🐯","#ffd9be"],["🐻","#f2f4f8"],["🐰","#bae6ff"],["🐮","#9ef0f0"]];
+  const ICON = {
+    info: '<svg class="cds--inline-notification__icon" width="20" height="20" viewBox="0 0 32 32"><path fill="none" d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z" data-icon-path="inner-path"/><path d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"/></svg>',
+    error: '<svg class="cds--inline-notification__icon" width="20" height="20" viewBox="0 0 32 32"><path d="M16,2C8.2,2,2,8.2,2,16s6.2,14,14,14s14-6.2,14-14S23.8,2,16,2z M21.4,23L16,17.6L10.6,23L9,21.4l5.4-5.4L9,10.6L10.6,9l5.4,5.4L21.4,9l1.6,1.6L17.6,16l5.4,5.4L21.4,23z"/><path fill="none" d="M21.4,23L16,17.6L10.6,23L9,21.4l5.4-5.4L9,10.6L10.6,9l5.4,5.4L21.4,9l1.6,1.6L17.6,16l5.4,5.4L21.4,23z" data-icon-path="inner-path"/></svg>'
+  };
+  const CHECK = '<svg width="20" height="20" viewBox="0 0 32 32"><path d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2ZM14,21.5908l-5-5L10.5906,15,14,18.4092,21.41,11l1.5957,1.5859Z"/><path fill="none" d="M14 21.591l-5-5 1.591-1.591L14 18.409 21.41 11l1.596 1.585L14 21.591z" data-icon-path="inner-path"/></svg>';
+
+  function notif(kind, title, subtitle) {
+    return `<div class="cds--inline-notification cds--inline-notification--low-contrast cds--inline-notification--${kind} cds--inline-notification--hide-close-button" role="status">
+      <div class="cds--inline-notification__details">${ICON[kind]}
+        <div class="cds--inline-notification__text-wrapper">
+          <div class="cds--inline-notification__title">${title}</div>
+          ${subtitle ? `<div class="cds--inline-notification__subtitle">${subtitle}</div>` : ""}
+        </div></div></div>`;
+  }
+  const header = (me) => `<div class="hd"><span class="hd__name">XD Team Quiz</span>${me ? `<span class="chip"><span class="av av--sm" style="background:#ffd7d9">🦊</span>Anna</span>` : ""}</div>`;
+
+  function join(notes) {
+    const tiles = AV.map(([e, c], i) => `<label class="cds--tile cds--tile--selectable avatar-tile${i === 0 ? " cds--tile--is-selected" : ""}">
+        ${i === 0 ? `<span class="cds--tile__checkmark"><svg width="16" height="16" viewBox="0 0 16 16"><path d="M8,1C4.1,1,1,4.1,1,8c0,3.9,3.1,7,7,7s7-3.1,7-7C15,4.1,11.9,1,8,1z M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"/></svg></span>` : ""}
+        <span class="av av--md" style="background:${c}">${e}</span></label>`).join("");
+    return header(false) + `<div class="main"><h1 class="title">Join the quiz</h1>${notes}
+      <div class="cds--form-item cds--text-input-wrapper"><div class="cds--text-input__label-wrapper"><label class="cds--label">Your name</label></div>
+        <div class="cds--text-input__field-outer-wrapper"><div class="cds--text-input__field-wrapper"><input class="cds--text-input cds--text-input--lg" value="Anna"></div></div></div>
+      <fieldset class="cds--tile-group"><legend class="cds--label">Pick an avatar</legend><div>${tiles}</div></fieldset>
+      <button class="cds--btn cds--btn--primary cds--btn--lg btn-full">Join</button></div>`;
+  }
+
+  const OPTS = ["Ottawa", "Toronto", "Vancouver", "Montreal"];
+  function question(status, pick) {
+    const tiles = OPTS.map((t, i) => {
+      const l = "ABCD"[i];
+      const cls = pick === null ? "" : i === pick ? " tile--mine" : " tile--dim";
+      return `<div class="tile tile--${l.toLowerCase()}${cls}"><span class="tile__l">${l}</span><span>${t}</span></div>`;
+    }).join("");
+    return header(true) + `<div class="main"><p class="eyebrow">Question 4 of 25</p>
+      <h1 class="qtext">What is the capital of Canada?</h1>
+      <div class="timer"><div class="cds--progress-bar cds--progress-bar--big"><div class="cds--progress-bar__track"><div class="cds--progress-bar__bar"></div></div><div class="cds--progress-bar__helper-text">11 s</div></div></div>
+      <div class="grid">${tiles}</div><div class="status">${status}</div></div>`;
+  }
+
+  const LOCKED = {
+    now: `<p class="locked-now">${CHECK} Answer locked</p>`,
+    a: `<div class="cds--inline-loading" aria-live="assertive"><div class="cds--inline-loading__animation">
+          <svg class="cds--inline-loading__checkmark-container" viewBox="0 0 16 16"><path d="M8,1C4.1,1,1,4.1,1,8c0,3.9,3.1,7,7,7s7-3.1,7-7C15,4.1,11.9,1,8,1z M7,11L4.3,8.3l0.9-0.8L7,9.3l4-3.9l0.9,0.8L7,11z"/></svg>
+        </div><div class="cds--inline-loading__text">Answer locked</div></div>`,
+    b: `<p class="locked-b">${CHECK} Answer locked</p>`
+  };
+  document.querySelectorAll("[data-question]").forEach((el) => { el.innerHTML = question(LOCKED[el.dataset.question], 0); });
+
+  const STARTED_T = "The quiz has started.", STARTED_S = "Playing already? Enter the same name to rejoin.";
+  document.querySelector('[data-join="now"]').innerHTML = join(notif("info", `${STARTED_T} ${STARTED_S}`));
+  document.querySelector('[data-join="new"]').innerHTML = join(notif("info", STARTED_T, STARTED_S));
+
+  document.querySelector('[data-failed="now"]').innerHTML = question(notif("error", "Couldn't send your answer. Tap again."), null);
+  document.querySelector('[data-failed="new"]').innerHTML = question(notif("error", "Couldn't send your answer.", "Tap again."), null);
+
+  const strip = (a, b) => header(false) + `<div class="main"><h1 class="title">Join the quiz</h1>${a}${b}</div>`;
+  document.querySelector('[data-other="now"]').innerHTML = strip(
+    notif("info", "The quiz was reset. Join again to play."),
+    notif("error", "Couldn't reach the quiz. Check your connection and try again."));
+  document.querySelector('[data-other="new"]').innerHTML = strip(
+    notif("info", "The quiz was reset.", "Join again to play."),
+    notif("error", "Couldn't reach the quiz.", "Check your connection and try again."));
+</script>
+</body>
+</html>

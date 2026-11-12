@@ -194,7 +194,8 @@ test("reset from the menu, through the danger modal, clears the quiz for everyon
   expect(after.participants).toHaveLength(0);
   expect(after.questionSetId).toBe("test");
   await expect(page.getByRole("heading", { name: "Set up the quiz" })).toBeVisible();
-  await expect(ada.page.getByText("The quiz was reset. Join again to play.")).toBeVisible();
+  await expect(ada.page.getByText("The quiz was reset.", { exact: true })).toBeVisible();
+  await expect(ada.page.getByText("Join again to play.", { exact: true })).toBeVisible();
   await ada.context.close();
 });
 

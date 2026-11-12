@@ -144,6 +144,14 @@ test("the full quiz on a phone: answer, reveal, leaderboard and final podium", a
       await host(request, "leaderboard");
       await expect(page.getByText("Your score")).toBeVisible();
       await expect(page.locator(".leaderboard__row--me")).toContainText("Cleo");
+      if (q === 1) {
+        // Column names for screen readers only (v1.3.2): present as column headers, not visible on screen.
+        const board = page.getByRole("table", { name: "Leaderboard" });
+        await expect(board.getByRole("columnheader")).toHaveText(["Rank", "Player", "Score"]);
+        const head = await page.locator(".leaderboard .cds--structured-list-thead").boundingBox();
+        expect(head.width).toBeLessThanOrEqual(1);
+        expect(head.height).toBeLessThanOrEqual(1);
+      }
       await host(request, "next");
     }
   }
@@ -191,10 +199,17 @@ test("S4: when every retry fails the player is asked to tap again", async ({ pag
   await expect(answerButton(page, "a")).toBeEnabled();
   await answerButton(page, "a").click();
   await expect(page.getByText("Sending…")).toBeVisible();
-  await expect(page.getByText("Couldn't send your answer. Tap again.")).toBeVisible({ timeout: 10000 });
+  // Carbon notification: the first sentence is the bold title, the rest the body text (v1.3.2).
+  const failed = page.locator(".cds--inline-notification");
+  await expect(failed.locator(".cds--inline-notification__title")).toHaveText("Couldn't send your answer.", { timeout: 10000 });
+  await expect(failed.locator(".cds--inline-notification__subtitle")).toHaveText("Tap again.");
   await page.unroute("**/api/answer");
   await answerButton(page, "d").click();
   await expect(page.getByText("Answer locked")).toBeVisible();
+  // AA contrast: the text is Carbon's text-primary; only the check icon is green (support-success).
+  const locked = page.locator(".answer-locked");
+  expect(await locked.evaluate((el) => getComputedStyle(el).color)).toBe("rgb(22, 22, 22)");
+  expect(await locked.locator("svg").evaluate((el) => getComputedStyle(el).fill)).toBe("rgb(36, 161, 72)");
   await expect(answerButton(page, "d")).toHaveAttribute("aria-pressed", "true");
 });
 
@@ -244,7 +259,8 @@ test("S6: a refreshed player stays in the game", async ({ page, request }) => {
 test("after a reset the player is back on Join with a message", async ({ page, request }) => {
   await joinAs(page, "Lea");
   await host(request, "reset");
-  await expect(page.getByText("The quiz was reset. Join again to play.")).toBeVisible();
+  await expect(page.getByText("The quiz was reset.", { exact: true })).toBeVisible();
+  await expect(page.getByText("Join again to play.", { exact: true })).toBeVisible();
   await expect(page.getByLabel("Your name")).toHaveValue("Lea");
 });
 
@@ -257,7 +273,8 @@ test("once the quiz has started, a disconnected player can rejoin by name", asyn
   const phone = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const other = await phone.newPage();
   await other.goto("/participant.html");
-  await expect(other.getByText("The quiz has started. Playing already? Enter the same name to rejoin.")).toBeVisible();
+  await expect(other.getByText("The quiz has started.", { exact: true })).toBeVisible();
+  await expect(other.getByText("Playing already? Enter the same name to rejoin.", { exact: true })).toBeVisible();
   await other.getByLabel("Your name").fill("Mo");
   await other.getByRole("button", { name: "Join" }).click();
   await expect(other.locator(".player-chip")).toContainText("Mo");

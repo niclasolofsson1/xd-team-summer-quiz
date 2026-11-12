@@ -3,6 +3,7 @@ import { Button, InlineLoading, InlineNotification, RadioTile, TextInput, TileGr
 import { avatars } from "../../shared/avatars.js";
 import { postWithRetry } from "../../shared/api.js";
 import { loadLastName } from "../../shared/storage.js";
+import { splitMessage } from "../../shared/format.js";
 
 const NAME_ERRORS = new Set(["Enter a name.", "That name is already taken."]);
 const STARTED = "The quiz has started. Playing already? Enter the same name to rejoin.";
@@ -42,9 +43,9 @@ export function Join({ phase, notice, onJoined }) {
   return (
     <form className="screen join" onSubmit={submit} noValidate>
       <h1 className="screen__title">Join the quiz</h1>
-      {notice && <InlineNotification kind="info" lowContrast hideCloseButton title={notice} />}
+      {notice && <InlineNotification kind="info" lowContrast hideCloseButton {...splitMessage(notice)} />}
       {started && formError !== STARTED && (
-        <InlineNotification kind="info" lowContrast hideCloseButton title={STARTED} />
+        <InlineNotification kind="info" lowContrast hideCloseButton {...splitMessage(STARTED)} />
       )}
       <TextInput
         id="player-name"
@@ -73,7 +74,7 @@ export function Join({ phase, notice, onJoined }) {
           </RadioTile>
         ))}
       </TileGroup>
-      {formError && <InlineNotification kind="error" lowContrast hideCloseButton title={formError} />}
+      {formError && <InlineNotification kind="error" lowContrast hideCloseButton {...splitMessage(formError)} />}
       <Button type="submit" size="lg" className="screen__action" disabled={sending}>
         {sending ? <InlineLoading description="Joining…" /> : "Join"}
       </Button>

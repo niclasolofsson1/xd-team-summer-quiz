@@ -22,3 +22,11 @@ export function pointsLabel(points) {
 export function pickedLabel(n) {
   return n === 1 ? "1 pick" : `${n} picks`;
 }
+
+// Carbon notifications have a short bold title and regular body text. The title is the first sentence
+// (up to and including the first ".", "!" or "?" followed by a space); the subtitle is the rest, or "".
+export function splitMessage(message) {
+  const text = String(message ?? "").trim();
+  const match = /^(.*?[.!?])\s+(.+)$/s.exec(text);
+  return match ? { title: match[1], subtitle: match[2] } : { title: text, subtitle: "" };
+}

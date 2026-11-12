@@ -5,12 +5,14 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.3.1 (host redesign)
+- **Current version:** v1.3.2 (player polish)
 - **Current phase:** L3 — Build (next: v1.4.0 big screen, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
 
 ## Next session
+
+v1.3.2 (player polish) is built from a read-only Carbon audit of the player app and a static mockup the user approved (`ux-forge/mockups/v1.3.2-player.html`): "Answer locked" in text-primary with only the check icon green (user's option B; the green text failed AA at 3.35:1), notifications split into a short title (first sentence) and subtitle via `splitMessage` in `format.js`, visually hidden Rank / Player / Score column headers on the leaderboard, and the player chip inside `HeaderGlobalBar` with no `href` on `HeaderName`. Waiting for the user's phone check. Next is still v1.4.0 (below).
 
 v1.3.1 (host redesign) is done; the user's laptop check passed ("This is good. Much better."). The v1.3.0 host looked broken to the user ("looks awful"), so the host app was redone from Carbon's own guidance (via the Carbon MCP): 2x Grid with a main area (10/16) and one control column (6/16) filling the screen; join address first with Copy link and a player wall (empty state before anyone joins); Carbon Select instead of content switchers; low-contrast test-set note; one fluid xl primary button per screen (label left, arrow right, label centred vertically — the one override); a temporarily disabled primary stays visible with a line saying what unlocks it (Carbon's disabled-state rule); "header only" global header (title, connection, ⋮). Mockup approved by the user first: `ux-forge/mockups/v1.3.1-host.html`. Behaviour unchanged (PIN gate, clicker, send-once, private preview, Reset modal).
 
@@ -59,3 +61,4 @@ Next: **v1.4.0 — big-screen app** (g100, QR from `/api/join-info`, never scrol
 | 2026-11-06 | v1.2.8 | Podium: "You" tag instead of a blue frame; reveal sequence (3 steps) kept, user confirmed | Done; user's phone check passed ("smooth and nice, very Carbon") |
 | 2026-11-12 | v1.3.0 | Carbon host app (spec section 3 Host); user's decisions: remove `public/host.html`, no auto-retry of host actions, clicker rules, primary disabled during countdown/answering | Done; user's laptop check failed ("looks awful") → v1.3.1 |
 | 2026-11-12 | v1.3.1 | Host redesign from Carbon MCP guidance; static mockup approved first; disabled Start stays visible with a hint (Carbon rule, user accepted with the mockup) | Done; user's laptop check passed |
+| 2026-11-13 | v1.3.2 | Player polish from the Carbon audit: "Answer locked" contrast (option B), notification title + subtitle, hidden leaderboard column headers, chip in HeaderGlobalBar; mockup approved first | Done; waiting for the user's phone check |

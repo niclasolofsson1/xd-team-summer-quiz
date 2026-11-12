@@ -1,4 +1,10 @@
-import { StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from "@carbon/react";
+import {
+  StructuredListBody,
+  StructuredListCell,
+  StructuredListHead,
+  StructuredListRow,
+  StructuredListWrapper
+} from "@carbon/react";
 import { Avatar } from "./Avatar.jsx";
 import { rankLabel } from "../format.js";
 
@@ -25,6 +31,14 @@ export function Leaderboard({ entries, meId, limit = 10, label = "Leaderboard" }
   const pinned = mine && !top.includes(mine) ? mine : null;
   return (
     <StructuredListWrapper className="leaderboard" aria-label={label} isCondensed>
+      {/* Column names for screen readers only; nothing changes on screen (v1.3.2). */}
+      <StructuredListHead className="visually-hidden">
+        <StructuredListRow head>
+          <StructuredListCell head>Rank</StructuredListCell>
+          <StructuredListCell head>Player</StructuredListCell>
+          <StructuredListCell head>Score</StructuredListCell>
+        </StructuredListRow>
+      </StructuredListHead>
       <StructuredListBody>
         {top.map((entry) => (
           <Row key={entry.id} entry={entry} isMe={entry.id === meId} />

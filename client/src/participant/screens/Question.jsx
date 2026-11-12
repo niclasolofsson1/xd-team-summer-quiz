@@ -4,6 +4,9 @@ import { CheckmarkFilled } from "@carbon/icons-react";
 import { AnswerTile } from "../../shared/components/AnswerTile.jsx";
 import { TimerBar } from "../../shared/components/TimerBar.jsx";
 import { submitAnswer } from "../../shared/answer.js";
+import { splitMessage } from "../../shared/format.js";
+
+const SEND_FAILED = "Couldn't send your answer. Tap again.";
 
 // Choosing → Sending… → Answer locked (after the server confirms) or "Couldn't send your answer. Tap again."
 // While sending and once locked, every tile is disabled, so a second tap can't change what's shown.
@@ -56,10 +59,10 @@ export function Question({ state, offsetMs, me, session, myAnswer, onAnswered, o
           </p>
         )}
         {answer.status === "failed" && !locked && (
-          <InlineNotification kind="error" lowContrast hideCloseButton title="Couldn't send your answer. Tap again." />
+          <InlineNotification kind="error" lowContrast hideCloseButton {...splitMessage(SEND_FAILED)} />
         )}
         {answer.status === "closed" && (
-          <InlineNotification kind="info" lowContrast hideCloseButton title={answer.message} />
+          <InlineNotification kind="info" lowContrast hideCloseButton {...splitMessage(answer.message)} />
         )}
       </div>
     </section>

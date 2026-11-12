@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Header, HeaderName, InlineLoading } from "@carbon/react";
+import { Header, HeaderGlobalBar, HeaderName, InlineLoading } from "@carbon/react";
 import { useQuizState } from "../shared/useQuizState.js";
 import { loadAnswer, loadSession, saveAnswer, saveLastName, saveSession } from "../shared/storage.js";
 import { ConnectionBanner } from "../shared/components/ConnectionBanner.jsx";
@@ -80,14 +80,15 @@ export function App() {
   return (
     <>
       <Header aria-label="XD Team Quiz">
-        <HeaderName prefix="" href="/participant.html">
-          XD Team Quiz
-        </HeaderName>
+        {/* No href: tapping the title shouldn't reload the page. */}
+        <HeaderName prefix="">XD Team Quiz</HeaderName>
         {me && (
-          <div className="player-chip">
-            <Avatar id={me.avatarId} size="sm" />
-            <span className="player-chip__name">{session.name}</span>
-          </div>
+          <HeaderGlobalBar>
+            <div className="player-chip">
+              <Avatar id={me.avatarId} size="sm" />
+              <span className="player-chip__name">{session.name}</span>
+            </div>
+          </HeaderGlobalBar>
         )}
       </Header>
       <main className="player-main">

@@ -2,6 +2,13 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.3.2 — Player polish
+
+- "Answer locked" is easier to read: the text is now dark, and only the check mark next to it is green. The old green text was too pale to pass the accessibility contrast check.
+- Messages on the phone now have a short bold first line and regular text after it, the way Carbon designs them. For example "The quiz has started." in bold, then "Playing already? Enter the same name to rejoin." The words are the same as before. This covers the Join screen (quiz already started, quiz was reset, can't reach the quiz) and the question screen (answer not sent, answer window closed).
+- The leaderboard and final standings now tell screen readers which column is Rank, Player and Score. Nothing changes on screen (also on the host page, which uses the same list).
+- Your name and avatar in the header now sit in Carbon's own header area. Tapping "XD Team Quiz" in the header no longer reloads the page. The header looks the same.
+
 ## v1.3.1 — Host redesign
 
 - The host page has a new, calmer layout built on Carbon's own guidance: a large main area on the left and one control column on the right, both filling the screen.
