@@ -5,7 +5,7 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.4.2 (tidy leaderboard, full names in the lobby)
+- **Current version:** v1.4.3 (big-screen podium heights)
 - **Current phase:** L3 — Build (next: v1.5.0 stability pass, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
@@ -17,6 +17,8 @@ v1.4.0 (Carbon big screen) is built from a hi-fi mockup the user approved (`ux-f
 v1.4.1 (user's catch): the lobby's "Same Wi-Fi as the host." only shows for a local network join address (`joinHint` / `isLocalNetworkUrl` in `displayView.js`); on Render (via `PUBLIC_URL` or the request host) the QR and address are the onrender.com address and the hint is just "Scan the code or type the address."
 
 v1.4.2 (user's 27" check): the leaderboard's 1fr grid row stretched a short StructuredList over the whole screen (rank/points in the middle, name at the top) — `.ds-lb` rows are now auto with `align-content: start`, and an e2e check measures row height and that rank, avatar, name and points share one line. The shared leaderboard's small avatars got a big-screen size. Lobby wall A+ (user chose it after asking about joke names): 3 columns, names wrap to two lines (line clamp 2), `WALL_MAX` 24. Lesson: no-overflow checks don't catch a layout that stretches; for list layouts also check row height/alignment.
+
+v1.4.3 (user's 4-player test on the 27"): podium steps were the phones' px heights because `&__place--1 &__step` nested under a two-class parent (`.ds .podium`) repeats the whole parent. Written out as full selectors; e2e measures the three step heights. Lesson: in Sass, `&__a &__b` only works under a single-class parent. The user loves the confetti.
 
 **Idea parked (user, 2026-11-14):** the user likes the dark (g100) theme a lot and wants to consider it for the player app too. Not decided; look at it later (with v1.6.0's look, or as its own mockup), user decides.
 
@@ -78,4 +80,5 @@ Lessons (still apply): the trimmed Carbon stylesheet needs `scss/layout` (size t
 | 2026-11-13 | v1.3.3 | Reveal tiles in one row with Carbon tags and a picks column; blue pick stroke without the white gap (option B); white borderless "You" tag; question heading-04 (heading-03 over 90 characters); hi-fi mockup approved first | Done; user's iPhone check passed |
 | 2026-11-14 | v1.4.0 | Carbon big screen (g100, QR from `/api/join-info`, no scroll at 720p/1080p, looping confetti); join address prefers Wi-Fi over VPN; `public/` removed; hi-fi mockup approved first (2 rounds) | Done; waiting for the user's projector/TV check |
 | 2026-11-14 | v1.4.1 | Wi-Fi hint only for a local network join address (user's catch: wrong on Render) | Done |
-| 2026-11-14 | v1.4.2 | User's 27" check: leaderboard stretched a short list over the screen (fixed: rows keep their height; e2e checks row height and one-line alignment); tiny avatars on leaderboard/standings; lobby wall A+ (3 columns, names wrap to 2 lines, 24 players) so long joke names show in full | Done; waiting for the user's check |
+| 2026-11-14 | v1.4.2 | User's 27" check: leaderboard stretched a short list over the screen (fixed: rows keep their height; e2e checks row height and one-line alignment); tiny avatars on leaderboard/standings; lobby wall A+ (3 columns, names wrap to 2 lines, 24 players) so long joke names show in full | Done; user's 4-player check found the podium bug → v1.4.3 |
+| 2026-11-14 | v1.4.3 | Podium step heights on the big screen (Sass nesting `&__place--1 &__step` under `.ds .podium` compiled to a selector that never matched); e2e checks step heights and labels | Done; waiting for the user's check |

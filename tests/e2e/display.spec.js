@@ -196,6 +196,22 @@ test("follows a whole quiz: countdown, question, time's up, reveal, leaderboard,
     await expect(page.locator(".podium__place--revealed")).toHaveCount(stage === 3 ? 3 : stage === 2 ? 1 : 0);
     await expectNoScroll(page, `final stage ${stage}`);
   }
+  // Podium steps (v1.4.3): champion tallest, then runner-up, then 3rd, each label inside its step.
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    const rem = size.height / 45;
+    const steps = await page.evaluate(() =>
+      [1, 2, 3].map((place) => {
+        const step = document.querySelector(`.podium__place--${place} .podium__step`);
+        return { height: step.getBoundingClientRect().height, fits: step.scrollHeight <= step.clientHeight + 1 };
+      })
+    );
+    [12, 8.5, 5.5].forEach((want, i) => {
+      expect(Math.abs(steps[i].height / rem - want), `step ${i + 1} height at ${size.width}×${size.height}`).toBeLessThan(0.1);
+    });
+    expect(steps.every((s) => s.fits), `labels fit at ${size.width}×${size.height}`).toBe(true);
+  }
+  await page.setViewportSize(SIZES[0]);
   // Reduced motion (the test default): no confetti.
   await expect(page.locator(".ds-confetti")).toBeHidden();
 });

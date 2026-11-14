@@ -2,6 +2,10 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.4.3 — Big screen podium heights
+
+- Fix: on the big screen's final results, the three podium steps were all short and "3rd place" stuck out below its step. Now they step up as designed: the champion's step is the tallest, then the runner-up's, then 3rd place, with each label inside its step.
+
 ## v1.4.2 — Big screen: tidy leaderboard, full names in the lobby
 
 - Fix: on the big screen's leaderboard, a short list (for example one player) was stretched over the whole screen, so the rank, the name and the points drifted apart. Each player is now one tidy row (rank, avatar and name, points) right under the heading.

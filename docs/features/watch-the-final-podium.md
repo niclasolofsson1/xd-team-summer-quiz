@@ -19,7 +19,7 @@ After the last question, phones and the big screen show the final results, unloc
 
 The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and "3rd place". Each revealed place shows its medal (🥇 🥈 🥉, by rank, so a shared place shares its medal), the avatar, the name and the points. No confetti on phones (removed in v1.2.3 at the user's request). Once the player's own place is revealed, the phone says "You finished 5th · 3200 points" and marks the player with a grey "You" tag on the podium (since v1.2.8, no frame) or a highlighted row in the standings.
 
-**Big screen (since v1.4.0):** the same podium at display size, under "Final results" and a line per stage ("The host will reveal the final results.", "4th place and down.", "3rd place.", "Champion and runner-up."). From stage 1 the final standings sit beside it (9 rows, then "and N more players"). Once the champion is revealed, **confetti keeps falling** in the answer colours plus yellow and white for as long as the screen stays there (CSS only, pieces loop with staggered starts; user's choice from the mockup). Off with reduced motion.
+**Big screen (since v1.4.0):** the same podium at display size (steps 12 / 8.5 / 5.5 rem for champion / runner-up / 3rd, fixed in v1.4.3), under "Final results" and a line per stage ("The host will reveal the final results.", "4th place and down.", "3rd place.", "Champion and runner-up."). From stage 1 the final standings sit beside it (9 rows, then "and N more players"). Once the champion is revealed, **confetti keeps falling** in the answer colours plus yellow and white for as long as the screen stays there (CSS only, pieces loop with staggered starts; user's choice from the mockup). Off with reduced motion.
 
 ## How it works
 

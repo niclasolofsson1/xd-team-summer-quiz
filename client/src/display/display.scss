@@ -487,12 +487,15 @@ body {
   &__empty { font-size: 1.25rem; line-height: 1.75rem; }
   &__step { padding: 0.75rem; font-size: 1.5rem; line-height: 2rem; }
 
-  &__place--1 &__step { block-size: 12rem; }
-  &__place--2 &__step { block-size: 8.5rem; }
-  &__place--3 &__step { block-size: 5.5rem; }
-  &__place--1 &__medal { font-size: 4rem; }
   &__place--1 .quiz-avatar--lg { inline-size: 6.5rem; block-size: 6.5rem; font-size: 3.75rem; }
 }
+
+// Step heights written out in full (v1.4.3): nested as `&__place--1 &__step` under `.ds .podium`, Sass
+// produced `.ds .podium__place--1 .ds .podium__step`, which never matched, so the phones' px heights showed.
+.ds .podium__place--1 .podium__step { block-size: 12rem; }
+.ds .podium__place--2 .podium__step { block-size: 8.5rem; }
+.ds .podium__place--3 .podium__step { block-size: 5.5rem; }
+.ds .podium__place--1 .podium__medal { font-size: 4rem; }
 
 .ds-stand {
   display: grid;
