@@ -2,6 +2,10 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.4.1 — Join hint fits the address
+
+- On the big screen's lobby, "Same Wi-Fi as the host." now only shows when the quiz runs on the laptop (a local network address such as 192.168…). On the live Render address it just says "Scan the code or type the address.", since phones can join from anywhere there.
+
 ## v1.4.0 — Carbon big screen
 
 - The big screen (`/display.html`) is new: dark, clean Carbon style made for a projector or TV, with large text that grows with the screen (the same layout at 720p and 1080p) and never needs scrolling.

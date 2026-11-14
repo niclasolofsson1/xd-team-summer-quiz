@@ -12,7 +12,7 @@ A screen with no controls, made for a 16:9 projector or TV (Carbon Gray 100, dar
 
 | Phase | Big screen shows | Top bar (right) |
 |---|---|---|
-| `lobby` | "Join on your phone", a **QR code drawn from the real join address** (white card), the address in large type, "Scan the code or type the address. Same Wi-Fi as the host.", and the player wall (avatar + name chips, newest pops in). Before anyone joins: "No one has joined yet. Players appear here as they join." | "22 players" |
+| `lobby` | "Join on your phone", a **QR code drawn from the real join address** (white card), the address in large type, "Scan the code or type the address." (plus "Same Wi-Fi as the host." only when the address is a local network one: 192.168…, 10…, 172.16–31…, since v1.4.1; never on Render), and the player wall (avatar + name chips, newest pops in). Before anyone joins: "No one has joined yet. Players appear here as they join." | "22 players" |
 | `countdown` | "Question 3 of 25", a huge countdown number, "Get ready" | Question number, players |
 | `answering` | The question (display size), four answer tiles in a 2×2 grid with the phones' colours and letters, the timer bar with the seconds | Question number, **"14 of 22 answered"** |
 | `awaitingReveal` | The same tiles, faded back; where the timer was: **"Time's up!"** · "Waiting for the host to reveal the answer." | Same |
@@ -45,7 +45,7 @@ A screen with no controls, made for a 16:9 projector or TV (Carbon Gray 100, dar
 ## Under the hood
 
 - Styles: `client/src/display/display.scss` (g100 theme, rem layout, big-screen sizes of the shared parts)
-- Plain logic: `client/src/display/displayView.js` (top-bar text, reveal summary, what fits on the wall and in the standings, join address text); tests in `tests/unit/display.test.js`
+- Plain logic: `client/src/display/displayView.js` (top-bar text, reveal summary, the join hint, what fits on the wall and in the standings, join address text); tests in `tests/unit/display.test.js`
 - E2E: `tests/e2e/display.spec.js` (QR and address, a whole quiz, no scrolling at 1280×720 and 1920×1080 in every phase, standings with 22 players, confetti)
 - Mockup approved by the user: `ux-forge/mockups/v1.4.0-display.html`
 - The arcade big screen (`public/display.html`, `public/app.js`, pixel assets) was removed in v1.4.0 and is preserved in tag `v1-arcade-summer`.

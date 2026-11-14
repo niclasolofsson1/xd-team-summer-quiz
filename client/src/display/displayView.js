@@ -74,3 +74,23 @@ export function finalStageText(stage) {
 export function displayUrl(url) {
   return String(url || "").replace(/^https?:\/\//i, "").replace(/\/+$/, "");
 }
+
+// True when phones must be on the same network to join: the join address is a private LAN address
+// (192.168/16, 10/8, 172.16/12) or localhost. A public address (Render) works from anywhere.
+export function isLocalNetworkUrl(url) {
+  let host;
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    return false;
+  }
+  if (host === "localhost" || host === "127.0.0.1") return true;
+  const p = host.split(".").map(Number);
+  if (p.length !== 4 || p.some((n) => !Number.isInteger(n))) return false;
+  return p[0] === 192 && p[1] === 168 || p[0] === 10 || (p[0] === 172 && p[1] >= 16 && p[1] <= 31);
+}
+
+// The line under the join address. The Wi-Fi part only when the address is on the local network.
+export function joinHint(url) {
+  return isLocalNetworkUrl(url) ? "Scan the code or type the address. Same Wi-Fi as the host." : "Scan the code or type the address.";
+}

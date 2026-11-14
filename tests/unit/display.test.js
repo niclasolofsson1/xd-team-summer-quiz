@@ -3,6 +3,8 @@ import {
   answeredLabel,
   displayUrl,
   finalStageText,
+  isLocalNetworkUrl,
+  joinHint,
   morePlayersLabel,
   playersLabel,
   revealSummary,
@@ -50,6 +52,18 @@ describe("big screen view logic", () => {
     expect(s.more).toBe(10);
     expect(morePlayersLabel(1)).toBe("and 1 more player");
     expect(morePlayersLabel(10)).toBe("and 10 more players");
+  });
+
+  test("Wi-Fi hint only for a local network join address (v1.4.1)", () => {
+    expect(joinHint("https://xd-team-summer-quiz.onrender.com/")).toBe("Scan the code or type the address.");
+    expect(joinHint("http://192.168.40.120:4173/")).toBe("Scan the code or type the address. Same Wi-Fi as the host.");
+    expect(isLocalNetworkUrl("http://10.0.0.7:4173/")).toBe(true);
+    expect(isLocalNetworkUrl("http://172.20.1.5:4173/")).toBe(true);
+    expect(isLocalNetworkUrl("http://172.32.1.5:4173/")).toBe(false);
+    expect(isLocalNetworkUrl("http://100.78.69.230:4173/")).toBe(false);
+    expect(isLocalNetworkUrl("http://localhost:4173/")).toBe(true);
+    expect(isLocalNetworkUrl("https://quiz.example.com/")).toBe(false);
+    expect(isLocalNetworkUrl("")).toBe(false);
   });
 
   test("final stage text and join address", () => {

@@ -1,7 +1,7 @@
 import { Avatar } from "../../shared/components/Avatar.jsx";
 import { playersJoined } from "../../shared/format.js";
 import { QrCode } from "../QrCode.jsx";
-import { displayUrl, wallEntries } from "../displayView.js";
+import { displayUrl, joinHint, wallEntries } from "../displayView.js";
 
 export function Lobby({ state, joinUrl }) {
   const { shown, more } = wallEntries(state.participants);
@@ -12,7 +12,7 @@ export function Lobby({ state, joinUrl }) {
         <h1 className="ds-join__title">Join on your phone</h1>
         <div className="ds-qr">{joinUrl && <QrCode url={joinUrl} />}</div>
         <p className="ds-join__url">{joinUrl ? displayUrl(joinUrl) : "…"}</p>
-        <p className="ds-join__hint">Scan the code or type the address. Same Wi-Fi as the host.</p>
+        <p className="ds-join__hint">{joinHint(joinUrl)}</p>
       </section>
       <section className="ds-wall" aria-label="Players">
         <h2 className="ds-wall__title">{count ? playersJoined(count) : "Players"}</h2>
