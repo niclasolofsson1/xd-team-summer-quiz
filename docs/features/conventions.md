@@ -1,10 +1,10 @@
 # Conventions
 
-Rules for the code. The **Carbon apps** (player since v1.2.0, host since v1.3.0) follow the first section; the **arcade** big screen (until v1.4.0) the rest.
+Rules for the code. All three apps are Carbon since v1.4.0 (player v1.2.0, host v1.3.0, big screen v1.4.0); the arcade client was removed and is preserved in tag `v1-arcade-summer`.
 
 ## Carbon apps (v2)
 
-- **Stack:** Vite + React 19 + `@carbon/react` 1.x + Sass. Source in `client/`, one HTML page per app (`client/participant.html`, `client/host.html`), built to `dist/` with `npm run build`. Built files go to `dist/app/`.
+- **Stack:** Vite + React 19 + `@carbon/react` 1.x + Sass. Source in `client/`, one HTML page per app (`client/participant.html`, `client/host.html`, `client/display.html`), built to `dist/` with `npm run build`. Built files go to `dist/app/`; `client/public/` (the favicon at `assets/favicon.svg`) is copied to `dist/` as it is. The server serves `dist/` only.
 - **Layout:** `client/src/shared/` (logic and parts used by all apps: `liveConnection.js`, `useQuizState.js`, `api.js`, `answer.js`, `clock.js`, `format.js`, `podium.js`, `storage.js`, `avatars.json`, `components/`), `client/src/<app>/` (`App.jsx`, `main.jsx`, `screens/`, the app's stylesheet).
 - **Plain logic stays out of React** (connection, retries, clock, formatting, podium layout) so it's unit-tested in Node (`tests/unit/`, Vitest).
 - **Real Carbon components only** where Carbon has one (Header, Button, TextInput, TileGroup/RadioTile, InlineNotification, ActionableNotification, InlineLoading, ProgressBar, StructuredList, Tag; host: OverflowMenu, Modal, Select). Own parts: answer tile, avatar, podium, countdown number, players list rows.
@@ -18,39 +18,19 @@ Rules for the code. The **Carbon apps** (player since v1.2.0, host since v1.3.0)
 - **Host keys (v1.3.0):** → / PageDown / Space press the host's primary button (`client/src/host/clicker.js`): debounced 1 s, never while typing, in a dialog or a menu; Space is left to a focused button or link. Host actions are sent once, never retried automatically.
 - **Host layout (v1.3.1):** Carbon's 2x Grid. From 1024 px a main area (10 of 16 columns) and one control column (6), 32 px gutters, panels filling the screen height; below 1024 px they stack; no sideways scroll from 360 px. One primary button per screen, fluid across the control column (xl, label left, arrow right; the label is centred vertically, the one override on Carbon). A temporarily disabled primary stays visible with a line saying what unlocks it. Settings use Select, not ContentSwitcher (Carbon keeps that for switching views). The header is Carbon's "header only" pattern: title, connection, ⋮ menu. Mockup: `ux-forge/mockups/v1.3.1-host.html`.
 - **Notifications and status colours (v1.3.2):** an InlineNotification gets a short title (the first sentence) and a subtitle (the rest), split with `splitMessage` in `format.js`; the words stay as approved. Status colours (`$support-*`) go on icons, never on text: text stays `$text-primary` or `$text-secondary` so it passes AA. Mockup: `ux-forge/mockups/v1.3.2-player.html`.
-- **Accessibility:** colour is never the only cue (answers keep their letter, marks are written out); phase changes are announced in a polite live region; the timer isn't read out; `prefers-reduced-motion` turns off the countdown pop and reveal slides; tap targets ≥ 48 px, answer tiles ≥ 72 px.
+- **Big screen (v1.4.0):** g100 theme, 16:9, never scrolls. 1 rem = 1/45 of the screen height (or 1/80 of the width), so 16 px at 1280×720 and 24 px at 1920×1080; the big screen's layout and its sizes of the shared parts are in rem in `display.scss` (the shared parts stay px for phones). Nothing is clickable, so no focus rings. On the reveal, answers that recede are dark tiles with a strip of their colour on the left (the phones' light tints would outshine the right answer on a dark screen). What fits (28 players on the wall, 9 standings rows) is fixed in `displayView.js`, because everything scales together. Mockup: `ux-forge/mockups/v1.4.0-display.html`.
+- **Accessibility:** colour is never the only cue (answers keep their letter, marks are written out); phase changes are announced in a polite live region; the timer isn't read out; `prefers-reduced-motion` turns off the countdown pop, reveal slides and the big screen's confetti; tap targets ≥ 48 px, answer tiles ≥ 72 px.
 - **Copy** comes from `ux-forge/02_design_spec.md` section 5.
 - **Browser storage:** `localStorage` `xd-quiz-player` (id, token, name) and `xd-quiz-last-name`; `sessionStorage` `xd-quiz-answer-<id>-<question>` and, on the host, `xd-summer-quiz-host-pin`. Every access is wrapped in try/catch.
-- **Tests:** `npm test` (server + unit), `npm run test:e2e` (Playwright: player at phone size with reduced motion, host at 1280×800), `npm run simulate`.
+- **Tests:** `npm test` (server + unit), `npm run test:e2e` (Playwright, reduced motion by default: player at phone size, host at 1280×800, big screen at 1280×720 and 1920×1080 with a no-scroll check per phase), `npm run simulate`.
 
-## Code layout (arcade)
+## Server
 
-- **Server:** `server.js` only. Plain Node (`http`, `fs`, `crypto`), no frameworks or dependencies.
-- **Client (arcade):** one `public/app.js` for the big screen (the player page moved to the Carbon app in v1.2.0, the host page in v1.3.0; the arcade host code in `app.js` is no longer reachable and goes with `public/` in v1.4.0). Each HTML page sets `<body data-view="participant | host | display">` and `app.js` branches on it (`render`).
-- **Screens are functions that return HTML strings** and are written into `#app` with `innerHTML`. Event handlers are bound after each render (`bind…` functions).
-- **All user-entered text goes through `escapeHtml`** (names, question text, options).
-
-## Styling (arcade)
-
-- One stylesheet, `public/styles.css` (~3,600 lines), hand-written.
-- Pixel-arcade look: `pixel-frame` borders, background images per screen, fonts **Nunito Black** and **Silkscreen Bold** (`public/assets/fonts/`).
-- The `<html>` and `<body>` get a class per player screen (`welcome-active`, `question-active`, …) via `updateScreenBodyClass`, for full-bleed backgrounds.
-- Breakpoints: 760/761 px (phone vs larger) and 900 px. `prefers-reduced-motion` turns off the animations.
-- Light colour scheme only.
-
-## Assets
-
-- Images are served as **WebP**; the PNG originals are still in the repo but unused (Discrepancies 14).
-- Big images for the next screen are preloaded while the current one shows.
+- `server.js` plus `lan-address.js` (which laptop address phones get). Plain Node (`http`, `fs`, `crypto`, `os`), no frameworks or dependencies.
 
 ## Copy
 
-- Friendly and short: "Get ready", "Time is up", "Waiting for host", "The roadtrip is complete".
-- English only.
-
-## Storage in the browser (arcade)
-
-- `sessionStorage`: the host PIN (`xd-summer-quiz-host-pin`), the same key the Carbon host uses.
+- Friendly and short, English only.
 
 ## Git and releases
 

@@ -4,7 +4,7 @@
 
 | Status | Since | Depends on |
 |---|---|---|
-| 🟢 Live | v1-arcade-summer · Carbon player app v1.2.0 | [run the final reveal](run-the-final-reveal.md) |
+| 🟢 Live | v1-arcade-summer · Carbon player app v1.2.0 · Carbon big screen v1.4.0 | [run the final reveal](run-the-final-reveal.md) |
 
 ## What it is
 
@@ -17,9 +17,9 @@ After the last question, phones and the big screen show the final results, unloc
 | 2 | **3rd place** unlocks |
 | 3 | **Champion and runner-up** unlock together |
 
-The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and "3rd place". Each revealed place shows its medal (🥇 🥈 🥉, by rank, so a shared place shares its medal), the avatar, the name and the points. No confetti on phones (removed in v1.2.3 at the user's request); the big screen's effect is decided in v1.4.0. Once the player's own place is revealed, the phone says "You finished 5th · 3200 points" and marks the player with a grey "You" tag on the podium (since v1.2.8, no frame) or a highlighted row in the standings.
+The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and "3rd place". Each revealed place shows its medal (🥇 🥈 🥉, by rank, so a shared place shares its medal), the avatar, the name and the points. No confetti on phones (removed in v1.2.3 at the user's request). Once the player's own place is revealed, the phone says "You finished 5th · 3200 points" and marks the player with a grey "You" tag on the podium (since v1.2.8, no frame) or a highlighted row in the standings.
 
-(The big screen is still the arcade version until v1.4.0: pixel podium, "The roadtrip is complete".)
+**Big screen (since v1.4.0):** the same podium at display size, under "Final results" and a line per stage ("The host will reveal the final results.", "4th place and down.", "3rd place.", "Champion and runner-up."). From stage 1 the final standings sit beside it (9 rows, then "and N more players"). Once the champion is revealed, **confetti keeps falling** in the answer colours plus yellow and white for as long as the screen stays there (CSS only, pieces loop with staggered starts; user's choice from the mockup). Off with reduced motion.
 
 ## How it works
 
@@ -37,7 +37,7 @@ The podium is laid out 2nd – 1st – 3rd, labelled "Runner-up", "Champion" and
 ## Entry points
 
 - Player: `client/src/participant/screens/Final.jsx`; parts `client/src/shared/components/Podium.jsx`, `Leaderboard.jsx`
-- Big screen (arcade): `renderDisplayFinalReveal` in `public/app.js`
+- Big screen: `client/src/display/screens/Final.jsx`, `Confetti.jsx`; styles in `display.scss`
 
 ## Under the hood
 

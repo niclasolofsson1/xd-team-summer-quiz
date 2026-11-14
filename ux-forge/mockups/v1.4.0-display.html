@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>v1.4.0 big screen mockup</title>
+<!--
+  Mockup for v1.4.0 (Carbon big screen, /display.html).
+  Like the v1.3.x mockups it loads the app's OWN built stylesheet: the script below reads /participant.html
+  from the quiz server and copies its <link rel="stylesheet"> tags (Carbon parts, shared components, quiz
+  tokens, IBM Plex). On top of that, frame mode switches to Carbon's Gray 100 tokens (exact values from
+  @carbon/themes g100) and adds the proposed big-screen layout (the future display.scss) in the <style> block.
+
+  Two modes:
+  - Gallery (no query): every state as a 1280×720 and a 1920×1080 frame. Each frame is an iframe of this
+    same page, so rem-based type really scales with the screen size.
+  - Frame (?frame=<id>): one state, full window. Open it full screen on the projector/TV to judge sizes.
+  Open it through the quiz server (http://localhost:4173/mockups/v1.4.0-display.html), not as a file.
+-->
+<script>
+  const params = new URLSearchParams(location.search);
+  const FRAME = params.get("frame");
+  if (FRAME) document.documentElement.classList.add("frame");
+  if (params.get("rm") === "1") document.documentElement.classList.add("rm");
+  fetch("/participant.html")
+    .then((r) => r.text())
+    .then((html) => {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      doc.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+        const copy = document.createElement("link");
+        copy.rel = "stylesheet";
+        copy.href = link.getAttribute("href");
+        document.head.prepend(copy);
+      });
+    })
+    .catch(() => {
+      document.body.insertAdjacentHTML("afterbegin", '<p class="err">This copy can\'t load the app\'s styles. Open <a href="http://localhost:4173/mockups/v1.4.0-display.html">localhost:4173/mockups/v1.4.0-display.html</a> (quiz server running).</p>');
+    });
+</script>
+<style>
+  /* ================= Gallery page (not part of the app) ================= */
+  html:not(.frame) body { padding: 0 !important; background: #f4f4f4 !important; color: #161616 !important; }
+  .page { padding: 24px 16px 64px; max-width: 1360px; margin: 0 auto; }
+  .page > h1 { font-size: 28px; line-height: 36px; margin: 0 0 8px; }
+  .page h2 { font-size: 20px; line-height: 28px; margin: 48px 0 4px; }
+  .page p, .page li { font-size: 14px; line-height: 20px; max-width: 80ch; color: #525252; }
+  .page ul { margin: 0 0 16px 20px; padding: 0; list-style: disc; }
+  .page code { font-size: 13px; background: #e0e0e0; padding: 0 4px; }
+  .err { background: #fff1f1; padding: 16px; }
+  .pair { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .shot { display: flex; flex-direction: column; gap: 6px; }
+  .shot__lbl { font-size: 12px; line-height: 16px; font-weight: 600; letter-spacing: .32px; text-transform: uppercase; color: #6f6f6f; }
+  .shot__lbl a { color: #0f62fe; text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 8px; }
+  .shot__box { width: 640px; height: 360px; overflow: hidden; outline: 1px solid #8d8d8d; background: #161616; }
+  .shot__box iframe { border: 0; transform-origin: 0 0; display: block; }
+  .shot__box--720 iframe { width: 1280px; height: 720px; transform: scale(.5); }
+  .shot__box--1080 iframe { width: 1920px; height: 1080px; transform: scale(.33334); }
+  .opt { border-left: 4px solid #0f62fe; padding-left: 12px; }
+
+  /* ================= Frame mode: Carbon Gray 100 (exact @carbon/themes g100 values) ================= */
+  html.frame { --cds-background:#161616;--cds-background-active:rgba(141, 141, 141, 0.4);--cds-background-brand:#0f62fe;--cds-background-hover:rgba(141, 141, 141, 0.16);--cds-background-inverse:#f4f4f4;--cds-background-inverse-hover:#e8e8e8;--cds-background-selected:rgba(141, 141, 141, 0.24);--cds-background-selected-hover:rgba(141, 141, 141, 0.32);--cds-border-disabled:rgba(141, 141, 141, 0.5);--cds-border-interactive:#4589ff;--cds-border-inverse:#f4f4f4;--cds-border-strong-01:#6f6f6f;--cds-border-strong-02:#8d8d8d;--cds-border-strong-03:#a8a8a8;--cds-border-subtle-00:#393939;--cds-border-subtle-01:#525252;--cds-border-subtle-02:#6f6f6f;--cds-border-subtle-03:#6f6f6f;--cds-border-subtle-selected-01:#6f6f6f;--cds-border-subtle-selected-02:#8d8d8d;--cds-border-subtle-selected-03:#8d8d8d;--cds-border-tile-01:#525252;--cds-border-tile-02:#6f6f6f;--cds-border-tile-03:#8d8d8d;--cds-field-01:#262626;--cds-field-02:#393939;--cds-field-03:#525252;--cds-field-hover-01:#333333;--cds-field-hover-02:#474747;--cds-field-hover-03:#636363;--cds-focus:#ffffff;--cds-focus-inset:#161616;--cds-focus-inverse:#0f62fe;--cds-highlight:#001d6c;--cds-icon-disabled:rgba(244, 244, 244, 0.25);--cds-icon-interactive:#ffffff;--cds-icon-inverse:#161616;--cds-icon-on-color:#ffffff;--cds-icon-on-color-disabled:rgba(255, 255, 255, 0.25);--cds-icon-primary:#f4f4f4;--cds-icon-secondary:#c6c6c6;--cds-interactive:#4589ff;--cds-layer-01:#262626;--cds-layer-02:#393939;--cds-layer-03:#525252;--cds-layer-accent-01:#393939;--cds-layer-accent-02:#525252;--cds-layer-accent-03:#6f6f6f;--cds-layer-accent-active-01:#6f6f6f;--cds-layer-accent-active-02:#8d8d8d;--cds-layer-accent-active-03:#393939;--cds-layer-accent-hover-01:#474747;--cds-layer-accent-hover-02:#636363;--cds-layer-accent-hover-03:#5e5e5e;--cds-layer-active-01:#525252;--cds-layer-active-02:#6f6f6f;--cds-layer-active-03:#8d8d8d;--cds-layer-background-01:#161616;--cds-layer-background-02:#262626;--cds-layer-background-03:#393939;--cds-layer-hover-01:#333333;--cds-layer-hover-02:#474747;--cds-layer-hover-03:#636363;--cds-layer-selected-01:#393939;--cds-layer-selected-02:#525252;--cds-layer-selected-03:#6f6f6f;--cds-layer-selected-disabled:#a8a8a8;--cds-layer-selected-hover-01:#474747;--cds-layer-selected-hover-02:#636363;--cds-layer-selected-hover-03:#5e5e5e;--cds-layer-selected-inverse:#f4f4f4;--cds-link-inverse:#0f62fe;--cds-link-inverse-active:#161616;--cds-link-inverse-hover:#0043ce;--cds-link-inverse-visited:#8a3ffc;--cds-link-primary:#78a9ff;--cds-link-primary-hover:#a6c8ff;--cds-link-secondary:#a6c8ff;--cds-link-visited:#be95ff;--cds-overlay:rgba(0, 0, 0, 0.6);--cds-shadow:rgba(0, 0, 0, 0.8);--cds-skeleton-background:#292929;--cds-skeleton-element:#393939;--cds-support-caution-major:#ff832b;--cds-support-caution-minor:#f1c21b;--cds-support-caution-undefined:#a56eff;--cds-support-error:#fa4d56;--cds-support-error-inverse:#da1e28;--cds-support-info:#4589ff;--cds-support-info-inverse:#0043ce;--cds-support-success:#42be65;--cds-support-success-inverse:#24a148;--cds-support-warning:#f1c21b;--cds-support-warning-inverse:#f1c21b;--cds-syntax-angle-bracket:#8d8d8d;--cds-syntax-annotation:#08bdba;--cds-syntax-arithmetic-operator:#e0e0e0;--cds-syntax-atom:#f4f4f4;--cds-syntax-attribute:#33b1ff;--cds-syntax-attribute-name:#33b1ff;--cds-syntax-attribute-value:#f4f4f4;--cds-syntax-bitwise-operator:#e0e0e0;--cds-syntax-block-comment:#42be65;--cds-syntax-bool:#f4f4f4;--cds-syntax-brace:#e0e0e0;--cds-syntax-bracket:#e0e0e0;--cds-syntax-character:#f4f4f4;--cds-syntax-class-name:#3ddbd9;--cds-syntax-color:#f4f4f4;--cds-syntax-comment:#42be65;--cds-syntax-compare-operator:#e0e0e0;--cds-syntax-constant:#4589ff;--cds-syntax-content:#f4f4f4;--cds-syntax-content-separator:#e0e0e0;--cds-syntax-control-keyword:#be95ff;--cds-syntax-control-operator:#be95ff;--cds-syntax-definition:#33b1ff;--cds-syntax-definition-keyword:#33b1ff;--cds-syntax-definition-operator:#33b1ff;--cds-syntax-deleted:#a2191f;--cds-syntax-deref-operator:#e0e0e0;--cds-syntax-doc-comment:#42be65;--cds-syntax-doc-string:#f4f4f4;--cds-syntax-document-meta:#42be65;--cds-syntax-emphasis:#f4f4f4;--cds-syntax-escape:#e0e0e0;--cds-syntax-float:#6fdc8c;--cds-syntax-function:#f1c21b;--cds-syntax-heading:#33b1ff;--cds-syntax-heading-1:#33b1ff;--cds-syntax-heading-2:#33b1ff;--cds-syntax-heading-3:#33b1ff;--cds-syntax-heading-4:#33b1ff;--cds-syntax-heading-5:#33b1ff;--cds-syntax-heading-6:#33b1ff;--cds-syntax-inserted:#198038;--cds-syntax-integer:#6fdc8c;--cds-syntax-invalid:#fa4d56;--cds-syntax-keyword:#4589ff;--cds-syntax-label-name:#a6c8ff;--cds-syntax-line-comment:#42be65;--cds-syntax-link:#4589ff;--cds-syntax-list:#f4f4f4;--cds-syntax-literal:#f4f4f4;--cds-syntax-local:#a6c8ff;--cds-syntax-logic-operator:#e0e0e0;--cds-syntax-macro-name:#f4f4f4;--cds-syntax-meta:#42be65;--cds-syntax-modifier:#4589ff;--cds-syntax-module-keyword:#be95ff;--cds-syntax-monospace:#f4f4f4;--cds-syntax-name:#a6c8ff;--cds-syntax-namespace:#3ddbd9;--cds-syntax-null:#f4f4f4;--cds-syntax-number:#6fdc8c;--cds-syntax-operator:#e0e0e0;--cds-syntax-operator-keyword:#4589ff;--cds-syntax-paren:#e0e0e0;--cds-syntax-processing-instruction:#f4f4f4;--cds-syntax-property-name:#33b1ff;--cds-syntax-punctuation:#e0e0e0;--cds-syntax-quote:#42be65;--cds-syntax-regexp:#be95ff;--cds-syntax-self:#3ddbd9;--cds-syntax-separator:#e0e0e0;--cds-syntax-special:#4589ff;--cds-syntax-special-string:#be95ff;--cds-syntax-square-bracket:#e0e0e0;--cds-syntax-standard:#4589ff;--cds-syntax-strikethrough:#f4f4f4;--cds-syntax-string:#f4f4f4;--cds-syntax-strong:#f4f4f4;--cds-syntax-tag:#3ddbd9;--cds-syntax-tag-name:#3ddbd9;--cds-syntax-type:#3ddbd9;--cds-syntax-type-name:#3ddbd9;--cds-syntax-type-operator:#3ddbd9;--cds-syntax-unit:#6fdc8c;--cds-syntax-update-operator:#e0e0e0;--cds-syntax-url:#e0e0e0;--cds-syntax-variable:#a6c8ff;--cds-syntax-variable-name:#a6c8ff;--cds-text-disabled:rgba(244, 244, 244, 0.25);--cds-text-error:#ff8389;--cds-text-helper:#a8a8a8;--cds-text-inverse:#161616;--cds-text-on-color:#ffffff;--cds-text-on-color-disabled:rgba(255, 255, 255, 0.25);--cds-text-placeholder:rgba(244, 244, 244, 0.4);--cds-text-primary:#f4f4f4;--cds-text-secondary:#c6c6c6;--cds-toggle-off:#6f6f6f; }
+  /* Display-size type that scales with the screen: 1 rem = 16 px at 1280×720, 24 px at 1920×1080.
+     Carbon's components and type tokens are in rem, so they scale with it. 45 rem tall, 80 rem wide. */
+  html.frame { font-size: min(calc(100vh / 45), calc(100vw / 80)); overflow: hidden; }
+  html.frame body { margin: 0; background: var(--cds-background); color: var(--cds-text-primary); overflow: hidden; }
+
+  /* ================= PROPOSED display.scss ================= */
+  .ds { block-size: 100vh; inline-size: 100vw; display: grid; grid-template-rows: auto 1fr; overflow: hidden; position: relative; }
+  .ds-bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; block-size: 3rem; padding-inline: 2rem; border-block-end: 1px solid var(--cds-border-subtle-00); }
+  .ds-bar__name { font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; }
+  .ds-bar__meta { display: flex; align-items: center; gap: 1.5rem; font-size: 1.25rem; line-height: 1.75rem; color: var(--cds-text-secondary); font-variant-numeric: tabular-nums; }
+  .ds-bar__meta strong { color: var(--cds-text-primary); font-weight: 600; }
+  .ds-bar .cds--tag { margin: 0; }
+  .ds-main { min-block-size: 0; padding: 1.5rem 2rem 2rem; display: grid; }
+
+  /* ----- Lobby ----- */
+  .ds-lobby { display: grid; grid-template-columns: 5fr 7fr; gap: 3rem; min-block-size: 0; }
+  .ds-join { display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; min-block-size: 0; }
+  .ds-join__title { font-size: 3.375rem; line-height: 4rem; font-weight: 300; margin: 0; } /* heading-07 / display */
+  .ds-qr { align-self: flex-start; background: #ffffff; padding: 1.5rem; }
+  .ds-qr svg { display: block; inline-size: min(22rem, 52vh); block-size: auto; }
+  .ds-join__url { font-size: 2rem; line-height: 2.5rem; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
+  .ds-join__hint { font-size: 1.25rem; line-height: 1.75rem; color: var(--cds-text-secondary); margin: 0; }
+  .ds-wall { display: flex; flex-direction: column; gap: 1.5rem; min-block-size: 0; }
+  .ds-wall__title { font-size: 2rem; line-height: 2.5rem; font-weight: 400; margin: 0; }
+  .ds-wall__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; align-content: start; min-block-size: 0; overflow: hidden; }
+  .ds-chip { display: flex; align-items: center; gap: .75rem; padding: .5rem .75rem .5rem .5rem; background: var(--cds-layer-01); min-inline-size: 0; animation: ds-pop 240ms cubic-bezier(0, 0, .3, 1); }
+  .ds-chip__name { font-size: 1.25rem; line-height: 1.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ds-empty { display: grid; place-items: center; align-content: center; gap: .5rem; flex: 1; border: 1px dashed var(--cds-border-strong-01); color: var(--cds-text-secondary); font-size: 1.25rem; line-height: 1.75rem; text-align: center; padding: 2rem; }
+  @keyframes ds-pop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* Avatars in rem on the big screen (the shared ones are px, sized for phones). */
+  .ds .quiz-avatar--md { inline-size: 2.75rem; block-size: 2.75rem; font-size: 1.625rem; }
+  .ds .quiz-avatar--lg { inline-size: 4.5rem; block-size: 4.5rem; font-size: 2.625rem; }
+  .ds .quiz-avatar--xl { inline-size: 6.5rem; block-size: 6.5rem; font-size: 3.75rem; }
+
+  /* ----- Countdown ----- */
+  .ds-count { display: grid; place-content: center; justify-items: center; gap: 1rem; text-align: center; }
+  .ds-count__q { font-size: 2rem; line-height: 2.5rem; color: var(--cds-text-secondary); margin: 0; }
+  .ds-count__n { font-size: 16rem; line-height: 1; font-weight: 300; margin: 0; font-variant-numeric: tabular-nums; animation: ds-pop-big 400ms cubic-bezier(.4, .14, .3, 1); }
+  .ds-count__hint { font-size: 2rem; line-height: 2.5rem; margin: 0; }
+  @keyframes ds-pop-big { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* ----- Question / Time's up / Reveal ----- */
+  .ds-q { display: grid; grid-template-rows: auto 1fr auto; gap: 1.5rem; min-block-size: 0; }
+  .ds-q__text { font-size: 2.625rem; line-height: 3.25rem; font-weight: 400; margin: 0; max-inline-size: 70rem; } /* heading-06 */
+  .ds-q__text--long { font-size: 2rem; line-height: 2.5rem; } /* heading-05, over 90 characters */
+  .ds .answer-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 1rem; min-block-size: 0; }
+  .ds .answer-tile { block-size: 100%; min-block-size: 0; padding: 1.25rem 2rem; column-gap: 1.5rem; font-size: 2rem; line-height: 2.5rem; position: relative; overflow: hidden; }
+  .ds .answer-tile__letter { inline-size: 3.5rem; block-size: 3.5rem; font-size: 1.75rem; }
+  .ds .answer-tile__tags .cds--tag { font-size: 1rem; min-block-size: 2rem; padding-inline: .75rem; }
+  .ds .answer-tile__picks { min-inline-size: 5rem; }
+  .ds .answer-tile__picks-n { font-size: 2.625rem; line-height: 3.25rem; font-weight: 400; font-variant-numeric: tabular-nums; }
+  .ds .answer-tile__picks-label { font-size: 1rem; line-height: 1.25rem; }
+  /* Reveal on a dark screen: the light tints the phones use would outshine the correct tile here, so
+     answers that recede become a dark layer with a strip of their own colour; the letter keeps its colour. */
+  .ds .answer-tile--dim { background: var(--cds-layer-01); color: var(--cds-text-secondary); box-shadow: inset .5rem 0 0 var(--tile-color); }
+  .ds .answer-tile--dim .answer-tile__letter { background: var(--tile-color); color: #ffffff; }
+  .ds .answer-tile--correct { box-shadow: 0 0 0 .25rem #ffffff; } /* white frame: the one tile to look at */
+  /* Time's up: tiles stay, the timer row says what's happening. */
+  .ds-q--timeup .answer-tile { opacity: .55; }
+  .ds-status { display: flex; align-items: baseline; gap: 1.5rem; block-size: 3rem; }
+  .ds-status__title { font-size: 2rem; line-height: 2.5rem; font-weight: 600; margin: 0; }
+  .ds-status__text { font-size: 1.5rem; line-height: 2rem; color: var(--cds-text-secondary); margin: 0; }
+
+  /* Timer: Carbon ProgressBar (shared TimerBar), laid out in one row with the seconds large on the right. */
+  .ds .timer-bar .cds--progress-bar { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 1.5rem; block-size: 3rem; }
+  .ds .timer-bar .cds--progress-bar__label { display: none; }
+  .ds .timer-bar .cds--progress-bar__track { block-size: 1rem; }
+  .ds .timer-bar .cds--progress-bar__bar { block-size: 1rem; }
+  .ds .timer-bar .cds--progress-bar__helper-text { margin: 0; font-size: 2rem; line-height: 2.5rem; font-weight: 600; min-inline-size: 4ch; text-align: end; font-variant-numeric: tabular-nums; }
+
+  /* ----- Leaderboard ----- */
+  .ds-lb { display: grid; grid-template-rows: auto 1fr; gap: 1rem; justify-self: center; inline-size: min(60rem, 100%); min-block-size: 0; }
+  .ds-lb__head { display: flex; align-items: baseline; justify-content: space-between; }
+  .ds-lb__title { font-size: 2.625rem; line-height: 3.25rem; font-weight: 400; margin: 0; }
+  .ds-lb__sub { font-size: 1.5rem; line-height: 2rem; color: var(--cds-text-secondary); margin: 0; }
+  .ds .leaderboard .cds--structured-list-td { font-size: 1.5rem; line-height: 2rem; padding-block: .375rem; padding-inline: 1rem; border-color: var(--cds-border-subtle-00); }
+  .ds .leaderboard__rank { inline-size: 5rem; }
+  .ds .leaderboard__player { gap: 1rem; }
+  .ds .leaderboard__score { font-weight: 600; }
+
+  /* ----- Final ----- */
+  .ds-final { display: grid; grid-template-columns: 1fr; gap: 3rem; min-block-size: 0; }
+  .ds-final--split { grid-template-columns: 7fr 5fr; }
+  .ds-final__stage { display: grid; grid-template-rows: auto 1fr; gap: 1rem; min-block-size: 0; position: relative; }
+  .ds-final__title { font-size: 2.625rem; line-height: 3.25rem; font-weight: 400; margin: 0; }
+  .ds-final__sub { font-size: 1.5rem; line-height: 2rem; color: var(--cds-text-secondary); margin: 0; }
+  .ds .podium { align-self: end; gap: 1rem; padding: 0; inline-size: min(56rem, 100%); justify-self: center; }
+  .ds .podium__who { gap: .5rem; }
+  .ds .podium__name { font-size: 1.75rem; line-height: 2.25rem; font-weight: 600; }
+  .ds .podium__score { font-size: 1.25rem; line-height: 1.75rem; }
+  .ds .podium__medal { font-size: 3rem; }
+  .ds .podium__locked { inline-size: 4.5rem; block-size: 4.5rem; font-size: 2.25rem; }
+  .ds .podium__step { font-size: 1.5rem; line-height: 2rem; padding: .75rem; }
+  .ds .podium__place--1 .podium__step { block-size: 12rem; }
+  .ds .podium__place--2 .podium__step { block-size: 8.5rem; }
+  .ds .podium__place--3 .podium__step { block-size: 5.5rem; }
+  .ds .podium__place--1 .podium__medal { font-size: 4rem; }
+  .ds-stand { display: grid; grid-template-rows: auto 1fr; gap: .75rem; min-block-size: 0; overflow: hidden; }
+  .ds-stand__title { font-size: 1.5rem; line-height: 2rem; color: var(--cds-text-secondary); margin: 0; }
+  .ds-stand .leaderboard .cds--structured-list-td { font-size: 1.25rem; line-height: 1.75rem; padding-block: .25rem; }
+  .ds-stand__more { font-size: 1.25rem; line-height: 1.75rem; color: var(--cds-text-secondary); margin: .5rem 0 0; }
+
+  /* ----- Champion celebration options ----- */
+  /* B: CSS confetti that keeps falling (loops, staggered so it never comes in waves). Off with reduced motion. */
+  .ds-confetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .ds-confetti i { position: absolute; inset-block-start: -2rem; inline-size: .75rem; block-size: 1.25rem; opacity: 0; animation: ds-fall var(--d) linear var(--w) infinite; }
+  @keyframes ds-fall { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), 110vh) rotate(var(--r)); } }
+  /* C: spotlight on the champion, fades in once and stays. Without motion it's just there. */
+  .ds-spot { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 26rem 30rem at 50% 58%, rgba(255, 255, 255, .16), rgba(255, 255, 255, .05) 55%, transparent 75%); animation: ds-fade 1.2s ease-out; }
+  .ds-spot--ring .podium__place--1 .quiz-avatar { box-shadow: 0 0 0 .375rem #f1c21b; } /* Yellow 30 ring */
+  @keyframes ds-fade { from { opacity: 0; } to { opacity: 1; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ds-chip, .ds-count__n, .podium__place--revealed .podium__who, .ds-spot { animation: none; }
+    .ds-confetti { display: none; }
+  }
+  html.rm .ds-chip, html.rm .ds-count__n, html.rm .ds-spot { animation: none; }
+  html.rm .ds-confetti { display: none; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+  // ---------------- Sample data ----------------
+  const AV = [["🦊","#ffd7d9"],["🐼","#e0e0e0"],["🐸","#a7f0ba"],["🦉","#e8daff"],["🐙","#ffd6e8"],["🦁","#fcf4d6"],["🐧","#d0e2ff"],["🐨","#e5e0df"],["🐯","#ffd9be"],["🐻","#f2f4f8"],["🐰","#bae6ff"],["🐮","#9ef0f0"]];
+  const NAMES = ["Anna","Björn","Carla","Dev","Elin","Farid","Greta","Hugo","Ines","Jonas","Kaito","Lena","Malik","Nora","Oskar","Priya","Quentin","Rosa","Sven","Tove","Ulla","Viktor Lindqvist-Andersson"];
+  const players = NAMES.map((name, i) => ({ name, av: AV[(i * 5) % 12] }));
+  const ranked = players.map((p, i) => ({ ...p, score: 9840 - i * 410 - (i % 3) * 35, rank: i + 1 }));
+  const URL_TEXT = "192.168.40.120:4173";
+  const LETTERS = ["A", "B", "C", "D"];
+  const Q = { text: "Which city hosts the World Cup 2026 final?", options: ["Los Angeles", "New York / New Jersey", "Mexico City", "Toronto"], correct: 1, picks: [3, 12, 4, 1] };
+  const QL = { text: "Canada has two official languages, English and French. Roughly what share of Canadians can hold a conversation in both?", options: ["About 5 %", "About 18 %", "About 35 %", "About 50 %"] };
+
+  const avatar = (p, size) => `<span class="quiz-avatar quiz-avatar--${size}" style="--avatar-bg:${p.av[1]}" aria-hidden="true">${p.av[0]}</span>`;
+
+  // A sample QR (not scannable): the real one is drawn in the browser from GET /api/join-info.
+  function qrSvg() {
+    const n = 29, cells = [];
+    let s = 7;
+    const rnd = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);
+    const finder = (x, y) => (x >= 0 && x < 7 && y >= 0 && y < 7) && (x === 0 || x === 6 || y === 0 || y === 6 || (x > 1 && x < 5 && y > 1 && y < 5));
+    const inFinderZone = (x, y) => (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      let on;
+      if (inFinderZone(x, y)) on = finder(x, y) || finder(x - (n - 7), y) || finder(x, y - (n - 7));
+      else if (y === 6) on = x % 2 === 0; else if (x === 6) on = y % 2 === 0;
+      else on = rnd() > 0.52;
+      if (on) cells.push(`<rect x="${x}" y="${y}" width="1" height="1"/>`);
+    }
+    return `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges" role="img" aria-label="QR code to join the quiz"><g fill="#161616">${cells.join("")}</g></svg>`;
+  }
+
+  const bar = (meta) => `<header class="ds-bar"><span class="ds-bar__name">XD Team Quiz</span><span class="ds-bar__meta">${meta || ""}</span></header>`;
+  const screen = (meta, main) => `<div class="ds">${bar(meta)}<main class="ds-main">${main}</main></div>`;
+  const qMeta = (extra) => `<span>Question <strong>3</strong> of 25</span>${extra || ""}`;
+
+  function tile(i, text, opts = {}) {
+    const l = LETTERS[i].toLowerCase();
+    const cls = ["answer-tile", `answer-tile--${l}`, opts.reveal && "answer-tile--reveal", opts.correct && "answer-tile--correct", opts.dim && "answer-tile--dim"].filter(Boolean).join(" ");
+    if (!opts.reveal) return `<div class="${cls}"><span class="answer-tile__letter" aria-hidden="true">${LETTERS[i]}</span><span class="answer-tile__body"><span class="answer-tile__text">${text}</span></span></div>`;
+    const tag = opts.correct ? `<span class="answer-tile__tags"><span class="cds--tag cds--tag--green cds--layout--size-md"><svg focusable="false" width="16" height="16" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true" class="cds--tag__custom-icon"><path d="M13 24 4 15 5.414 13.586 13 21.171 26.586 7.586 28 9 13 24z"/></svg><span class="cds--tag__label">Correct</span></span></span>` : "";
+    return `<div class="${cls}"><span class="answer-tile__letter" aria-hidden="true">${LETTERS[i]}</span><span class="answer-tile__body"><span class="answer-tile__text">${text}</span>${tag}</span><span class="answer-tile__picks"><span class="answer-tile__picks-n">${opts.count}</span><span class="answer-tile__picks-label">${opts.count === 1 ? "pick" : "picks"}</span></span></div>`;
+  }
+
+  function timer(fraction, seconds, totalMs) {
+    return `<div class="timer-bar" style="--drain-from:${fraction};--drain-ms:${Math.round(totalMs * fraction)}ms"><div class="cds--progress-bar cds--progress-bar--big cds--progress-bar--default"><div class="cds--progress-bar__label"><span class="cds--progress-bar__label-text">Time left</span></div><div class="cds--progress-bar__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(fraction * 100)}"><div class="cds--progress-bar__bar" style="transform:scaleX(${fraction})"></div></div><div class="cds--progress-bar__helper-text">${seconds} s</div></div></div>`;
+  }
+
+  function lbRows(list) {
+    return `<div class="cds--structured-list cds--structured-list--condensed leaderboard" role="table" aria-label="Leaderboard"><div class="cds--structured-list-tbody" role="rowgroup">${list.map((e) => `<div class="cds--structured-list-row leaderboard__row" role="row"><div class="cds--structured-list-td leaderboard__rank" role="cell">${e.rank}</div><div class="cds--structured-list-td leaderboard__player" role="cell">${avatar(e, "md")}<span class="leaderboard__name">${e.name}</span></div><div class="cds--structured-list-td leaderboard__score" role="cell">${e.score}</div></div>`).join("")}</div></div>`;
+  }
+
+  const LABELS = ["Champion", "Runner-up", "3rd place"];
+  const MEDALS = ["🥇", "🥈", "🥉"];
+  function podium(stage) {
+    return `<div class="podium">${[1, 0, 2].map((i) => {
+      const revealed = stage >= 3 || (stage === 2 && i === 2);
+      const e = ranked[i];
+      const who = revealed
+        ? `<span class="podium__medal" aria-hidden="true">${MEDALS[i]}</span>${avatar(e, i === 0 ? "xl" : "lg")}<span class="podium__name">${e.name}</span><span class="podium__score">${e.score} points</span>`
+        : `<span class="podium__locked"><span aria-hidden="true">?</span><span class="visually-hidden">Not revealed yet</span></span>`;
+      return `<div class="podium__place podium__place--${i + 1} podium__place--${revealed ? "revealed" : "locked"}"><div class="podium__who">${who}</div><div class="podium__step">${LABELS[i]}</div></div>`;
+    }).join("")}</div>`;
+  }
+
+  function confetti() {
+    const colors = ["#0f62fe", "#8a3ffc", "#007d79", "#d02670", "#f1c21b", "#ffffff"];
+    let s = 3; const r = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+    let out = "";
+    for (let i = 0; i < 60; i++) out += `<i style="left:${(r() * 100).toFixed(1)}%;background:${colors[i % 6]};--d:${(4 + r() * 3).toFixed(2)}s;--w:${(-r() * 7).toFixed(2)}s;--x:${(r() * 16 - 8).toFixed(1)}rem;--r:${Math.round(r() * 720 - 360)}deg"></i>`;
+    return `<div class="ds-confetti" aria-hidden="true">${out}</div>`;
+  }
+
+  function finalScreen(stage, celebration) {
+    const sub = ["The host will reveal the final results.", "4th place and down.", "3rd place.", "Champion and runner-up."][stage];
+    const stagePanel = `<section class="ds-final__stage"><div><h1 class="ds-final__title">Final results</h1><p class="ds-final__sub">${sub}</p></div>${podium(stage)}</section>`;
+    const standings = stage >= 1 ? `<section class="ds-stand"><h2 class="ds-stand__title">Final standings</h2><div>${lbRows(ranked.slice(3, 12))}<p class="ds-stand__more">and 10 more players</p></div></section>` : "";
+    const fx = celebration === "B" ? confetti() : celebration === "C" ? `<div class="ds-spot" aria-hidden="true"></div>` : "";
+    const ring = celebration === "C" ? " ds-spot--ring" : "";
+    return screen(`<span><strong>22</strong> players</span>`, `<div class="ds-final${standings ? " ds-final--split" : ""}${ring}">${stagePanel}${standings}</div>`).replace('</main></div>', `</main>${fx}</div>`);
+  }
+
+  const SCREENS = {
+    "lobby-empty": () => screen(`<span><strong>0</strong> players</span>`, `<div class="ds-lobby"><section class="ds-join"><h1 class="ds-join__title">Join on your phone</h1><div class="ds-qr">${qrSvg()}</div><p class="ds-join__url">${URL_TEXT}</p><p class="ds-join__hint">Scan the code or type the address. Same Wi-Fi as the host.</p></section><section class="ds-wall"><h2 class="ds-wall__title">Players</h2><div class="ds-empty"><span>No one has joined yet.</span><span>Players appear here as they join.</span></div></section></div>`),
+    lobby: () => screen(`<span><strong>22</strong> players</span>`, `<div class="ds-lobby"><section class="ds-join"><h1 class="ds-join__title">Join on your phone</h1><div class="ds-qr">${qrSvg()}</div><p class="ds-join__url">${URL_TEXT}</p><p class="ds-join__hint">Scan the code or type the address. Same Wi-Fi as the host.</p></section><section class="ds-wall"><h2 class="ds-wall__title">22 players joined</h2><div class="ds-wall__grid">${players.map((p) => `<div class="ds-chip">${avatar(p, "md")}<span class="ds-chip__name">${p.name}</span></div>`).join("")}</div></section></div>`),
+    countdown: () => screen(qMeta(), `<div class="ds-count"><p class="ds-count__q">Question 3 of 25</p><p class="ds-count__n">3</p><p class="ds-count__hint">Get ready</p></div>`),
+    question: () => screen(qMeta(`<span><strong>14</strong> of 22 answered</span>`), `<div class="ds-q"><h1 class="ds-q__text">${Q.text}</h1><div class="answer-grid">${Q.options.map((o, i) => tile(i, o)).join("")}</div>${timer(0.6, 12, 20000)}</div>`),
+    "question-long": () => screen(qMeta(`<span class="cds--tag cds--tag--gray cds--layout--size-md"><span class="cds--tag__label">Reconnecting…</span></span><span><strong>3</strong> of 22 answered</span>`), `<div class="ds-q"><h1 class="ds-q__text ds-q__text--long">${QL.text}</h1><div class="answer-grid">${QL.options.map((o, i) => tile(i, o)).join("")}</div>${timer(0.85, 17, 20000)}</div>`),
+    timeup: () => screen(qMeta(`<span><strong>20</strong> of 22 answered</span>`), `<div class="ds-q ds-q--timeup"><h1 class="ds-q__text">${Q.text}</h1><div class="answer-grid">${Q.options.map((o, i) => tile(i, o)).join("")}</div><div class="ds-status"><p class="ds-status__title">Time's up!</p><p class="ds-status__text">Waiting for the host to reveal the answer.</p></div></div>`),
+    reveal: () => { const total = Q.picks.reduce((a, b) => a + b, 0); return screen(qMeta(`<span><strong>20</strong> of 22 answered</span>`), `<div class="ds-q"><h1 class="ds-q__text">${Q.text}</h1><div class="answer-grid">${Q.options.map((o, i) => tile(i, o, { reveal: true, correct: i === Q.correct, dim: i !== Q.correct, count: Q.picks[i], share: Math.round((Q.picks[i] / total) * 100) })).join("")}</div><div class="ds-status"><p class="ds-status__title">12 of 20 got it right</p><p class="ds-status__text">2 players didn't answer.</p></div></div>`); },
+    leaderboard: () => screen(qMeta(), `<div class="ds-lb"><div class="ds-lb__head"><h1 class="ds-lb__title">Leaderboard</h1><p class="ds-lb__sub">After question 3 of 25</p></div>${lbRows(ranked.slice(0, 10))}</div>`),
+    "final-0": () => finalScreen(0),
+    "final-1": () => finalScreen(1),
+    "final-2": () => finalScreen(2),
+    "final-3a": () => finalScreen(3, "A"),
+    "final-3b": () => finalScreen(3, "B"),
+    "final-3c": () => finalScreen(3, "C")
+  };
+
+  const GROUPS = [
+    ["Lobby, before anyone joins", "lobby-empty", "Left: title, QR (white card so phones can scan it in a dark room), the address from <code>/api/join-info</code>. Right: the player wall's empty state."],
+    ["Lobby, 22 players", "lobby", "Four columns of player chips, newest pops in (no pop with reduced motion). Up to 28 fit at both sizes; long names end with …"],
+    ["Countdown", "countdown", "Huge number (Plex Light), one pop per number, none with reduced motion."],
+    ["Question", "question", "Display-size question (heading-06), 2×2 tiles in the phones' colours and letters, Carbon ProgressBar timer draining smoothly with the seconds on the right. <b>Proposal:</b> \"14 of 22 answered\" in the top bar, so the room sees it fill up. Easy to drop."],
+    ["Question, long text + connection drop", "question-long", "Over 90 characters the question steps down to heading-05. While the screen's connection is down, a grey \"Reconnecting…\" tag shows in the top bar (gone when connected). The arcade had no indicator."],
+    ["Time's up", "timeup", "Tiles fade back; where the timer was: \"Time's up!\" and \"Waiting for the host to reveal the answer.\""],
+    ["Reveal", "reveal", "The v1.3.3 one-row tile (letter | answer + \"✓ Correct\" tag | picks). On the dark screen the wrong answers become a dark tile with a strip of their colour (the phones' light tints would outshine the right answer); the correct one stays full colour with a white frame. Summary line underneath."],
+    ["Leaderboard", "leaderboard", "Top 10 (shared Leaderboard part, display-sized). No \"you\" row on the big screen."],
+    ["Final, stage 0", "final-0", "Three locked places, nothing to peek at (the server hides them)."],
+    ["Final, stage 1", "final-1", "Standings from 4th down on the right (as many as fit; then \"and 10 more players\")."],
+    ["Final, stage 2", "final-2", "3rd place unlocks (slides in; no slide with reduced motion)."]
+  ];
+  const OPTIONS = [
+    ["Option A — Medals only", "final-3a", "Same as the phones: 🥇🥈🥉, the champion bigger on the tall blue step. Calm, nothing moves."],
+    ["Option B — CSS confetti (chosen, looping)", "final-3b", "Confetti in the four answer colours plus yellow and white keeps falling for as long as the champion is on screen (each piece loops, staggered, so there are no waves). No library. Turned off with reduced motion (then it looks like A)."],
+    ["Option C — Spotlight", "final-3c", "A soft light fades in over the champion and a yellow ring goes round their avatar, and it stays. With reduced motion it's just there, no fade."]
+  ];
+
+  function shot(id, w, h) {
+    return `<div class="shot"><span class="shot__lbl">${w}×${h}<a href="?frame=${id}" target="_blank">open full size</a></span><div class="shot__box shot__box--${h}"><iframe src="?frame=${id}" title="${id} at ${w}×${h}" loading="lazy"></iframe></div></div>`;
+  }
+  function section([title, id, note]) {
+    return `<h2>${title}</h2><p>${note}</p><div class="pair">${shot(id, 1280, 720)}${shot(id, 1920, 1080)}</div>`;
+  }
+
+  if (FRAME) {
+    document.getElementById("root").innerHTML = (SCREENS[FRAME] || SCREENS.lobby)();
+  } else {
+    document.getElementById("root").innerHTML = `<div class="page">
+      <h1>v1.4.0 — Carbon big screen (mockup)</h1>
+      <p>Every big-screen state at <b>1280×720</b> and <b>1920×1080</b> (scaled down here). Built with the app's own stylesheet and Carbon's Gray 100 theme. Text is sized in rem and 1 rem follows the screen (16 px at 720p, 24 px at 1080p), so both sizes show the same layout, just sharper. Nothing scrolls. Use <b>open full size</b> and press F11 to judge it on the projector or TV.</p>
+      <ul>
+        <li>Top bar on every screen: "XD Team Quiz" left, the quiz status right. No controls anywhere.</li>
+        <li>Same answer colours and letters as the phones (Blue, Purple, Teal, Magenta 60). Focus rings don't apply: nothing on this screen is clickable.</li>
+        <li>The QR below is a sample (not scannable). The app draws the real one in the browser from <code>/api/join-info</code>, which will then give the Wi-Fi address (192.168.x) instead of the VPN one.</li>
+      </ul>
+      ${GROUPS.map(section).join("")}
+      <h2 style="margin-top:64px">Final, stage 3 — pick the champion celebration</h2>
+      <p>Phones use medals (v1.2.3). For the big screen, choose one:</p>
+      ${OPTIONS.map(([t, id, n]) => `<div class="opt">${section([t, id, n])}</div>`).join("")}
+    </div>`;
+  }
+</script>
+</body>
+</html>

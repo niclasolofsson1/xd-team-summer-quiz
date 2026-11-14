@@ -14,13 +14,13 @@ Status: 🟢 Live · 🟡 Partial (works, with known issues) · ⚪ Planned
 | [Answer a question](answer-a-question.md) | Player | 🟢 | v1-arcade-summer · v1.2.0 |
 | [See if you were right](see-if-you-were-right.md) | Player | 🟢 | v1-arcade-summer |
 | [Follow the leaderboard](follow-the-leaderboard.md) | Player | 🟢 | v1-arcade-summer |
-| [Watch the final podium](watch-the-final-podium.md) | Player, Display | 🟢 | v1-arcade-summer |
+| [Watch the final podium](watch-the-final-podium.md) | Player, Display | 🟢 | v1-arcade-summer · v1.2.0 · v1.4.0 |
 | [Unlock the host view](unlock-the-host-view.md) | Host | 🟢 | v1-arcade-summer · v1.3.0 |
 | [Set up the quiz](set-up-the-quiz.md) | Host | 🟢 | v1-arcade-summer · v1.3.0 |
 | [Run a question](run-a-question.md) | Host | 🟢 | v1-arcade-summer · v1.3.0 |
 | [Run the final reveal](run-the-final-reveal.md) | Host | 🟢 | v1-arcade-summer · v1.3.0 |
 | [Reset the quiz](reset-the-quiz.md) | Host | 🟢 | v1-arcade-summer · v1.3.0 |
-| [Show the quiz on the big screen](show-the-big-screen.md) | Display | 🟢 | v1-arcade-summer |
+| [Show the quiz on the big screen](show-the-big-screen.md) | Display | 🟢 | v1-arcade-summer · v1.4.0 |
 
 ## Across features
 
@@ -36,11 +36,11 @@ Status: 🟢 Live · 🟡 Partial (works, with known issues) · ⚪ Planned
 Found in the code review of 2026-10-15. Each is in scope for v2 (`ux-forge/01_frame.md`) unless noted.
 
 1. ✅ *Fixed in v1.2.0.* **Typed name is wiped on the setup screen.** Every server update redraws the whole screen, so when anyone else joins, a half-typed name disappears ([Join the quiz](join-the-quiz.md)). Live-event bug. The new player app keeps the name in the Join screen alone.
-2. ✅ *Fixed in v1.2.0* (player app). **A silent connection drop is never recovered.** After 45 s without data the client only relabels itself "Offline"; it never reopens the connection. Players don't see a connection indicator at all ([Live updates](live-updates-and-connection.md)). Likely cause of the "stuck player" at the live event. Phones now reopen a quiet stream after 25 s, reconnect with backoff, check on returning to the foreground, and show a connection banner. The Carbon host (v1.3.0) uses the same connection with a status tag in its header; the arcade big screen keeps the old behaviour until v1.4.0.
+2. ✅ *Fixed in v1.2.0* (player app). **A silent connection drop is never recovered.** After 45 s without data the client only relabels itself "Offline"; it never reopens the connection. Players don't see a connection indicator at all ([Live updates](live-updates-and-connection.md)). Likely cause of the "stuck player" at the live event. Phones now reopen a quiet stream after 25 s, reconnect with backoff, check on returning to the foreground, and show a connection banner. The Carbon host (v1.3.0) uses the same connection with a status tag in its header; the Carbon big screen (v1.4.0) too, with a status tag in its top bar.
 3. ✅ *Fixed in v1.2.0.* **A failed answer send is silent.** The phone shows the answer as chosen even if the server never got it ([Answer a question](answer-a-question.md)). Now "Answer locked" only after the server confirms, with retries, then "Couldn't send your answer. Tap again."
 4. ✅ *Fixed in v1.2.0.* **What's shown can differ from what's scored.** Each answer from anyone redraws the question screen and re-enables the buttons until the player's own answer is confirmed; a second tap changes the highlighted option, but the server scores the first. Now the tiles are disabled while sending, and the option shown is the one the server recorded.
 5. ✅ *Fixed in v1.1.0.* **Missed answers say "Incorrect".** A player who didn't answer saw "Incorrect · 0 points". Now "No answer" ([See if you were right](see-if-you-were-right.md)).
-6. **QR code and join link are hardcoded** to `https://xd-team-summer-quiz.onrender.com/` (`deployedJoinUrl` and `assets/qr/qr-code.svg`) — wrong for any other address ([Big screen](show-the-big-screen.md)). *Server side fixed in v1.1.0* (`/api/join-info`); the big screen uses it from v1.4.0.
+6. ✅ *Fixed in v1.4.0.* **QR code and join link are hardcoded** to `https://xd-team-summer-quiz.onrender.com/` (`deployedJoinUrl` and `assets/qr/qr-code.svg`) — wrong for any other address ([Big screen](show-the-big-screen.md)). *Server side fixed in v1.1.0* (`/api/join-info`). The Carbon big screen draws its QR from it, and on a laptop the server now prefers the Wi-Fi/LAN address over a VPN address ([Hosting](hosting.md)).
 7. ✅ *Fixed in v1.1.0.* **Player ids are public.** Ids are still shared, but answering now needs a secret token only the player's phone has.
 8. ✅ *Fixed in v1.1.0.* **Scores update at answer time.** Scores and answers now stay hidden until the reveal.
 9. ✅ *Fixed in v1.1.0.* **No `HOST_PIN` = open host controls.** The server now warns at startup ([Hosting](hosting.md)); the PIN check is timing-safe.
@@ -48,10 +48,10 @@ Found in the code review of 2026-10-15. Each is in scope for v2 (`ux-forge/01_fr
 11. ✅ *Fixed in v1.1.0.* **Ties get different ranks.** Now: faster total time on correct answers wins, otherwise a shared rank ([Scoring](scoring.md)).
 12. ✅ *Fixed in v1.1.0.* **Answer values aren't validated**, and request bodies have no size limit. Now only 0–3 is accepted and bodies are capped at 10 KB.
 13. ✅ *Fixed in v1.1.0.* **`.woff2` was served as `application/octet-stream`.** Now `font/woff2`.
-14. **Dead code and files:** `header()`, `participantMain()`, `countdownBlock()` on the player side and the fallback branch of `renderParticipant()` never run; `public/index.html` (old landing page) is unreachable because `/` redirects to the player page; ~29 unused assets, mostly PNG duplicates of WebP files (~13 MB).
+14. ✅ *Fixed in v1.4.0* (arcade `public/` removed; preserved in tag `v1-arcade-summer`). **Dead code and files:** `header()`, `participantMain()`, `countdownBlock()` on the player side and the fallback branch of `renderParticipant()` never run; `public/index.html` (old landing page) is unreachable because `/` redirects to the player page; ~29 unused assets, mostly PNG duplicates of WebP files (~13 MB).
 15. **README is outdated** (says 3 questions, questions in `server.js`, QR code still to come).
 16. **Question content** (`questions/real.md`, replaced later anyway): Q25 is football trivia filed under "Mexico"; Q6 has two UNESCO sites among the options; Q23's "continental" southernmost point is disputed.
 
 ---
 
-*Current through v1.3.0.*
+*Current through v1.4.0.*

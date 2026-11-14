@@ -1,6 +1,6 @@
 // npm run dev: the quiz server (port 4173) and the Vite dev server (port 5173) together.
 // Vite passes /api and /events through to the quiz server (vite.config.mjs).
-// Player: http://localhost:5173/participant.html · Host: http://localhost:5173/host.html · Arcade big screen: http://localhost:4173/display.html
+// Player: http://localhost:5173/participant.html · Host: http://localhost:5173/host.html · Big screen: http://localhost:5173/display.html
 const { spawn } = require("node:child_process");
 const path = require("node:path");
 

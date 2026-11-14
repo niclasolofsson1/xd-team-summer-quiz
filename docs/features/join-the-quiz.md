@@ -22,10 +22,10 @@ Players scan the QR code on the big screen (or open the link) and land on `/part
 
 - New players can **only join in the lobby**. Once the quiz has started the Join screen says so up front: "The quiz has started. Playing already? Enter the same name to rejoin."
 - Empty name: "Enter a name." (checked on the phone). Same name as a player who is **connected** (case-insensitive): "That name is already taken." Both show on the name field.
-- An unknown avatar id falls back to the fox (`normalizeAvatarId`). The arcade ids are still accepted until the arcade screens go (v1.4.0).
+- An unknown avatar id falls back to the fox (`normalizeAvatarId`). Only the emoji avatar ids are accepted.
 - Refreshing on the same phone keeps you in the game (same id and token). **Rejoin by name** (since v1.1.0): entering the exact name of a player who is *disconnected* takes over that player, score included, in any phase. The server issues a new token, so the old device can no longer answer (it is sent back to Join if it tries).
 - **The typed name is never cleared** by live updates (fixed in v1.2.0, Discrepancies 1): the field belongs to the Join screen alone.
-- The host app (since v1.3.0) uses the shared avatars; the arcade big screen shows them too (`avatarSrc` in `public/app.js`, a temporary copy of the list, until v1.4.0).
+- The host app (since v1.3.0) and the big screen (since v1.4.0) use the same shared avatars.
 
 ## Entry points
 

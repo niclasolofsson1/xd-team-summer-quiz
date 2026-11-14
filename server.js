@@ -3,10 +3,10 @@ const os = require("node:os");
 const path = require("node:path");
 const fs = require("node:fs");
 const crypto = require("node:crypto");
+const { pickLanAddress } = require("./lan-address.js");
 
 const PORT = Number(process.env.PORT || 4173);
-const PUBLIC_DIR = path.join(__dirname, "public");
-// The built Carbon client (npm run build). Looked up before public/, which still holds the arcade host and big screen.
+// The built Carbon client (npm run build): player, host and big screen, plus the favicon.
 const DIST_DIR = path.resolve(process.env.QUIZ_DIST_DIR || path.join(__dirname, "dist"));
 const QUESTIONS_DIR = path.join(__dirname, "questions");
 
@@ -465,14 +465,9 @@ function resetQuiz() {
   broadcast();
 }
 
+// The laptop's Wi-Fi/LAN address, preferred over VPN and virtual adapters (lan-address.js).
 function localIp() {
-  const nets = os.networkInterfaces();
-  for (const addresses of Object.values(nets)) {
-    for (const address of addresses || []) {
-      if (address.family === "IPv4" && !address.internal) return address.address;
-    }
-  }
-  return "localhost";
+  return pickLanAddress(os.networkInterfaces()) || "localhost";
 }
 
 // The address phones should open: PUBLIC_URL if set, else the address this request came in on.
@@ -536,7 +531,7 @@ function serveStatic(req, res) {
     res.end();
     return;
   }
-  serveFrom([DIST_DIR, PUBLIC_DIR], url.pathname, res);
+  serveFrom([DIST_DIR], url.pathname, res);
 }
 
 // Tries each folder in turn; the first one that has the file serves it.
@@ -681,7 +676,7 @@ server.listen(PORT, "0.0.0.0", () => {
   console.log(`Host view: ${hostUrl}`);
   console.log(`Participant link for phones: ${phoneUrl}`);
   if (!fs.existsSync(path.join(DIST_DIR, "participant.html"))) {
-    console.warn("WARNING: The player app isn't built. Run npm run build before starting the server.");
+    console.warn("WARNING: The apps aren't built. Run npm run build before starting the server.");
   }
   if (!HOST_PIN) {
     console.warn("WARNING: HOST_PIN is not set. Anyone who opens the host page can control the quiz. Set HOST_PIN before the event.");

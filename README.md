@@ -23,7 +23,7 @@ For phones, use the participant link printed in the terminal. Phones must be on 
 
 ## Develop and test
 
-- `npm run dev`: quiz server on port 4173 plus the Vite dev server on port 5173. Player app: `http://localhost:5173/participant.html`; host app: `http://localhost:5173/host.html`; arcade big screen: `http://localhost:4173/display.html`.
+- `npm run dev`: quiz server on port 4173 plus the Vite dev server on port 5173. Player app: `http://localhost:5173/participant.html`; host app: `http://localhost:5173/host.html`; big screen: `http://localhost:5173/display.html`.
 - `npm test`: server tests and unit tests.
 - `npm run test:e2e`: the player flow in a phone-sized browser and the host flow at laptop size (run `npx playwright install chromium` once first).
 - `npm run simulate`: 25 simulated players through the whole quiz.

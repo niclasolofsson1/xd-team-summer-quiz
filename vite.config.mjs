@@ -17,12 +17,13 @@ export default defineConfig({
   build: {
     outDir: "../dist",
     emptyOutDir: true,
-    // Built files go to /app/ so they never clash with the arcade files in public/assets/.
+    // Built files go to /app/; client/public/ (the favicon in assets/) is copied to dist/ as it is.
     assetsDir: "app",
     rollupOptions: {
       input: {
         participant: "client/participant.html",
-        host: "client/host.html"
+        host: "client/host.html",
+        display: "client/display.html"
       }
     }
   },

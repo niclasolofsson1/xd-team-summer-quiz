@@ -62,8 +62,14 @@ test("join address: PUBLIC_URL, then the request host, never localhost", async (
 });
 
 test("fonts get the right content type and the stream has anti-buffering headers", async () => {
-  const server = await start();
-  const font = await fetch(`${server.base}/assets/fonts/NunitoBlack.woff2`);
+  const fs = require("node:fs");
+  const os = require("node:os");
+  const path = require("node:path");
+  const dist = fs.mkdtempSync(path.join(os.tmpdir(), "quiz-dist-"));
+  fs.mkdirSync(path.join(dist, "app"));
+  fs.writeFileSync(path.join(dist, "app", "IBMPlexSans-Regular-abc.woff2"), "wOF2");
+  const server = await start({ QUIZ_DIST_DIR: dist });
+  const font = await fetch(`${server.base}/app/IBMPlexSans-Regular-abc.woff2`);
   assert.equal(font.headers.get("content-type"), "font/woff2");
   await font.arrayBuffer();
 
@@ -76,7 +82,7 @@ test("fonts get the right content type and the stream has anti-buffering headers
   stream.close();
 });
 
-test("the built player app is served first, the arcade host and big screen still come from public/", async () => {
+test("everything is served from the build (dist/); the arcade public/ is gone since v1.4.0", async () => {
   const fs = require("node:fs");
   const os = require("node:os");
   const path = require("node:path");
@@ -84,6 +90,9 @@ test("the built player app is served first, the arcade host and big screen still
   fs.mkdirSync(path.join(dist, "app"));
   fs.writeFileSync(path.join(dist, "participant.html"), "<!doctype html><p>carbon player</p>");
   fs.writeFileSync(path.join(dist, "app", "participant-abc123.js"), "console.log(1)");
+  fs.writeFileSync(path.join(dist, "display.html"), "<!doctype html><p>carbon big screen</p>");
+  fs.mkdirSync(path.join(dist, "assets"));
+  fs.writeFileSync(path.join(dist, "assets", "favicon.svg"), "<svg/>");
   const server = await start({ QUIZ_DIST_DIR: dist });
 
   const player = await fetch(`${server.base}/participant.html`);
@@ -92,20 +101,26 @@ test("the built player app is served first, the arcade host and big screen still
   const asset = await fetch(`${server.base}/app/participant-abc123.js`);
   assert.match(asset.headers.get("cache-control"), /immutable/);
   await asset.text();
-  // Not in dist/: falls back to the arcade big screen in public/ (until v1.4.0).
   const display = await fetch(`${server.base}/display.html`);
   assert.equal(display.status, 200);
-  assert.match(await display.text(), /data-view="display"/);
+  assert.match(await display.text(), /carbon big screen/);
+  const favicon = await fetch(`${server.base}/assets/favicon.svg`);
+  assert.equal(favicon.headers.get("content-type"), "image/svg+xml");
+  await favicon.text();
+  // No arcade fallback any more.
+  const arcade = await fetch(`${server.base}/app.js`);
+  assert.equal(arcade.status, 404);
+  await arcade.text();
   const missing = await fetch(`${server.base}/nope.html`);
   assert.equal(missing.status, 404);
   await missing.text();
   assert.ok(!server.output().includes("isn't built"));
 });
 
-test("the server warns at startup when the player app isn't built", async () => {
+test("the server warns at startup when the apps aren't built", async () => {
   const server = await start({ QUIZ_DIST_DIR: require("node:path").join(require("node:os").tmpdir(), "quiz-no-dist") });
   await new Promise((r) => setTimeout(r, 100));
-  assert.match(server.output(), /WARNING: The player app isn't built/);
+  assert.match(server.output(), /WARNING: The apps aren't built/);
 });
 
 test("unknown avatars fall back to the first emoji avatar", async () => {

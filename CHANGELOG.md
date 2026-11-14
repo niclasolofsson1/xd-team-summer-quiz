@@ -2,6 +2,17 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.4.0 — Carbon big screen
+
+- The big screen (`/display.html`) is new: dark, clean Carbon style made for a projector or TV, with large text that grows with the screen (the same layout at 720p and 1080p) and never needs scrolling.
+- In the lobby it shows a large QR code made from the real join address, the address itself in big type, and every player who joins as an avatar with their name.
+- During a question: the question in large type, the four answers in the same colours and letters as the phones, a smooth timer bar with the seconds, and how many have answered so far ("14 of 22 answered").
+- At Time's up the answers fade back and it says "Time's up!". At the reveal the right answer stays in full colour with a white frame and a green "✓ Correct" tag; the other answers turn dark with a strip of their colour, and each answer shows how many picked it. Underneath: "12 of 20 got it right".
+- Leaderboard: the top 10. Final results: the same three-step podium as the phones, with the final standings beside it, and confetti that keeps falling once the champion is revealed (none if the device is set to reduce motion).
+- If the big screen loses its connection, a small "Reconnecting…" tag shows in its top bar until it's back.
+- Fix: on a laptop with a VPN (for example Tailscale), the join address and QR code could point at the VPN address, which phones can't reach. The server now prefers the laptop's Wi-Fi address (192.168…, then 10…, then 172.16–31…). `PUBLIC_URL` still wins when set.
+- The old arcade screens and their pixel images are removed; they're kept in the `v1-arcade-summer` tag. Host, players and big screen are now all Carbon.
+
 ## v1.3.3 — Clearer reveal, bigger question
 
 - On the phone's reveal, each answer is now one tidy row: the letter, the answer, and how many people picked it on the right ("13 picks"), lined up on every tile.
