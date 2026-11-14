@@ -77,6 +77,8 @@ body {
 
 // Avatars in rem on the big screen (the shared sizes are px, for phones).
 .ds {
+  // The shared leaderboard uses the small size; on the big screen small and medium are the same (v1.4.2).
+  .quiz-avatar--sm,
   .quiz-avatar--md { inline-size: 2.75rem; block-size: 2.75rem; font-size: 1.625rem; }
   .quiz-avatar--lg { inline-size: 4.5rem; block-size: 4.5rem; font-size: 2.625rem; }
 }
@@ -154,7 +156,8 @@ body {
 
   &__grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    // A+ (v1.4.2): 3 columns, so a long name can take two lines; 24 players fit (8 rows) at every size.
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
     align-content: start;
     min-block-size: 0;
@@ -167,22 +170,25 @@ body {
   align-items: center;
   gap: 0.75rem;
   min-inline-size: 0;
-  padding: 0.5rem 0.75rem 0.5rem 0.5rem;
+  padding: 0.375rem 0.75rem 0.375rem 0.5rem;
   background: theme.$layer-01;
   animation: ds-pop motion.$duration-moderate-01 motion.motion(entrance, productive);
 
+  // Every name the phones allow (28 characters) fits on at most two lines; longer words break.
   &__name {
+    display: -webkit-box;
     overflow: hidden;
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   &--more {
     justify-content: center;
-    min-block-size: 3.75rem;
-    font-size: 1.25rem;
+    min-block-size: 3.5rem;
+    font-size: 1.125rem;
     color: theme.$text-secondary;
   }
 }
@@ -379,9 +385,12 @@ body {
 }
 
 // ---------- Leaderboard ----------
+// Rows keep their own height and the list starts under the heading (v1.4.2: a 1fr row stretched a
+// short list over the whole screen, pulling rank, name and points apart).
 .ds-lb {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto auto;
+  align-content: start;
   gap: 1rem;
   justify-self: center;
   inline-size: min(60rem, 100%);

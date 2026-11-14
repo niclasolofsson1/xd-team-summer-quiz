@@ -48,6 +48,32 @@ async function expectNoScroll(page, label) {
   await page.setViewportSize(SIZES[0]);
 }
 
+// A short leaderboard must not stretch (v1.4.2 bug): each row is one line high, with rank, avatar + name
+// and points on the same line, and the list starts right under the heading.
+async function expectTidyLeaderboard(page) {
+  for (const size of SIZES) {
+    await page.setViewportSize(size);
+    const rem = size.height / 45;
+    const rows = await page.evaluate(() => {
+      const head = document.querySelector(".ds-lb__head").getBoundingClientRect();
+      return [...document.querySelectorAll(".ds-lb .leaderboard__row")].map((row) => {
+        const r = row.getBoundingClientRect();
+        const mid = (sel) => {
+          const b = row.querySelector(sel).getBoundingClientRect();
+          return b.top + b.height / 2;
+        };
+        return { height: r.height, gapToHead: r.top - head.bottom, mids: [mid(".leaderboard__rank"), mid(".quiz-avatar"), mid(".leaderboard__name"), mid(".leaderboard__score")] };
+      });
+    });
+    for (const row of rows) {
+      expect(row.height, `row height at ${size.width}×${size.height}`).toBeLessThan(5 * rem);
+      expect(Math.max(...row.mids) - Math.min(...row.mids), `row parts not on one line at ${size.width}×${size.height}`).toBeLessThan(0.5 * rem);
+    }
+    expect(rows[0].gapToHead).toBeLessThan(3 * rem);
+  }
+  await page.setViewportSize(SIZES[0]);
+}
+
 // Runs the whole quiz over the API up to the final phase (stage 0). `answers` per question: [token, option].
 async function playThrough(request, players) {
   const { totalQuestions } = await state(request);
@@ -80,16 +106,26 @@ test("lobby: QR and join address from /api/join-info, empty wall, then players a
   await expect(page.getByRole("heading", { name: "2 players joined" })).toBeVisible();
   await expect(page.locator(".ds-chip")).toHaveCount(2);
 
-  for (let i = 0; i < 29; i += 1) await api(request, "join", { name: `Player ${i}`, avatarId: "panda" });
+  // A+ (v1.4.2): the longest names the phones allow (28 characters) show in full, on up to two lines,
+  // and 24 players fit even when every name is long. With more, the last chip says "+N more".
+  const longName = (i) => `The one and only legend no${String(i).padStart(2, "0")}`.slice(0, 28);
+  for (let i = 0; i < 29; i += 1) await api(request, "join", { name: longName(i), avatarId: "panda" });
   await expect(page.getByRole("heading", { name: "31 players joined" })).toBeVisible();
-  await expect(page.locator(".ds-chip--more")).toHaveText("+4 more");
+  await expect(page.locator(".ds-chip--more")).toHaveText("+8 more");
   for (const size of SIZES) {
     await page.setViewportSize(size);
-    const clipped = await page.evaluate(() => {
+    const result = await page.evaluate(() => {
       const grid = document.querySelector(".ds-wall__grid").getBoundingClientRect();
-      return [...document.querySelectorAll(".ds-chip")].filter((c) => c.getBoundingClientRect().bottom > grid.bottom + 1).length;
+      const chips = [...document.querySelectorAll(".ds-chip")];
+      return {
+        clipped: chips.filter((c) => c.getBoundingClientRect().bottom > grid.bottom + 1).length,
+        cutNames: [...document.querySelectorAll(".ds-chip__name")]
+          .filter((n) => n.scrollHeight > n.clientHeight + 1 || n.scrollWidth > n.clientWidth + 1)
+          .map((n) => n.textContent)
+      };
     });
-    expect(clipped, `chips cut off at ${size.width}×${size.height}`).toBe(0);
+    expect(result.clipped, `chips cut off at ${size.width}×${size.height}`).toBe(0);
+    expect(result.cutNames, `names cut at ${size.width}×${size.height}`).toEqual([]);
   }
   await expectNoScroll(page, "full lobby");
 });
@@ -139,7 +175,10 @@ test("follows a whole quiz: countdown, question, time's up, reveal, leaderboard,
     if (q < totalQuestions - 1) {
       await expect(page.getByRole("heading", { name: "Leaderboard" })).toBeVisible();
       await expect(page.locator(".ds-lb .leaderboard__row")).toHaveCount(3);
-      if (first) await expectNoScroll(page, "leaderboard");
+      if (first) {
+        await expectNoScroll(page, "leaderboard");
+        await expectTidyLeaderboard(page);
+      }
       await api(request, "next");
     }
   }

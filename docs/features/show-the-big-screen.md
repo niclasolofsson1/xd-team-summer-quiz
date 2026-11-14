@@ -25,7 +25,8 @@ A screen with no controls, made for a 16:9 projector or TV (Carbon Gray 100, dar
 - Same live connection as the phones and the host (`useQuizState`, no player token): watchdog, reconnect with backoff, back-in-foreground check. While the connection is down the top bar shows a grey **"Reconnecting…"** tag, then a red **"Connection lost"** tag; it keeps trying in the background and the tag goes away when it's back.
 - The join address comes from `GET /api/join-info` (retried every 5 s until it arrives) and is shown without `http://` and the trailing slash. The QR is drawn in the browser (`qrcode` library, error correction M) as one SVG path, so it stays sharp at any size.
 - **Display-size type that scales with the screen:** 1 rem = 1/45 of the screen height (or 1/80 of the width, whichever is smaller), so 16 px at 1280×720 and 24 px at 1920×1080. Carbon's type and component sizes are in rem, so everything scales together and the layout is the same at every 16:9 size.
-- **Never scrolls.** The lobby wall shows up to 28 players (4 columns × 7 rows), then 27 and "+N more". The final standings show 9 rows, then "and N more players". Long names end with "…" on the wall and the leaderboard.
+- **Never scrolls.** The lobby wall has 3 columns and shows up to 24 players (8 rows), then 23 and "+N more" (v1.4.2). A long name wraps onto a second line, so every name the phones allow (28 characters) shows in full on the wall. The final standings show 9 rows, then "and N more players". On the leaderboard and in the standings a very long name ends with "…".
+- **Leaderboard rows keep their own height** (v1.4.2): rank, avatar + name and points sit on one line, and the list starts right under the heading, whether 1 or 10 players are listed.
 - Questions over 90 characters step down one type size (same rule as the phones).
 - The host opens it from the join panel ("Open display screen"), usually in a second window dragged to the projector, then full screen (F11).
 

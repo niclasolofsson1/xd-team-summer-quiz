@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Version rules: [VERSIONING.md](VERSIONING.md).
 
+## v1.4.2 — Big screen: tidy leaderboard, full names in the lobby
+
+- Fix: on the big screen's leaderboard, a short list (for example one player) was stretched over the whole screen, so the rank, the name and the points drifted apart. Each player is now one tidy row (rank, avatar and name, points) right under the heading.
+- The avatars on the big screen's leaderboard and final standings are now big-screen sized instead of tiny.
+- The lobby's player wall now has 3 columns instead of 4, and a long name wraps onto a second line, so even a long funny name (up to the 28 characters the phones allow) shows in full. Up to 24 players fit; after that the last card says "+N more".
+
 ## v1.4.1 — Join hint fits the address
 
 - On the big screen's lobby, "Same Wi-Fi as the host." now only shows when the quiz runs on the laptop (a local network address such as 192.168…). On the live Render address it just says "Scan the code or type the address.", since phones can join from anywhere there.

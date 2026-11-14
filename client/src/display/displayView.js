@@ -1,8 +1,9 @@
 // Plain logic for the big screen (no React), unit-tested in tests/unit/display.test.js.
 
-// The lobby wall shows up to this many chips (4 columns × 7 rows fit at every 16:9 size, since the
-// screen's type scales with it). With more players, the last chip says "+N more".
-export const WALL_MAX = 28;
+// The lobby wall shows up to this many chips (3 columns × 8 rows, even when every name takes two lines,
+// fit at every 16:9 size, since the screen's type scales with it). With more players, the last chip
+// says "+N more".
+export const WALL_MAX = 24;
 
 // Final standings rows that fit next to the podium; the rest become "and N more players".
 export const STANDINGS_MAX = 9;

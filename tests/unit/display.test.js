@@ -37,12 +37,12 @@ describe("big screen view logic", () => {
     expect(revealSummary({ correct: 0, missed: 4, total: 4 })).toEqual({ title: "No one answered", text: "" });
   });
 
-  test("lobby wall: everyone up to 28, then 27 chips and +N more", () => {
-    expect(wallEntries(players(28)).more).toBe(0);
-    expect(wallEntries(players(28)).shown).toHaveLength(28);
+  test("lobby wall: everyone up to 24, then 23 chips and +N more", () => {
+    expect(wallEntries(players(24)).more).toBe(0);
+    expect(wallEntries(players(24)).shown).toHaveLength(24);
     const many = wallEntries(players(31));
-    expect(many.shown).toHaveLength(27);
-    expect(many.more).toBe(4);
+    expect(many.shown).toHaveLength(23);
+    expect(many.more).toBe(8);
   });
 
   test("final standings that fit, and the rest as a count", () => {

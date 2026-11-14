@@ -5,7 +5,7 @@
 - **Branch:** `v2-carbon` (`main` = arcade version; tag `v1-arcade-summer` = as played at the Summer Gathering)
 - **Push:** ask
 - **Track:** Lite
-- **Current version:** v1.4.1 (join hint fits the address)
+- **Current version:** v1.4.2 (tidy leaderboard, full names in the lobby)
 - **Current phase:** L3 — Build (next: v1.5.0 stability pass, not started; waits for the user's go)
 - **Visual checks:** user
 - **Wiki:** `docs/features/`
@@ -15,6 +15,8 @@
 v1.4.0 (Carbon big screen) is built from a hi-fi mockup the user approved (`ux-forge/mockups/v1.4.0-display.html`, two rounds): g100, rem layout where 1 rem = 1/45 of the height (16 px at 720p, 24 px at 1080p), never scrolls (e2e checks every phase at both sizes). User's calls in the mockup: **looping CSS confetti** on the champion (option B, made to keep falling instead of one burst); on the reveal only a **left colour strip** on the dimmed dark tiles (no pick-share bars at the bottom — they read as a stray L-shaped border; the picks number is enough); "14 of 22 answered" and the "Reconnecting…" tag in the top bar accepted. Join address fix: `lan-address.js` prefers 192.168 / 10 / 172.16–31 over 100.64/10 (Tailscale) and link-local. `public/` removed; favicon now `client/public/assets/favicon.svg`; the server serves `dist/` only. Waiting for the user's projector/TV check.
 
 v1.4.1 (user's catch): the lobby's "Same Wi-Fi as the host." only shows for a local network join address (`joinHint` / `isLocalNetworkUrl` in `displayView.js`); on Render (via `PUBLIC_URL` or the request host) the QR and address are the onrender.com address and the hint is just "Scan the code or type the address."
+
+v1.4.2 (user's 27" check): the leaderboard's 1fr grid row stretched a short StructuredList over the whole screen (rank/points in the middle, name at the top) — `.ds-lb` rows are now auto with `align-content: start`, and an e2e check measures row height and that rank, avatar, name and points share one line. The shared leaderboard's small avatars got a big-screen size. Lobby wall A+ (user chose it after asking about joke names): 3 columns, names wrap to two lines (line clamp 2), `WALL_MAX` 24. Lesson: no-overflow checks don't catch a layout that stretches; for list layouts also check row height/alignment.
 
 **Idea parked (user, 2026-11-14):** the user likes the dark (g100) theme a lot and wants to consider it for the player app too. Not decided; look at it later (with v1.6.0's look, or as its own mockup), user decides.
 
@@ -76,3 +78,4 @@ Lessons (still apply): the trimmed Carbon stylesheet needs `scss/layout` (size t
 | 2026-11-13 | v1.3.3 | Reveal tiles in one row with Carbon tags and a picks column; blue pick stroke without the white gap (option B); white borderless "You" tag; question heading-04 (heading-03 over 90 characters); hi-fi mockup approved first | Done; user's iPhone check passed |
 | 2026-11-14 | v1.4.0 | Carbon big screen (g100, QR from `/api/join-info`, no scroll at 720p/1080p, looping confetti); join address prefers Wi-Fi over VPN; `public/` removed; hi-fi mockup approved first (2 rounds) | Done; waiting for the user's projector/TV check |
 | 2026-11-14 | v1.4.1 | Wi-Fi hint only for a local network join address (user's catch: wrong on Render) | Done |
+| 2026-11-14 | v1.4.2 | User's 27" check: leaderboard stretched a short list over the screen (fixed: rows keep their height; e2e checks row height and one-line alignment); tiny avatars on leaderboard/standings; lobby wall A+ (3 columns, names wrap to 2 lines, 24 players) so long joke names show in full | Done; waiting for the user's check |
